@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 import {CopyToClipboard} from 'react-copy-to-clipboard';
+import copyIcon from "./content-copy.svg";
+import TextareaAutosize from 'react-autosize-textarea';
 
 class Table extends React.Component {
   constructor(props) {
@@ -11,6 +13,8 @@ class Table extends React.Component {
       textInTable: this.initializeTextObject(11, 11),
       latexCode: this.generateLatexCode(11, 11),
       refToBorders: {},
+      refToAlignments: {},
+      refToInputs: {},
       value: ''
     };
 
@@ -62,27 +66,51 @@ class Table extends React.Component {
     for (let row = 0; row < rows; row++) {
       let rowText = '';
       for (let column = 0; column < columns; column++) {
+        let stringId = 1 + column.toString()
+        let columnId = (column + 1).toString();
         let borderCell;
         if (this.state !== undefined) {
           borderCell = this.state.refToBorders[row.toString() + column.toString()];
         }
-
         if (column % 2 === 0  && row === 0) {
+          let textAlignment;
+          if (this.state !== undefined) {
+            console.log(columnId + this.state.refToAlignments[columnId])
+          }
+          if (this.state !==  undefined && this.state.refToAlignments[columnId] !== undefined) {
+            console.log("if")
+            let alignment = this.state.refToAlignments[columnId].state.alignment;
+            if (alignment === "center") { 
+              textAlignment = "c"
+            }
+            else if (alignment === "right") {
+              textAlignment = "r"
+            }
+            else {
+              textAlignment = "l"
+            }
+            console.log("if " + textAlignment)
+          }
+          else {
+            console.log("else")
+            textAlignment = "l"
+          }
+          //console.log(textAlignment)
           if (borderCell !== undefined) {
             if (borderCell.state.active === true) {
               if (column === columns -1 ) {
                 columnBorderText += "|"
               }
               else {
-                columnBorderText += "|l"
+                columnBorderText += "|" + textAlignment
               }
             }
             else if (column !== columns - 1) {
-              columnBorderText += "l"
+              columnBorderText += textAlignment
             }
           }
           else if (column !== columns - 1) {
-            columnBorderText += "l"
+            columnBorderText += textAlignment
           }
         }
         
@@ -112,16 +140,22 @@ class Table extends React.Component {
         let borderCell2;
         if (this.state !== undefined) {
           if (row === 1) {
-            borderCell = this.state.refToBorders[(row - 1).toString() + 1];
+            if (this.state.refToBorders[(row - 1).toString() + 1] !== null) {
+              borderCell = this.state.refToBorders[(row - 1).toString() + 1];
+            }
+           if ( borderCell = this.state.refToBorders[(row + 1).toString() + 1] !== null) {
             borderCell2 = this.state.refToBorders[(row + 1).toString() + 1];
+           }
+            
           }
           else {
-            borderCell = this.state.refToBorders[(row + 1).toString() + 1];
+            if (borderCell2 = this.state.refToBorders[(row + 1).toString() + 1] !== null) {
+              borderCell = this.state.refToBorders[(row + 1).toString() + 1];
+            }
           }
-          
         }
         if (row === 1) {
-          if (borderCell !== undefined && borderCell.state.active === true) {
+          if (borderCell !== undefined && borderCell.state !== undefined && borderCell.state.active === true) {
               if (borderCell2 != undefined && borderCell2.state.active === true) {
                 let currentRowText = rowText;
                 rowText = "      &#92;hline\n";
@@ -181,19 +215,17 @@ class Table extends React.Component {
   }
 
   inputRowsChanged(changedRowCount) {
-
     // have to call generateLatex as callback
     // because of setState asynchronity
     this.setState({
-      rows: changedRowCount * 2 + 1,
-      textInTable: this.initializeTextObject(changedRowCount * 2 + 1, this.state.columns),
+      rows: changedRowCount * 2 + 2,
+      textInTable: this.initializeTextObject(changedRowCount * 2 + 2, this.state.columns),
     },  () => {
       this.setState ({ latexCode: this.generateLatexCode(changedRowCount * 2 + 1, this.state.columns)
     })});
   }
 
   inputColumnsChanged(changedColumnCount) {
-    
     // have to call generateLatex as callback
     // because of setState asynchronity
     this.setState({
@@ -261,14 +293,42 @@ class Table extends React.Component {
     }
   }
 
+  alignCell(column) {
+    let columnId = column.toString();
+    for (let row = 0; row < this.state.rows; row++) {
+      if (this.state !== undefined && row % 2 !== 0 &&
+         this.state.refToAlignments[columnId] !== undefined 
+        && this.state.refToInputs[row + columnId] !== undefined ) {
+          let alignment = this.state.refToAlignments[columnId].state.alignment;
+          let inputCell = this.state.refToInputs[row + columnId];
+          inputCell.setState({
+            alignment: alignment
+          }, () => {this.setState({
+            latexCode: this.generateLatexCode(this.state.rows, this.state.columns)
+          })});
+      }
+    }
+  }
+
   render() {
     let rows = [];
-    for (var row = 0; row < this.state.rows; row++){
+    for (var row = -1; row < this.state.rows; row++){
       let cell = [];
       for (var column= 0; column < this.state.columns; column++){
         let cellId = `cell${row}-${column}`;
         let stringId = row.toString() + column.toString();
-        if (row === 0) {
+        let columnId = column.toString();
+        if (row === -1) {
+          if (column % 2 !== 0) {
+            cell.push(<AlignmentCell key={cellId}
+            row={row} column={column}
+            onClick={this.alignCell.bind(this, column)}
+            ref={(input) => {this.state.refToAlignments[columnId] = input}}>
+            </AlignmentCell>)
+          }
+          
+        }
+        else if (row === 0) {
           if (column % 2 === 0) {
             cell.push(<BorderCell key={cellId}
               row={row} column={column} direction="column"
@@ -314,10 +374,25 @@ class Table extends React.Component {
               row={row} column={column} direction="column" />)
           }
           else {
-            cell.push(<td key={cellId}>
+            if (this.state !== undefined && 
+              this.state.refToAlignments[columnId] !== undefined) {
+                let alignValue = this.state.refToAlignments[columnId].state.alignment
+              cell.push(<td className="td" key={cellId}>
               <TableInputCell changedText={this.inputTextChanged} 
-                row={row} column={column}/> </td>)
-          }
+                row={row} column={column}
+                alignment={alignValue}
+                ref={(input) => {this.state.refToInputs[stringId] = input}} 
+                /> </td>)
+              }
+            else {
+              cell.push(<td className="td" key={cellId}>
+              <TableInputCell changedText={this.inputTextChanged} 
+                row={row} column={column}
+                alignment={"left"}
+                ref={(input) => {this.state.refToInputs[stringId] = input}} 
+                /> </td>)
+            }
+          }            
         }      
       }
       if (row % 2 === 0){
@@ -325,14 +400,14 @@ class Table extends React.Component {
            className="borderRow">{cell}</tr>)
       }
       else {
-        rows.push(<tr key={row}>{cell}</tr>)
+        rows.push(<tr className="tr" key={row}>{cell}</tr>)
       }
     }
     return (
       <div className="container-table">
         <div className="table-size-container">
-          <TableRows rowValue={this.inputRowsChanged}/>
-          <TableColumns columnValue={this.inputColumnsChanged}/>
+          <TableRows rowValue={this.inputRowsChanged.bind(this)}/>
+          <TableColumns columnValue={this.inputColumnsChanged.bind(this)}/>
         </div>
         <div className="editor-table">
           <table>
@@ -346,7 +421,7 @@ class Table extends React.Component {
         </p>
         <div
          className="code-container">
-          <pre onInput={() => console.log("changed")} >
+          <pre >
             <CopyToClipboard text={this.copyText}
               onCopy={() => this.setState({copied: true})}>
               <span  dangerouslySetInnerHTML= {this.generateDangerousHTML()}></span>
@@ -355,7 +430,7 @@ class Table extends React.Component {
             <div className="copied-container">
               <CopyToClipboard text={this.copyText}
                 onCopy={() =>{this.setState({copied: true})} }>
-                <button className="copy-button">Copy code to clipboard</button>
+                <img src={copyIcon} className="copy-button"/>
               </CopyToClipboard>
       
               {this.state.copied ? <span className="copied-text" style={{color: 'green'}}>Copied.</span> : null}
@@ -375,16 +450,24 @@ class TableRows extends React.Component {
     this.onChange = this.onChange.bind(this);
   }
   onChange(event) {
-    this.setState({
-      rows: event.target.value
-    });
-    this.props.rowValue(event.target.value);
+    if (event.target.value < 1) {
+      this.setState({
+        rows: 1
+      });
+      this.props.rowValue(1);
+    }
+    else {
+      this.setState({
+        rows: event.target.value
+      });
+      this.props.rowValue(event.target.value);
+    }
   }
   render() {
     return (
       <div className="input-rows">
         Rows: <input type="number" min="1" max="20" 
-          value={this.state.rows} onChange={this.onChange}/> |
+          value={this.state.rows} onChange={this.onChange.bind(this)}/> |
       </div>
     );
   }
@@ -400,16 +483,26 @@ class TableColumns extends React.Component {
     this.onChange = this.onChange.bind(this);
   }
   onChange(event) {
-    this.setState({
-      columns: event.target.value
-    });
-    this.props.columnValue(event.target.value);
+    if (event.target.value < 1) {
+      this.setState({
+        columns: 1
+      });
+      this.props.columnValue(1);
+    }
+    else {
+      this.setState({
+        columns: event.target.value
+      });
+      this.props.columnValue(event.target.value);
+    }
+    
+    
   }
   render() {
     return (
       <div className="input-columns">
         Columns: <input type="number" min="1" max="20" 
-         value={this.state.columns} onChange={this.onChange}/>
+         value={this.state.columns} onChange={this.onChange.bind(this)}/>
       </div>
     );
   }
@@ -421,12 +514,17 @@ class TableInputCell extends React.Component {
     this.state = {
       row: props.row,
       column: props.column,
-      text: ''
+      text: '',
+      alignment: props.alignment
     };
 
     this.onChange = this.onChange.bind(this);
   }
-
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.alignment !== this.state.alignment) {
+      this.setState({ alignment: nextProps.alignment });
+    }
+  }
   onChange(event) {
     this.setState({
       text: event.target.value
@@ -435,10 +533,20 @@ class TableInputCell extends React.Component {
   }
 
   render() {
+    let className;
+    if (this.state.alignment === "left") {
+      className = "left-aligned";
+    }
+    else if (this.state.alignment === "center") {
+      className = "center-aligned"
+    }
+    else if (this.state.alignment === "right") {
+      className = "right-aligned";
+    }
     let cellId = this.state.row + "-" + this.state.column;
     return(
-      <input  type="text" id={cellId} value={this.state.text} 
-      onChange={this.onChange}/>
+      <TextareaAutosize className={className}  type="text" id={cellId} value={this.state.text} 
+      onChange={this.onChange}></TextareaAutosize>
     );
   }
 }
@@ -475,6 +583,61 @@ class BorderCell extends React.Component {
       id={cellId} className={this.className}
       onMouseLeave={this.props.onMouseLeave}
       onClick={this.props.onClick} >
+      </td>
+    );
+  }
+}
+
+class AlignmentCell extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      row: props.row,
+      column: props.column,
+      alignment: "left",
+      className: ''
+    };
+
+    this.clickLeft = this.clickLeft.bind(this)
+    this.clickCenter = this.clickCenter.bind(this)
+    this.clickRight = this.clickRight.bind(this)
+  }
+  clickLeft() {
+    this.setState({
+      alignment: "left"
+    });
+    this.props.onClick();
+  }
+  clickCenter() {
+    this.setState({
+      alignment: "center"
+    });
+    this.props.onClick();
+  }
+  clickRight() {
+    this.setState({
+      alignment: "right"
+    });
+    this.props.onClick();
+  }
+  render() {
+    let leftClassName = "";
+    let centerClassName = "";
+    let rightClassName = "";
+    if (this.state.alignment === "left") {
+      leftClassName = "left-aligned";
+    }
+    else if (this.state.alignment === "center")  {
+      centerClassName = "center-aligned";
+    }
+    else if (this.state.alignment === "right") {
+      rightClassName = "right-aligned";
+    }
+    return (
+      <td className="alignment-part">
+        <button className={leftClassName} onClick={this.clickLeft}>l</button>
+        <button className={centerClassName} onClick={this.clickCenter}>c</button>
+        <button className={rightClassName} onClick={this.clickRight}>r</button>
       </td>
     );
   }
