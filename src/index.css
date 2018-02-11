@@ -49,9 +49,6 @@ body {
 textarea:focus, input:focus{
   outline: none;
 }
-input {
-  border: 0;
-}
 
 body {
   margin: 0;
@@ -220,6 +217,14 @@ textarea {
   overflow: auto;
   resize: none;
   border: 0;
+}
+
+label {
+  padding: 10px;
+}
+
+input {
+  margin: 10px;
 }
 
 @media only screen and (min-width: 120px) {

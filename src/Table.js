@@ -15,7 +15,9 @@ class Table extends React.Component {
       refToBorders: {},
       refToAlignments: {},
       refToInputs: {},
-      value: ''
+      value: '',
+      caption: ' ',
+      label: ' '
     };
 
     this.generateLatexCode = this.generateLatexCode.bind(this);
@@ -24,6 +26,8 @@ class Table extends React.Component {
     this.inputTextChanged = this.inputTextChanged.bind(this);
     this.addTextToObject = this.addTextToObject.bind(this);
     this.generateDangerousHTML = this.generateDangerousHTML.bind(this);
+    this.changeCaption = this.changeCaption.bind(this);
+    this.changeLabel = this.changeLabel.bind(this);
   }
 
   initializeTextObject(rows, columns) {
@@ -187,8 +191,21 @@ class Table extends React.Component {
       }
     }
   
+    let endTabular = [
+      "   &#92;end{tabular} "
+    ];
+
+    let captionLabelTable = [];
+    if (this.state !== undefined) {
+      captionLabelTable.push("   &#92;caption{" + this.state.caption + "}");
+      captionLabelTable.push("   &#92;label{" + this.state.label + "}");
+    }
+    else {
+      captionLabelTable.push("   &#92;caption{ }")
+      captionLabelTable.push("   &#92;label{ }");
+    }
+    console.log(captionLabelTable)
     let endTable = [
-      "   &#92;end{tabular} ",
         " &#92;end{table} "
     ];
 
@@ -202,7 +219,9 @@ class Table extends React.Component {
         beginTable.join("\n"),
         columnTable.join("\n"),
         coreTable.join("\n"),
-        endTable.join("\n")
+        endTabular,
+        captionLabelTable.join("\n"),
+        endTable
       ].join("\n")
   }
 
@@ -310,6 +329,22 @@ class Table extends React.Component {
     }
   }
 
+  changeCaption(changedCaptionText) {
+    this.setState({
+      caption: changedCaptionText
+    }, () => {this.setState({
+      latexCode: this.generateLatexCode(this.state.rows, this.state.columns)
+    })});
+  }
+
+  changeLabel(changedLabelText) {
+    this.setState({
+      label: changedLabelText
+    }, () => {this.setState({
+      latexCode: this.generateLatexCode(this.state.rows, this.state.columns)
+    })});
+  }
+
   render() {
     let rows = [];
     for (var row = -1; row < this.state.rows; row++){
@@ -405,6 +440,8 @@ class Table extends React.Component {
     }
     return (
       <div className="container-table">
+        <TableCaption changeCaption={this.changeCaption}> </TableCaption>
+        <TableLabel changeLabel={this.changeLabel}> </TableLabel>
         <div className="table-size-container">
           <TableRows rowValue={this.inputRowsChanged.bind(this)}/>
           <TableColumns columnValue={this.inputColumnsChanged.bind(this)}/>
@@ -550,6 +587,63 @@ class TableInputCell extends React.Component {
     );
   }
 }
+
+class TableLabel extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      label: ''
+    };
+
+    this.onChange = this.onChange.bind(this);
+  }
+
+  onChange(event) {
+    this.setState({
+      label: event.target.value
+    });
+    this.props.changeLabel(event.target.value);
+  }
+
+  render() {
+    return(
+      <div className="label-container">
+        <label htmlFor="label"> Label: </label>
+        <input value={this.state.label} 
+         type="text" id="label" onChange={this.onChange}/>
+      </div>
+    );
+  }
+}
+
+class TableCaption extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      caption: ""
+    };
+
+    this.onChange = this.onChange.bind(this);
+  }
+
+  onChange(event) {
+    this.setState({
+      caption: event.target.value
+    });
+    this.props.changeCaption(event.target.value);
+  }
+
+  render() {
+    return(
+      <div className="caption-container">
+        <label htmlFor="caption"> Caption: </label>
+        <input value={this.state.caption} 
+        type="text" id="caption" onChange={this.onChange} />
+      </div>
+    );
+  }
+}
+
 
 class BorderCell extends React.Component {
   constructor(props) {
