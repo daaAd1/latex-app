@@ -438,6 +438,7 @@ class Table extends React.Component {
         rows.push(<tr className="tr" key={row}>{cell}</tr>)
       }
     }
+    console.log(rows);
     return (
       <div className="container-table">
         <TableCaption changeCaption={this.changeCaption}> </TableCaption>

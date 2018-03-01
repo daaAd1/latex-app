@@ -227,6 +227,34 @@ input {
   margin: 10px;
 }
 
+.content {
+  margin: auto;
+  width: 95%;
+  padding: 10px;
+}
+
+.line-div{
+  cursor: pointer;
+  margin: 0 auto;
+  width: 90px;
+  height: 10px; 
+  background:lightgray;
+}
+.line-div-clicked {
+  background: black;
+}
+
+.level {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.cellLine {
+  padding: 5px;
+}
+
 @media only screen and (min-width: 120px) {
   .code-container {
     font-size: 10px;
