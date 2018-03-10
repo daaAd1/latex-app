@@ -236,12 +236,23 @@ input {
 .line-div{
   cursor: pointer;
   margin: 0 auto;
-  width: 90px;
+  width: 100px;
   height: 10px; 
   background:lightgray;
 }
 .line-div-clicked {
   background: black;
+}
+.line-div-white {
+  background: white;
+  width: 100px;
+}
+.input-line {
+  width: 90px;
+  height: 10px;
+}
+.no-input{
+  display: none;
 }
 
 .level {

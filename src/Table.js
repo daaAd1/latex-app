@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 import copyIcon from "./content-copy.svg";
 import TextareaAutosize from 'react-autosize-textarea';
+import LatexCode from "./LatexCode";
 
 class Table extends React.Component {
   constructor(props) {
@@ -17,7 +18,8 @@ class Table extends React.Component {
       refToInputs: {},
       value: '',
       caption: ' ',
-      label: ' '
+      label: ' ',
+      abcde: ""
     };
 
     this.generateLatexCode = this.generateLatexCode.bind(this);
@@ -79,10 +81,9 @@ class Table extends React.Component {
         if (column % 2 === 0  && row === 0) {
           let textAlignment;
           if (this.state !== undefined) {
-            console.log(columnId + this.state.refToAlignments[columnId])
+            //console.log(columnId + this.state.refToAlignments[columnId])
           }
           if (this.state !==  undefined && this.state.refToAlignments[columnId] !== undefined) {
-            console.log("if")
             let alignment = this.state.refToAlignments[columnId].state.alignment;
             if (alignment === "center") { 
               textAlignment = "c"
@@ -93,10 +94,8 @@ class Table extends React.Component {
             else {
               textAlignment = "l"
             }
-            console.log("if " + textAlignment)
           }
           else {
-            console.log("else")
             textAlignment = "l"
           }
           //console.log(textAlignment)
@@ -142,15 +141,14 @@ class Table extends React.Component {
       if (row % 2 !== 0) {
         let borderCell;
         let borderCell2;
-        if (this.state !== undefined) {
+        if (this.state !== undefined)  {
           if (row === 1) {
             if (this.state.refToBorders[(row - 1).toString() + 1] !== null) {
               borderCell = this.state.refToBorders[(row - 1).toString() + 1];
             }
-           if ( borderCell = this.state.refToBorders[(row + 1).toString() + 1] !== null) {
-            borderCell2 = this.state.refToBorders[(row + 1).toString() + 1];
-           }
-            
+            if (this.state.refToBorders[(row + 1).toString() + 1] !== null) {
+              borderCell2 = this.state.refToBorders[(row + 1).toString() + 1];
+            }
           }
           else {
             if (borderCell2 = this.state.refToBorders[(row + 1).toString() + 1] !== null) {
@@ -159,23 +157,24 @@ class Table extends React.Component {
           }
         }
         if (row === 1) {
+          console.log("well this " + borderCell)
           if (borderCell !== undefined && borderCell.state !== undefined && borderCell.state.active === true) {
-              if (borderCell2 != undefined && borderCell2.state.active === true) {
-                let currentRowText = rowText;
-                rowText = "      &#92;hline\n";
-                rowText += currentRowText + " &#92;hline";
-              }
-              else {
-                let currentRowText = rowText;
-                rowText = "      &#92;hline\n";
-                rowText += currentRowText;
-              }
+            if (borderCell2 !== undefined && borderCell2.state.active === true) {
+              let currentRowText = rowText;
+              rowText = "      &#92;hline\n";
+              rowText += currentRowText + " &#92;hline";
             }
             else {
-              if (borderCell2 != undefined && borderCell2.state.active === true) {
-                rowText += " &#92;hline";
-              }
+              let currentRowText = rowText;
+              rowText = "      &#92;hline\n";
+              rowText += currentRowText;
             }
+          }
+          else {
+            if (borderCell2 !== undefined && borderCell2.state.active === true) {
+              rowText += " &#92;hline";
+            }
+          }
         }
         else {
           if (borderCell !== undefined && borderCell.state.active === true) {
@@ -204,7 +203,6 @@ class Table extends React.Component {
       captionLabelTable.push("   &#92;caption{ }")
       captionLabelTable.push("   &#92;label{ }");
     }
-    console.log(captionLabelTable)
     let endTable = [
         " &#92;end{table} "
     ];
@@ -346,6 +344,7 @@ class Table extends React.Component {
   }
 
   render() {
+    let latexCode = <LatexCode code={this.state.latexCode}></LatexCode>;
     let rows = [];
     for (var row = -1; row < this.state.rows; row++){
       let cell = [];
@@ -438,7 +437,6 @@ class Table extends React.Component {
         rows.push(<tr className="tr" key={row}>{cell}</tr>)
       }
     }
-    console.log(rows);
     return (
       <div className="container-table">
         <TableCaption changeCaption={this.changeCaption}> </TableCaption>
@@ -454,27 +452,7 @@ class Table extends React.Component {
             </tbody>
           </table>
         </div>
-        <p>
-          {this.state.changedText}
-        </p>
-        <div
-         className="code-container">
-          <pre >
-            <CopyToClipboard text={this.copyText}
-              onCopy={() => this.setState({copied: true})}>
-              <span  dangerouslySetInnerHTML= {this.generateDangerousHTML()}></span>
-            </CopyToClipboard>
-    
-            <div className="copied-container">
-              <CopyToClipboard text={this.copyText}
-                onCopy={() =>{this.setState({copied: true})} }>
-                <img src={copyIcon} className="copy-button"/>
-              </CopyToClipboard>
-      
-              {this.state.copied ? <span className="copied-text" style={{color: 'green'}}>Copied.</span> : null}
-            </div>
-          </pre>
-        </div>
+        {latexCode}
       </div>
     );
   } 
@@ -483,7 +461,9 @@ class Table extends React.Component {
 class TableRows extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {rows: 5};
+    this.state = {
+      rows: 5
+    };
 
     this.onChange = this.onChange.bind(this);
   }
