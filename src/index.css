@@ -249,7 +249,13 @@ input {
 }
 .input-line {
   width: 90px;
-  height: 10px;
+  height: 15px;
+  border-width: 1px;
+  border-style: solid;
+  margin: 3px;
+  overflow: hidden;
+  resize: none;
+  text-align: center;
 }
 .no-input{
   display: none;

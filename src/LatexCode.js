@@ -6,8 +6,11 @@ class LatexCode extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            copied: props.copied,
             innerHtml: props.code
         }
+
+        this.copyText = this.copyText.bind(this)
     }
 
     componentWillReceiveProps(nextProps) {
@@ -16,24 +19,33 @@ class LatexCode extends React.Component {
               innerHtml: nextProps.code 
             })
         }
+        if (nextProps.copied !== this.state.copied) {
+            this.setState({ 
+                copied: nextProps.copied
+              })
+        }
       }
 
     generateDangerousHTML() {
         return {__html: this.state.innerHtml}
     }
 
+    copyText() {
+        return this.state.innerHtml.replace(new RegExp("&#92;", 'g'), '\\');
+      }
+
     render() {
         return(
             <div className="code-container">
                 <pre >
-                    <CopyToClipboard text={this.copyText}
+                    <CopyToClipboard text={this.copyText()}
                     onCopy={() => this.setState({copied: true})}>
                     <span  dangerouslySetInnerHTML= 
                     {this.generateDangerousHTML()}></span>
                     </CopyToClipboard>
             
                     <div className="copied-container">
-                    <CopyToClipboard text={this.copyText}
+                    <CopyToClipboard text={this.copyText()}
                         onCopy={() =>{this.setState({copied: true})} }>
                         <img alt="copy-icon" src={copyIcon} className="copy-button"/>
                     </CopyToClipboard>

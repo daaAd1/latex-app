@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import LatexCode from "./LatexCode";
+import TextareaAutosize from 'react-autosize-textarea';
 
 class SequenceMath extends React.Component {
   constructor(props) {
@@ -45,8 +46,8 @@ class SequenceMath extends React.Component {
     let middleCode = [];
     
     for (let level = 5; level > -1; level--) {
-      let row = "";
-      for (let levelCell = 32; levelCell > 0; levelCell--) {
+      for (let levelCell = 1; levelCell < 33; levelCell++) {
+        let row = "";
         let position = level.toString() + levelCell.toString();
         if (this.state !== undefined && this.state.linesText[position] !== ""
         && this.state.linesText[position] !== undefined) {
@@ -54,7 +55,6 @@ class SequenceMath extends React.Component {
             row = "      &#92;AxiomC{" + this.state.linesText[position] + "}"
           }
           else {   
-            console.log(position)
             let positionOfLine =  (level+1).toString() + (levelCell*2).toString();
             let positionOfLineTwo =  (level+1).toString() + (levelCell*2-1).toString();
             if (this.state.linesText[positionOfLine] === ""
@@ -67,6 +67,7 @@ class SequenceMath extends React.Component {
           }
         }
         if (row !== "") {
+          console.log(row)
           middleCode.push(row);
         }
       }
@@ -259,14 +260,14 @@ class Line extends React.Component {
   }
 
   render() {
-    let className;
-    let inputClassName = "input-line";
+    let className = " ";
+    let inputClassName = " input-line ";
     if (this.state.white) {
-      className = " line-div-white ";
-      inputClassName = " no-input "
+      className += " line-div-white ";
+      inputClassName += " no-input "
     }
     else {
-      className = " line-div ";
+      className += " line-div ";
    }
     if (this.state != null && this.state.clicked === true) {
       className += " line-div-clicked ";
@@ -274,7 +275,8 @@ class Line extends React.Component {
     return(
       <div className="one-line">
         <div className={className} onClick={this.onClick}/>
-        <input type="text" onChange={this.onChange} className={inputClassName} />
+        <TextareaAutosize type="text" onChange={this.onChange} className={inputClassName} >
+        </TextareaAutosize>
       </div>
     );
   }

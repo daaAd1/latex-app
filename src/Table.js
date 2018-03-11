@@ -10,16 +10,15 @@ class Table extends React.Component {
     this.state = {
       rows: 11, 
       columns: 11,
-      copied: false,
       textInTable: this.initializeTextObject(11, 11),
       latexCode: this.generateLatexCode(11, 11),
+      copied: false,
       refToBorders: {},
       refToAlignments: {},
       refToInputs: {},
       value: '',
       caption: ' ',
-      label: ' ',
-      abcde: ""
+      label: ' '
     };
 
     this.generateLatexCode = this.generateLatexCode.bind(this);
@@ -157,7 +156,6 @@ class Table extends React.Component {
           }
         }
         if (row === 1) {
-          console.log("well this " + borderCell)
           if (borderCell !== undefined && borderCell.state !== undefined && borderCell.state.active === true) {
             if (borderCell2 !== undefined && borderCell2.state.active === true) {
               let currentRowText = rowText;
@@ -225,10 +223,6 @@ class Table extends React.Component {
 
   generateDangerousHTML() {
     return {__html: this.state.latexCode}
-  }
-
-  copyText() {
-    return this.state.latexCode.replace(new RegExp("&#92;", 'g'), '\\');
   }
 
   inputRowsChanged(changedRowCount) {
@@ -344,7 +338,7 @@ class Table extends React.Component {
   }
 
   render() {
-    let latexCode = <LatexCode code={this.state.latexCode}></LatexCode>;
+    let latexCode = <LatexCode code={this.state.latexCode} copied={this.state.copied}></LatexCode>;
     let rows = [];
     for (var row = -1; row < this.state.rows; row++){
       let cell = [];
