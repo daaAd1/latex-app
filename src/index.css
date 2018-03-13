@@ -233,15 +233,29 @@ input {
   padding: 10px;
 }
 
-.line-div{
+.filled-div0,.filled-div1,.filled-div2,.filled-div3{
   cursor: pointer;
   margin: 0 auto;
   width: 100px;
   height: 10px; 
   background:lightgray;
 }
+.filled-div1{
+  width: 66px;
+  border-left: 33px solid black;
+}
+.filled-div2{
+  width: 33px;
+  border-left: 66px solid black;
+}
+.filled-div3{
+  width: 0px;
+  border-left: 100px solid black;
+}
+
+
 .line-div-clicked {
-  background: black;
+  /*background: black;*/
 }
 .line-div-white {
   background: white;

@@ -11,15 +11,16 @@ class SequenceMath extends React.Component {
       latexCode: this.generateLatexCode()
     };
 
+    this.lineClick = this.lineClick.bind(this);
     this.generateLinesObject = this.generateLinesObject.bind(this);
     this.addTextToObject = this.addTextToObject.bind(this);
     this.generateLatexCode = this.generateLatexCode.bind(this);
   }
 
-  addLineToObject(level, levelCell, cellState) {
+  addLineToObject(level, levelCell, length) {
     var key = (level.toString()) + (levelCell.toString());
     var obj = this.state.lines;
-    obj[key] = cellState;
+    obj[key] = length;
     this.setState({
       lines: obj
     }, () => {
@@ -45,29 +46,148 @@ class SequenceMath extends React.Component {
     let endCode = [" &#92;end{prooftree}"];
     let middleCode = [];
     
-    for (let level = 5; level > -1; level--) {
-      for (let levelCell = 1; levelCell < 33; levelCell++) {
+    for (let level = 5; level > 0; level--) {
+      for (let levelCell = 1; levelCell < 28; levelCell++) {
         let row = "";
         let position = level.toString() + levelCell.toString();
-        if (this.state !== undefined && this.state.linesText[position] !== ""
+        if (levelCell <= (Math.pow(3, level-1) / 3) && this.state !== undefined && this.state.linesText[position] !== ""
         && this.state.linesText[position] !== undefined) {
           if (level === 5) {
             row = "      &#92;AxiomC{" + this.state.linesText[position] + "}"
           }
           else {   
-            let positionOfLine =  (level+1).toString() + (levelCell*2).toString();
-            let positionOfLineTwo =  (level+1).toString() + (levelCell*2-1).toString();
-            if (this.state.linesText[positionOfLine] === ""
-             && this.state.linesText[positionOfLineTwo] === "") {
+            let positionOfText =  (level+1).toString() + (levelCell*3).toString();
+            let positionOfTextTwo =  (level+1).toString() + (levelCell*3-1).toString();
+            let positionOfTextThree = (level + 1).toString() + (levelCell*3-2).toString();
+            if (this.state.linesText[positionOfText] === ""
+             && this.state.linesText[positionOfTextTwo] === ""
+            && this.state.linesText[positionOfTextThree] === "") {
               row = "     &#92;AxiomC{" + this.state.linesText[position] + "}"
             }
             else {
-              row = "     &#92;BinaryInfC{" + this.state.linesText[position] + "}"
+              let numberOfNodes = 0;
+              if (this.state.linesText[positionOfText] !== "") {
+                  numberOfNodes++;
+              }
+              if (this.state.linesText[positionOfTextTwo] !== "") {
+                numberOfNodes++;
+              }
+              if (this.state.linesText[positionOfTextThree] !== "") {
+                numberOfNodes++;
+              }
+              if (numberOfNodes === 1) {
+                row = "     &#92;UnaryInfC{" + this.state.linesText[position] + "}"
+              }
+              else if (numberOfNodes === 2) {
+                row = "     &#92;BinaryInfC{" + this.state.linesText[position] + "}"
+              }
+              else if (numberOfNodes === 3) {
+                row = "     &#92;TrinaryInfC{" + this.state.linesText[position] + "}"
+              }
             }
           }
         }
         if (row !== "") {
-          console.log(row)
+          middleCode.push(row);
+        }
+      }
+    }
+
+    for (let level = 5; level > 0; level--) {
+      for (let levelCell = 1; levelCell < 55; levelCell++) {
+        let row = "";
+        let position = level.toString() + levelCell.toString();
+        console.log(((Math.pow(3, level-1)) / 3).toString() + " " + (((Math.pow(3, level-1)*2) / 3)).toString())
+        if ((levelCell > ((Math.pow(3, level-1)) / 3) && levelCell <= ((Math.pow(3, level-1)*2) / 3)) && this.state !== undefined && this.state.linesText[position] !== ""
+        && this.state.linesText[position] !== undefined) {
+          if (level === 5) {
+            row = "      &#92;AxiomC{" + this.state.linesText[position] + "}"
+          }
+          else {
+            let positionOfText =  (level+1).toString() + (levelCell*3).toString();
+            let positionOfTextTwo =  (level+1).toString() + (levelCell*3-1).toString();
+            let positionOfTextThree = (level + 1).toString() + (levelCell*3-2).toString();
+            if (this.state.linesText[positionOfText] === ""
+             && this.state.linesText[positionOfTextTwo] === ""
+            && this.state.linesText[positionOfTextThree] === "") {
+              row = "     &#92;AxiomC{" + this.state.linesText[position] + "}"
+            }
+            else {
+              let numberOfNodes = 0;
+              if (this.state.linesText[positionOfText] !== "") {
+                  numberOfNodes++;
+              }
+              if (this.state.linesText[positionOfTextTwo] !== "") {
+                numberOfNodes++;
+              }
+              if (this.state.linesText[positionOfTextThree] !== "") {
+                numberOfNodes++;
+              }
+              if (numberOfNodes === 1) {
+                row = "     &#92;UnaryInfC{" + this.state.linesText[position] + "}"
+              }
+              else if (numberOfNodes === 2) {
+                row = "     &#92;BinaryInfC{" + this.state.linesText[position] + "}"
+              }
+              else if (numberOfNodes === 3) {
+                row = "     &#92;TrinaryInfC{" + this.state.linesText[position] + "}"
+              }
+            }
+            console.log(row)
+          }
+        }
+        if (row !== "") {
+          middleCode.push(row);
+        }
+      }
+    }
+    /*27 55  81
+    9   18  27
+    3   6    9
+    1   2    3
+         1*/
+    for (let level = 5; level > -1; level--) {
+      for (let levelCell = 0; levelCell < 82; levelCell++) {
+        let row = "";
+        let position = level.toString() + levelCell.toString();
+        if (levelCell > (Math.pow(3, level-1) / 3) && this.state !== undefined && this.state.linesText[position] !== ""
+        && this.state.linesText[position] !== undefined) {
+          if (level === 5) {
+            row = "      &#92;AxiomC{" + this.state.linesText[position] + "}"
+          }
+          else {   
+            let positionOfText =  (level+1).toString() + (levelCell*3).toString();
+            let positionOfTextTwo =  (level+1).toString() + (levelCell*3-1).toString();
+            let positionOfTextThree = (level + 1).toString() + (levelCell*3-2).toString();
+            if (this.state.linesText[positionOfText] === ""
+             && this.state.linesText[positionOfTextTwo] === ""
+            &&  this.state.linesText[positionOfTextThree] === "") {
+              row = "     &#92;AxiomC{" + this.state.linesText[position] + "}"
+            }
+            else {
+              let numberOfNodes = 0;
+              if (this.state.linesText[positionOfText] !== "") {
+                  numberOfNodes++;
+              }
+              if (this.state.linesText[positionOfTextTwo] !== "") {
+                numberOfNodes++;
+              }
+              if (this.state.linesText[positionOfTextThree] !== "") {
+                numberOfNodes++;
+              }
+              if (numberOfNodes === 1) {
+                row = "     &#92;UnaryInfC{" + this.state.linesText[position] + "}"
+              }
+              else if (numberOfNodes === 2) {
+                row = "     &#92;BinaryInfC{" + this.state.linesText[position] + "}"
+              }
+              else if (numberOfNodes === 3) {
+                row = "     &#92;TrinaryInfC{" + this.state.linesText[position] + "}"
+              }
+            }
+          }
+        }
+        if (row !== "") {
           middleCode.push(row);
         }
       }
@@ -82,29 +202,25 @@ class SequenceMath extends React.Component {
 
   generateLinesObject() {
     var linesObject = [];
-    for (let level = 0; level < 6; level++) {
-      for (let levelCell = 1; levelCell < 33; levelCell++) {
+    for (let level = 0; level < 5; level++) {
+      for (let levelCell = 1; levelCell < 81; levelCell++) {
         if (level === 0 && levelCell < 2) {
           var key = (level.toString()) + (levelCell.toString());
           linesObject[key] = '';
         }
-        else if (level === 1 && levelCell < 3) {
+        else if (level === 1 && levelCell < 4) {
           var key = (level.toString()) + (levelCell.toString());
           linesObject[key] = '';
         }
-        else if  (level === 2 && levelCell < 5) {
+        else if  (level === 2 && levelCell < 10) {
           var key = (level.toString()) + (levelCell.toString());
           linesObject[key] = '';
         }
-        else if  (level === 3 && levelCell < 9) {
+        else if  (level === 3 && levelCell < 28) {
           var key = (level.toString()) + (levelCell.toString());
           linesObject[key] = '';
         }
-        else if  (level === 4 && levelCell < 17) {
-          var key = (level.toString()) + (levelCell.toString());
-          linesObject[key] = '';
-        }
-        else if  (level === 5) {
+        else if  (level === 4 ) {
           var key = (level.toString()) + (levelCell.toString());
           linesObject[key] = '';
         }
@@ -113,13 +229,13 @@ class SequenceMath extends React.Component {
     return linesObject;
   }
 
-  lineClick(level, cell) {
+  lineClick(level, cell, length) {
     if (this.state.lines[level.toString() + cell.toString()] === "false"
   || this.state.lines[level.toString() + cell.toString()] === "") {
-      this.addLineToObject(level, cell, "true");
+      this.addLineToObject(level, cell, length);
     }
     else {
-      this.addLineToObject(level, cell, "false");
+      this.addLineToObject(level, cell, length);
     }
   }
 
@@ -128,24 +244,39 @@ class SequenceMath extends React.Component {
     let boolFalse = false;
     let position = level.toString() + cell.toString();
     let positionOneLevelDown =  (level-1).toString() + (cell/2).toString();
-    if (cell % 2 !== 0) {
-      positionOneLevelDown = (level-1).toString() + ((cell + 1)/2).toString();
+    let levelNotHighEnough = false;
+    if ((cell + 2) % 3 === 0) {
+      positionOneLevelDown = (level-1).toString() + ((cell + 2)/3).toString();
+      if (this.state.lines[positionOneLevelDown] < 1) {
+        levelNotHighEnough = true;
+      }
     }
-    
-    if (this.state !== null && this.state.lines[position] === "true") {
+    else if ((cell + 1) % 3 === 0) {
+      positionOneLevelDown = (level-1).toString() + ((cell + 1)/3).toString();
+      if (this.state.lines[positionOneLevelDown] < 2) {
+        levelNotHighEnough = true;
+      }
+    }
+    else if (cell % 3 === 0) {
+        positionOneLevelDown = (level-1).toString() + (cell/3).toString();
+        if (this.state.lines[positionOneLevelDown] < 3) {
+          levelNotHighEnough = true;
+        }
+    }
+    if (!levelNotHighEnough && this.state !== null && this.state.lines[position] > 0) {
       return (<div className="cellLine">
-      <Line changedText={this.addTextToObject} white={boolFalse} level={level} cell={cell} key={position} onClick={this.lineClick.bind(this, level, cell)}
-       clicked={true}></Line></div>)
+      <Line changedText={this.addTextToObject} white={boolFalse} level={level} cell={cell} key={position} 
+      onClick={this.lineClick.bind(this,level, cell)} clicked={true}></Line></div>)
     }
-    else if (this.state !== null && this.state.lines[positionOneLevelDown] === "true"){
+    else if (!levelNotHighEnough && this.state !== null && this.state.lines[positionOneLevelDown] > 0){
       return  (<div className="cellLine">
       <Line changedText={this.addTextToObject} white={boolFalse} level={level} cell={cell} 
-      onClick={this.lineClick.bind(this, level, cell)} key={position} clicked={false}></Line></div>)
+      onClick={this.lineClick.bind(this,level, cell)} key={position} clicked={false}></Line></div>)
     }
     else if (level === 0) {
       return  (<div className="cellLine">
       <Line changedText={this.addTextToObject} white={boolFalse} level={level} cell={cell} 
-      onClick={this.lineClick.bind(this, level, cell)} key={position} clicked={false}></Line></div>)
+      onClick={this.lineClick.bind(this,level, cell)} key={position} clicked={false}></Line></div>)
     }
     else {
       return  (<div className="cellLine">
@@ -159,7 +290,7 @@ class SequenceMath extends React.Component {
     let lines = [];
     for (let level = 5; level > -1; level--) {
       let cell = [];
-      for (let levelCell = 1; levelCell < 33; levelCell++) {
+      for (let levelCell = 1; levelCell < 82; levelCell++) {
         let position = level.toString() + levelCell.toString();
         switch(level) {
           case 0:
@@ -168,43 +299,26 @@ class SequenceMath extends React.Component {
             }
             break;
           case 1:
-            if (levelCell < 3) {
+            if (levelCell < 4) {
               cell.push(this.pushCell(level, levelCell));
             }
             break;
           case 2:
-            if (levelCell < 5) {
+            if (levelCell < 10) {
               cell.push(this.pushCell(level, levelCell));
             }
             break;
           case 3:
-          if (levelCell < 9) {
-            cell.push(this.pushCell(level, levelCell));
-          }
-          break;
+            if (levelCell < 28) {
+              cell.push(this.pushCell(level, levelCell));
+            }
+            break;
           case 4:
-          if (levelCell < 17) {
-            cell.push(this.pushCell(level, levelCell));
-          }
-          break;
-          case 5:
-          if (levelCell < 33) {
-            cell.push(this.pushCell(level, levelCell));
-          }
-          break;
-        }
-        
-        /*if (level === 0) {
-          if (this.state !== null && this.state.lines[position] === "true") {
-            cell.push(<div><br/><Line key={position} clicked={boolTrue}></Line></div>)
-          }
-          else {
-            cell.push(<div><br/><Line key={position} clicked={boolFalse}></Line></div>)
-            console.log("level " + position)
-          }
-          break;
-        }*/
-        
+            if (levelCell < 82) {
+              cell.push(this.pushCell(level, levelCell));
+            }
+            break;
+        }        
       }
       lines.push(<div className="level"><br/>{cell}</div>);
     }
@@ -224,6 +338,7 @@ class Line extends React.Component {
       level: props.level,
       cell: props.cell,
       clicked: props.clicked,
+      length: 0,
       white: props.white,
       inputText: ""
     };
@@ -233,17 +348,17 @@ class Line extends React.Component {
   }
 
   onClick() {
-    let clickState
-    if (this.state != null) {
-      clickState = this.state.clicked;
+    let length;
+    if (this.state !== null && this.state.length === 3) {
+      length = 0;
     }
     else {
-      clickState = false;
+      length = this.state.length + 1;
     }
     this.setState({
-      clicked: !clickState
+      length: length
     });
-    this.props.onClick();
+    this.props.onClick(length);
   }
 
   onChange(event) {
@@ -267,7 +382,18 @@ class Line extends React.Component {
       inputClassName += " no-input "
     }
     else {
-      className += " line-div ";
+      if (this.state.length === 0) {
+        className += " filled-div0 ";
+      } 
+      else if (this.state.length === 1) {
+        className += " filled-div1 ";
+      }
+      else if (this.state.length === 2) {
+        className += " filled-div2 ";
+      }
+      else if (this.state.length === 3) {
+        className += " filled-div3 ";
+      }
    }
     if (this.state != null && this.state.clicked === true) {
       className += " line-div-clicked ";
