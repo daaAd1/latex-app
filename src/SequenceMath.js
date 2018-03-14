@@ -8,13 +8,15 @@ class SequenceMath extends React.Component {
     this.state = {
       lines: this.generateLinesObject(),
       linesText: this.generateLinesObject(),
-      latexCode: this.generateLatexCode()
+      latexCode: this.generateLatexCode(),
+      annotationObject: this.generateLinesObject()
     };
 
     this.lineClick = this.lineClick.bind(this);
     this.generateLinesObject = this.generateLinesObject.bind(this);
     this.addTextToObject = this.addTextToObject.bind(this);
     this.generateLatexCode = this.generateLatexCode.bind(this);
+    this.annotationChanged = this.annotationChanged.bind(this);
   }
 
   addLineToObject(level, levelCell, length) {
@@ -46,13 +48,13 @@ class SequenceMath extends React.Component {
     let endCode = [" &#92;end{prooftree}"];
     let middleCode = [];
     
-    for (let level = 5; level > 0; level--) {
+    for (let level = 4; level > 0; level--) {
       for (let levelCell = 1; levelCell < 28; levelCell++) {
         let row = "";
         let position = level.toString() + levelCell.toString();
-        if (levelCell <= (Math.pow(3, level-1) / 3) && this.state !== undefined && this.state.linesText[position] !== ""
+        if (levelCell <= (Math.pow(3, level) / 3) && this.state !== undefined && this.state.linesText[position] !== ""
         && this.state.linesText[position] !== undefined) {
-          if (level === 5) {
+          if (level === 4) {
             row = "      &#92;AxiomC{" + this.state.linesText[position] + "}"
           }
           else {   
@@ -65,6 +67,11 @@ class SequenceMath extends React.Component {
               row = "     &#92;AxiomC{" + this.state.linesText[position] + "}"
             }
             else {
+              if (this.state.annotationObject[position] !== "") {
+                row = "     &#92;RightLabel{&#92;scriptsize(" + 
+                this.state.annotationObject[position] +")}";
+                middleCode.push(row);   
+              }
               let numberOfNodes = 0;
               if (this.state.linesText[positionOfText] !== "") {
                   numberOfNodes++;
@@ -93,14 +100,14 @@ class SequenceMath extends React.Component {
       }
     }
 
-    for (let level = 5; level > 0; level--) {
+    for (let level = 4; level > 0; level--) {
       for (let levelCell = 1; levelCell < 55; levelCell++) {
         let row = "";
         let position = level.toString() + levelCell.toString();
-        console.log(((Math.pow(3, level-1)) / 3).toString() + " " + (((Math.pow(3, level-1)*2) / 3)).toString())
-        if ((levelCell > ((Math.pow(3, level-1)) / 3) && levelCell <= ((Math.pow(3, level-1)*2) / 3)) && this.state !== undefined && this.state.linesText[position] !== ""
+        // console.log(((Math.pow(3, level-1)) / 3).toString() + " " + (((Math.pow(3, level-1)*2) / 3)).toString())
+        if ((levelCell > (Math.pow(3, level) / 3) && levelCell <= ((Math.pow(3, level)*2) / 3)) && this.state !== undefined && this.state.linesText[position] !== ""
         && this.state.linesText[position] !== undefined) {
-          if (level === 5) {
+          if (level === 4) {
             row = "      &#92;AxiomC{" + this.state.linesText[position] + "}"
           }
           else {
@@ -113,6 +120,11 @@ class SequenceMath extends React.Component {
               row = "     &#92;AxiomC{" + this.state.linesText[position] + "}"
             }
             else {
+              if (this.state.annotationObject[position] !== "") {
+                row = "     &#92;RightLabel{&#92;scriptsize(" + 
+                this.state.annotationObject[position] +")}";
+                middleCode.push(row);   
+              }
               let numberOfNodes = 0;
               if (this.state.linesText[positionOfText] !== "") {
                   numberOfNodes++;
@@ -133,7 +145,6 @@ class SequenceMath extends React.Component {
                 row = "     &#92;TrinaryInfC{" + this.state.linesText[position] + "}"
               }
             }
-            console.log(row)
           }
         }
         if (row !== "") {
@@ -141,18 +152,13 @@ class SequenceMath extends React.Component {
         }
       }
     }
-    /*27 55  81
-    9   18  27
-    3   6    9
-    1   2    3
-         1*/
-    for (let level = 5; level > -1; level--) {
+    for (let level = 4; level > -1; level--) {
       for (let levelCell = 0; levelCell < 82; levelCell++) {
         let row = "";
         let position = level.toString() + levelCell.toString();
-        if (levelCell > (Math.pow(3, level-1) / 3) && this.state !== undefined && this.state.linesText[position] !== ""
+        if (levelCell > ((Math.pow(3, level)*2) / 3) && this.state !== undefined && this.state.linesText[position] !== ""
         && this.state.linesText[position] !== undefined) {
-          if (level === 5) {
+          if (level === 4) {
             row = "      &#92;AxiomC{" + this.state.linesText[position] + "}"
           }
           else {   
@@ -165,6 +171,11 @@ class SequenceMath extends React.Component {
               row = "     &#92;AxiomC{" + this.state.linesText[position] + "}"
             }
             else {
+              if (this.state.annotationObject[position] !== "") {
+                row = "     &#92;RightLabel{&#92;scriptsize(" + 
+                this.state.annotationObject[position] +")}";
+                middleCode.push(row);   
+              }
               let numberOfNodes = 0;
               if (this.state.linesText[positionOfText] !== "") {
                   numberOfNodes++;
@@ -229,6 +240,18 @@ class SequenceMath extends React.Component {
     return linesObject;
   }
 
+  annotationChanged(level, cell, annotText) {
+    var key = (level.toString()) + (cell.toString());
+    var obj = this.state.annotationObject;
+    obj[key] = annotText;
+    this.setState({
+      annotationObject: obj
+    }, () => {
+      this.setState ({
+        latexCode: this.generateLatexCode()
+    })});
+  }
+
   lineClick(level, cell, length) {
     if (this.state.lines[level.toString() + cell.toString()] === "false"
   || this.state.lines[level.toString() + cell.toString()] === "") {
@@ -266,17 +289,23 @@ class SequenceMath extends React.Component {
     if (!levelNotHighEnough && this.state !== null && this.state.lines[position] > 0) {
       return (<div className="cellLine">
       <Line changedText={this.addTextToObject} white={boolFalse} level={level} cell={cell} key={position} 
-      onClick={this.lineClick.bind(this,level, cell)} clicked={true}></Line></div>)
+      onClick={this.lineClick.bind(this,level, cell)} 
+      annotationChanged={this.annotationChanged}
+      clicked={true}></Line></div>)
     }
     else if (!levelNotHighEnough && this.state !== null && this.state.lines[positionOneLevelDown] > 0){
       return  (<div className="cellLine">
       <Line changedText={this.addTextToObject} white={boolFalse} level={level} cell={cell} 
-      onClick={this.lineClick.bind(this,level, cell)} key={position} clicked={false}></Line></div>)
+      onClick={this.lineClick.bind(this,level, cell)} 
+      annotationChanged={this.annotationChanged}
+      key={position} clicked={false}></Line></div>)
     }
     else if (level === 0) {
       return  (<div className="cellLine">
       <Line changedText={this.addTextToObject} white={boolFalse} level={level} cell={cell} 
-      onClick={this.lineClick.bind(this,level, cell)} key={position} clicked={false}></Line></div>)
+      onClick={this.lineClick.bind(this,level, cell)} 
+      annotationChanged={this.annotationChanged}
+       key={position} clicked={false}></Line></div>)
     }
     else {
       return  (<div className="cellLine">
@@ -340,20 +369,29 @@ class Line extends React.Component {
       clicked: props.clicked,
       length: 0,
       white: props.white,
-      inputText: ""
+      inputText: "",
+      annotation: false,
+      annotationText: ""
     };
 
     this.onClick = this.onClick.bind(this);
     this.onChange = this.onChange.bind(this);
+    this.annotationChanged = this.annotationChanged.bind(this);
   }
 
   onClick() {
     let length;
     if (this.state !== null && this.state.length === 3) {
       length = 0;
+      this.setState({
+        annotation: false
+      })
     }
     else {
       length = this.state.length + 1;
+      this.setState({
+        annotation: true
+      })
     }
     this.setState({
       length: length
@@ -366,6 +404,14 @@ class Line extends React.Component {
       inputText: event.target.value
     });
     this.props.changedText(this.state.level, this.state.cell, event.target.value);
+  }
+
+  annotationChanged(event) {
+    this.setState({
+      annotationText: event.target.value
+    })
+
+    this.props.annotationChanged(this.state.level, this.state.cell, event.target.value)
   }
 
   componentWillReceiveProps(nextProps) {
@@ -398,9 +444,19 @@ class Line extends React.Component {
     if (this.state != null && this.state.clicked === true) {
       className += " line-div-clicked ";
     }
+    if (this.state.annotation) {
+
+    }
     return(
       <div className="one-line">
-        <div className={className} onClick={this.onClick}/>
+        <div className="lineAnnotation">
+          <div className={className} onClick={this.onClick}/>
+          {this.state.annotation && 
+            <TextareaAutosize type="text" className="annotationText"
+            onChange={this.annotationChanged}> 
+            </TextareaAutosize> 
+          }
+        </div>
         <TextareaAutosize type="text" onChange={this.onChange} className={inputClassName} >
         </TextareaAutosize>
       </div>

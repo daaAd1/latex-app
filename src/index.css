@@ -286,6 +286,18 @@ input {
   padding: 5px;
 }
 
+.lineAnnotation{
+  display: flex;
+  flex-flow: row;
+}
+
+.annotationText {
+  border: 1px solid black;
+  width: 20px;
+  margin-left: 10px;
+  height: 5px;
+}
+
 @media only screen and (min-width: 120px) {
   .code-container {
     font-size: 10px;
