@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { } from "react";
 import LatexCode from "./LatexCode";
 import TextareaAutosize from 'react-autosize-textarea';
 
@@ -105,7 +105,10 @@ class SequenceMath extends React.Component {
         let row = "";
         let position = level.toString() + levelCell.toString();
         // console.log(((Math.pow(3, level-1)) / 3).toString() + " " + (((Math.pow(3, level-1)*2) / 3)).toString())
-        if ((levelCell > (Math.pow(3, level) / 3) && levelCell <= ((Math.pow(3, level)*2) / 3)) && this.state !== undefined && this.state.linesText[position] !== ""
+        if ((levelCell > (Math.pow(3, level) / 3) 
+        && levelCell <= ((Math.pow(3, level)*2) / 3)) &&
+         this.state !== undefined && 
+         this.state.linesText[position] !== ""
         && this.state.linesText[position] !== undefined) {
           if (level === 4) {
             row = "      &#92;AxiomC{" + this.state.linesText[position] + "}"
@@ -212,27 +215,28 @@ class SequenceMath extends React.Component {
   }
 
   generateLinesObject() {
-    var linesObject = [];
+    let linesObject = [];
+    let key = "";
     for (let level = 0; level < 5; level++) {
       for (let levelCell = 1; levelCell < 81; levelCell++) {
         if (level === 0 && levelCell < 2) {
-          var key = (level.toString()) + (levelCell.toString());
+          key = (level.toString()) + (levelCell.toString());
           linesObject[key] = '';
         }
         else if (level === 1 && levelCell < 4) {
-          var key = (level.toString()) + (levelCell.toString());
+          key = (level.toString()) + (levelCell.toString());
           linesObject[key] = '';
         }
         else if  (level === 2 && levelCell < 10) {
-          var key = (level.toString()) + (levelCell.toString());
+          key = (level.toString()) + (levelCell.toString());
           linesObject[key] = '';
         }
         else if  (level === 3 && levelCell < 28) {
-          var key = (level.toString()) + (levelCell.toString());
+          key = (level.toString()) + (levelCell.toString());
           linesObject[key] = '';
         }
         else if  (level === 4 ) {
-          var key = (level.toString()) + (levelCell.toString());
+          key = (level.toString()) + (levelCell.toString());
           linesObject[key] = '';
         }
       }
@@ -294,48 +298,44 @@ class SequenceMath extends React.Component {
     let positionChildrenOne = (level + 1).toString() + (cell*3).toString();
     let positionChildrenTwo = (level + 1).toString() + (cell*3-1).toString();
     let positionChildrenThree = (level + 1).toString() + (cell*3-2).toString();
-    if (position === "01") {
-      console.log(this.state.linesText[positionChildrenOne])
-      console.log(this.state.linesText[positionChildrenTwo])
-      console.log(this.state.linesText[positionChildrenThree])
-    }
+
     if (this.state.linesText[positionChildrenOne] === ""
   && 
    this.state.linesText[positionChildrenTwo] === "" &&
 
   this.state.linesText[positionChildrenThree] === "" 
-) {
+      ) {
       readonlyAnnot = true;
     }
 
     if (!levelNotHighEnough && this.state !== null && this.state.lines[position] > 0) {
-      return (<div className="cellLine">
+      return (<div key={position} className="cellLine">
       <Line changedText={this.addTextToObject} white={boolFalse} level={level} cell={cell} key={position} 
-      onClick={this.lineClick.bind(this,level, cell)} 
+      onClick={this.lineClick.bind(this,level, cell)}
       annotationChanged={this.annotationChanged}
       clicked={true} readonlyAnnot={readonlyAnnot}
        readonlyText={readonlyText}></Line></div>)
     }
     else if (!levelNotHighEnough && this.state !== null && this.state.lines[positionOneLevelDown] > 0){
-      return  (<div className="cellLine">
+      return  (<div key={position} className="cellLine">
       <Line changedText={this.addTextToObject} white={boolFalse} level={level} cell={cell} 
       onClick={this.lineClick.bind(this,level, cell)} 
       annotationChanged={this.annotationChanged}
-      key={position} clicked={false} readonlyAnnot={readonlyAnnot}
+      clicked={false} readonlyAnnot={readonlyAnnot}
       readonlyText={readonlyText}></Line></div>)
     }
     else if (level === 0) {
-      return  (<div className="cellLine">
+      return  (<div key={position} className="cellLine">
       <Line changedText={this.addTextToObject} white={boolFalse} level={level} cell={cell} 
       onClick={this.lineClick.bind(this,level, cell)} 
       annotationChanged={this.annotationChanged}
-       key={position} clicked={false} readonlyAnnot={readonlyAnnot}
+       clicked={false} readonlyAnnot={readonlyAnnot}
        readonlyText={readonlyText}></Line></div>)
     }
     else {
-      return  (<div className="cellLine">
+      return  (<div key={position} className="cellLine">
       <Line white={boolTrue} level={level} cell={cell} 
-      key={position} clicked={false}></Line></div>)
+      clicked={false}></Line></div>)
     }
   }
 
@@ -345,7 +345,7 @@ class SequenceMath extends React.Component {
     for (let level = 5; level > -1; level--) {
       let cell = [];
       for (let levelCell = 1; levelCell < 82; levelCell++) {
-        let position = level.toString() + levelCell.toString();
+        //let position = level.toString() + levelCell.toString();
         switch(level) {
           case 0:
             if (levelCell < 2) {
@@ -372,9 +372,11 @@ class SequenceMath extends React.Component {
               cell.push(this.pushCell(level, levelCell));
             }
             break;
+            default:
+              break;
         }        
       }
-      lines.push(<div className="level"><br/>{cell}</div>);
+      lines.push(<div key={level} className="level"><br/>{cell}</div>);
     }
     return (
       <div>

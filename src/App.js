@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import ReactHtmlParser, { processNodes, convertNodeToElement, htmlparser2 } from 'react-html-parser';
+//import ReactHtmlParser, { processNodes, convertNodeToElement, htmlparser2 } from 'react-html-parser';
 //import logo from './logo.svg';
 import './App.css';
 import tableIcon from "./table-large.png";

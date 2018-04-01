@@ -1,6 +1,5 @@
-import React, { Component } from "react";
-import {CopyToClipboard} from 'react-copy-to-clipboard';
-import copyIcon from "./content-copy.svg";
+import React, { } from "react";
+//import copyIcon from "./content-copy.svg";
 import TextareaAutosize from 'react-autosize-textarea';
 import LatexCode from "./LatexCode";
 
@@ -26,7 +25,6 @@ class Table extends React.Component {
     this.inputColumnsChanged = this.inputColumnsChanged.bind(this);
     this.inputTextChanged = this.inputTextChanged.bind(this);
     this.addTextToObject = this.addTextToObject.bind(this);
-    this.generateDangerousHTML = this.generateDangerousHTML.bind(this);
     this.changeCaption = this.changeCaption.bind(this);
     this.changeLabel = this.changeLabel.bind(this);
   }
@@ -71,7 +69,6 @@ class Table extends React.Component {
     for (let row = 0; row < rows; row++) {
       let rowText = '';
       for (let column = 0; column < columns; column++) {
-        let stringId = 1 + column.toString()
         let columnId = (column + 1).toString();
         let borderCell;
         if (this.state !== undefined) {
@@ -150,7 +147,7 @@ class Table extends React.Component {
             }
           }
           else {
-            if (borderCell2 = this.state.refToBorders[(row + 1).toString() + 1] !== null) {
+            if (this.state.refToBorders[(row + 1).toString() + 1] !== null) {
               borderCell = this.state.refToBorders[(row + 1).toString() + 1];
             }
           }
@@ -219,10 +216,6 @@ class Table extends React.Component {
         captionLabelTable.join("\n"),
         endTable
       ].join("\n")
-  }
-
-  generateDangerousHTML() {
-    return {__html: this.state.latexCode}
   }
 
   inputRowsChanged(changedRowCount) {
@@ -468,6 +461,12 @@ class TableRows extends React.Component {
       });
       this.props.rowValue(1);
     }
+    else if (event.target.value > 25) {
+      this.setState({
+        rows: 25
+      });
+      this.props.rowValue(25);
+    }
     else {
       this.setState({
         rows: event.target.value
@@ -478,7 +477,7 @@ class TableRows extends React.Component {
   render() {
     return (
       <div className="input-rows">
-        Rows: <input type="number" min="1" max="20" 
+        Rows: <input type="number" min="1" max="25" 
           value={this.state.rows} onChange={this.onChange.bind(this)}/> |
       </div>
     );
@@ -501,6 +500,12 @@ class TableColumns extends React.Component {
       });
       this.props.columnValue(1);
     }
+    else if (event.target.value > 15) {
+      this.setState({
+        columns: 15
+      });
+      this.props.columnValue(15);
+    }
     else {
       this.setState({
         columns: event.target.value
@@ -513,7 +518,7 @@ class TableColumns extends React.Component {
   render() {
     return (
       <div className="input-columns">
-        Columns: <input type="number" min="1" max="20" 
+        Columns: <input type="number" min="1" max="15" 
          value={this.state.columns} onChange={this.onChange.bind(this)}/>
       </div>
     );
