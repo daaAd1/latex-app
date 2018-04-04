@@ -310,13 +310,13 @@ input {
   padding-left: 15px;
 }
 
-.arrowButtons > div > button {
+.arrowButtons > div > button, .arrowButtons > button  {
   border: 0.1px black solid;
   background-color: azure;
   padding: 6.5px;
 }
 
-.arrowButtons > div > button:hover {
+.arrowButtons > div > button:hover, .arrowButtons > button:hover {
   background-color: aquamarine;
   cursor: pointer;
 }
@@ -357,6 +357,14 @@ input {
   color: black;
   text-decoration: none;
   cursor: pointer;
+}
+
+.arrowButtons > div > .arrow-activated:hover, .arrowButtons > .current-arrow-type:hover {
+  background-color: azure;
+}
+
+.arrowButtons > div > .arrow-activated, .arrowButtons > .current-arrow-type {
+  background-color: aquamarine;
 }
 
 @media only screen and (min-width: 120px) {

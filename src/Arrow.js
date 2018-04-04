@@ -17,9 +17,13 @@ class Arrow extends React.Component {
     super(props);
  
     this.state = {
+      row: props.row,
+      column: props.column,
       modalIsOpen: false,
-      arrowType: props.arrowType,
-      arrowText: ""
+      arrowDirection: props.arrowDirection,
+      arrowActivated: false,
+      arrowText: "",
+      arrowType: "To"
     };
  
     this.openModal = this.openModal.bind(this);
@@ -28,7 +32,16 @@ class Arrow extends React.Component {
   }
  
   openModal() {
-    this.setState({modalIsOpen: true});
+    if (this.state.arrowActivated) {
+      this.setState({
+        modalIsOpen: true
+      });
+    }
+    else {
+      this.setState({
+        arrowActivated: true
+      });
+    }
   }
  
   afterOpenModal() {
@@ -37,7 +50,9 @@ class Arrow extends React.Component {
   }
  
   closeModal() {
-    this.setState({modalIsOpen: false});
+    this.setState({
+      modalIsOpen: false
+    });
   }
 
   arrowTextChanged(event) {
@@ -45,11 +60,29 @@ class Arrow extends React.Component {
       arrowText: event.target.value
     });
   }
+
+  deleteArrow() {
+    this.setState({
+      arrowActivated: false,
+      modalIsOpen: false
+    });
+  }
+
+  onArrowTypeChange(event) {
+    this.setState({
+      arrowType: event.target.value
+    });
+  }
  
   render() {
+    let className = "";
+    if (this.state.arrowActivated) {
+      className = "arrow-activated";
+    }
     return (
       <div>
-        <button onClick={this.openModal}>{this.state.arrowType}</button>
+        <button onClick={this.openModal} className={className}
+        >{this.state.arrowDirection}</button>
         <Modal
           ariaHideApp={false}
           isOpen={this.state.modalIsOpen}
@@ -60,17 +93,45 @@ class Arrow extends React.Component {
         >
 
           <h2 ref={subtitle => this.subtitle = subtitle}>Edit arrow properties</h2>
-          <button onClick={this.closeModal}>close</button>
+          <button type="button" onClick={this.closeModal}>close</button>
           <form>
             <label  htmlFor="arrow-text"> Arrow text: </label>
             <input type="text" id="arrow-text" 
             value={this.state.arrowText} 
             onChange={this.arrowTextChanged.bind(this)} />
-            <button>delete arrow</button>
+            <button type="button" onClick={this.deleteArrow.bind(this)}>delete arrow</button>
+              <div className="arrowButtons">
+                 Arrow types: 
+                <input onChange={this.onArrowTypeChange.bind(this)} type="radio" name="arrow-type" value="To" id="To"
+                checked={this.state.arrowType === "To"}/> 
+                <label htmlFor ="To">To</label>
+                <input onChange={this.onArrowTypeChange.bind(this)} type="radio" name="arrow-type" value="Mapsto"  id="Mapsto"
+                 checked={this.state.arrowType === "Mapsto"} /> 
+                <label htmlFor ="Mapsto">Mapsto</label>
+                <input onChange={this.onArrowTypeChange.bind(this)} type="radio" name="arrow-type" value="Line" id="Line"
+                   checked={this.state.arrowType === "Line"}/> 
+                <label htmlFor ="Line">Line</label>
+                <input onChange={this.onArrowTypeChange.bind(this)} type="radio" name="arrow-type" value="Into" id="Into"
+                 checked={this.state.arrowType === "Into"} />
+                <label htmlFor ="Into">Into</label>
+                <input onChange={this.onArrowTypeChange.bind(this)} type="radio" name="arrow-type" value="Onto" id="Onto"
+                 checked={this.state.arrowType === "Onto"}/> 
+                <label htmlFor ="Onto">Onto</label>
+                <input onChange={this.onArrowTypeChange.bind(this)} type="radio" name="arrow-type" value="Dotsto" id="Dotsto"
+                 checked={this.state.arrowType === "Dotsto"}/> 
+                <label htmlFor ="Dotsto">Dotsto</label>
+                <input onChange={this.onArrowTypeChange.bind(this)} type="radio" name="arrow-type" value="Dashto" id="Dashto"
+                 checked={this.state.arrowType === "Dashto"}/> 
+                <label htmlFor ="Dashto">Dashto</label>
+                <input onChange={this.onArrowTypeChange.bind(this)} type="radio" name="arrow-type" value="Implies" id="Implies"
+                 checked={this.state.arrowType === "Implies"}/> 
+                <label htmlFor ="Implies">Implies</label>
+              </div>
           </form>
         </Modal>
       </div>
     );
   }
 }
+
 export default Arrow;

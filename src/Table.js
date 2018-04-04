@@ -31,6 +31,12 @@ class Table extends React.Component {
 
   initializeTextObject(rows, columns) {
     let initialObject = {};
+    if (this.state !== undefined && this.state.textInTable !== undefined ) {
+      initialObject = this.state.textInTable;
+    } 
+    else {
+      initialObject = {};
+    }
     for (let row = 0; row < rows; row++) {
       for (let column = 0; column < columns; column++) {
         if (this.state !== undefined && this.state.textInTable !== undefined 
