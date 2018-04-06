@@ -29,6 +29,7 @@ class Arrow extends React.Component {
     this.openModal = this.openModal.bind(this);
     this.afterOpenModal = this.afterOpenModal.bind(this);
     this.closeModal = this.closeModal.bind(this);
+    this.passNewStateToProps = this.passNewStateToProps.bind(this);
   }
  
   openModal() {
@@ -39,9 +40,16 @@ class Arrow extends React.Component {
     }
     else {
       this.setState({
-        arrowActivated: true
-      });
+        arrowActivated: true,
+      }, () => this.passNewStateToProps());
     }
+  }
+
+  passNewStateToProps() {
+    let direction = this.state.arrowDirection;
+    let text = this.state.arrowText;
+    let type = this.state.arrowType;
+    this.props.arrowActivated(direction, text, type);
   }
  
   afterOpenModal() {
@@ -58,20 +66,20 @@ class Arrow extends React.Component {
   arrowTextChanged(event) {
     this.setState({
       arrowText: event.target.value
-    });
+    }, () => this.passNewStateToProps());
   }
 
   deleteArrow() {
     this.setState({
       arrowActivated: false,
       modalIsOpen: false
-    });
+    }, () => this.props.arrowDeleted(this.state.arrowDirection)); 
   }
 
   onArrowTypeChange(event) {
     this.setState({
       arrowType: event.target.value
-    });
+    }, () => this.passNewStateToProps());
   }
  
   render() {

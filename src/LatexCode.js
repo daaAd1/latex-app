@@ -6,7 +6,7 @@ class LatexCode extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            copied: props.copied,
+            copied: false,
             innerHtml: props.code
         }
 

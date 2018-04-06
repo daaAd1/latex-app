@@ -11,7 +11,6 @@ class Table extends React.Component {
       columns: 11,
       textInTable: this.initializeTextObject(11, 11),
       latexCode: this.generateLatexCode(11, 11),
-      copied: false,
       refToBorders: {},
       refToAlignments: {},
       refToInputs: {},
@@ -208,11 +207,7 @@ class Table extends React.Component {
         " &#92;end{table} "
     ];
 
-    if (this.state !== undefined && this.state.copied !== undefined ) {
-      this.setState({
-        copied: false
-      })
-    }
+    
 
     return [
         beginTable.join("\n"),
@@ -337,7 +332,7 @@ class Table extends React.Component {
   }
 
   render() {
-    let latexCode = <LatexCode code={this.state.latexCode} copied={this.state.copied}></LatexCode>;
+    let latexCode = <LatexCode code={this.state.latexCode}></LatexCode>;
     let rows = [];
     for (var row = -1; row < this.state.rows; row++){
       let cell = [];

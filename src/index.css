@@ -307,7 +307,7 @@ input {
 .arrowButtons {
   display: flex;
   flex-flow: row;
-  padding-left: 15px;
+  padding-left: 10px;
 }
 
 .arrowButtons > div > button, .arrowButtons > button  {
