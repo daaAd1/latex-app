@@ -54,8 +54,8 @@ class Table extends React.Component {
   }
 
   addTextToObject(row, column, text) {
-    var key = (row.toString()) + (column.toString());
-    var obj = this.state.textInTable;
+    let key = (row.toString()) + (column.toString());
+    let obj = this.state.textInTable;
     obj[key] = text;
     this.setState({
       textInTable: obj
@@ -334,9 +334,9 @@ class Table extends React.Component {
   render() {
     let latexCode = <LatexCode code={this.state.latexCode}></LatexCode>;
     let rows = [];
-    for (var row = -1; row < this.state.rows; row++){
+    for (let row = -1; row < this.state.rows; row++){
       let cell = [];
-      for (var column= 0; column < this.state.columns; column++){
+      for (let column= 0; column < this.state.columns; column++){
         let cellId = `cell${row}-${column}`;
         let stringId = row.toString() + column.toString();
         let columnId = column.toString();

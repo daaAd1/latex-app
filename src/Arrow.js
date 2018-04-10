@@ -23,6 +23,7 @@ class Arrow extends React.Component {
       arrowDirection: props.arrowDirection,
       arrowActivated: false,
       arrowText: "",
+      arrowText2: "",
       arrowType: "To"
     };
  
@@ -48,8 +49,9 @@ class Arrow extends React.Component {
   passNewStateToProps() {
     let direction = this.state.arrowDirection;
     let text = this.state.arrowText;
+    let text2 = this.state.arrowText2;
     let type = this.state.arrowType;
-    this.props.arrowActivated(direction, text, type);
+    this.props.arrowActivated(direction, text, text2, type);
   }
  
   afterOpenModal() {
@@ -66,6 +68,12 @@ class Arrow extends React.Component {
   arrowTextChanged(event) {
     this.setState({
       arrowText: event.target.value
+    }, () => this.passNewStateToProps());
+  }
+
+  arrowTextTwoChanged(event) {
+    this.setState({
+      arrowText2: event.target.value
     }, () => this.passNewStateToProps());
   }
 
@@ -107,6 +115,10 @@ class Arrow extends React.Component {
             <input type="text" id="arrow-text" 
             value={this.state.arrowText} 
             onChange={this.arrowTextChanged.bind(this)} />
+            <label  htmlFor="arrow-text2"> Arrow text 2: </label>
+            <input type="text" id="arrow-text2" 
+            value={this.state.arrowText2} 
+            onChange={this.arrowTextTwoChanged.bind(this)} />
             <button type="button" onClick={this.deleteArrow.bind(this)}>delete arrow</button>
               <div className="arrowButtons">
                  Arrow types: 

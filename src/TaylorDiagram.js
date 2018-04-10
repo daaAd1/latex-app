@@ -1,6 +1,7 @@
 import React, { } from "react";
 import LatexCode from "./LatexCode";
 import Arrow from "./Arrow";
+import TextareaAutosize from 'react-autosize-textarea';
 
 class TaylorDiagram extends React.Component {
   constructor(props) {
@@ -85,14 +86,14 @@ class TaylorDiagram extends React.Component {
           } 
           else {
             arrowObject[position] = {};
-            arrowObject[position].lu = {active: false, text: "", type: ""};
-            arrowObject[position].u = {active: false, text: "", type: ""};
-            arrowObject[position].ru = {active: false, text: "", type: ""};
-            arrowObject[position].l = {active: false, text: "", type: ""};
-            arrowObject[position].r = {active: false, text: "", type: ""};
-            arrowObject[position].ld = {active: false, text: "", type: ""};
-            arrowObject[position].d = {active: false, text: "", type: ""};
-            arrowObject[position].rd = {active: false, text: "", type: ""};
+            arrowObject[position].lu = {active: false, text: "", text2: "",type: ""};
+            arrowObject[position].u = {active: false, text: "", text2: "", type: ""};
+            arrowObject[position].ru = {active: false, text: "", text2: "", type: ""};
+            arrowObject[position].l = {active: false, text: "", text2: "", type: ""};
+            arrowObject[position].r = {active: false, text: "", text2: "", type: ""};
+            arrowObject[position].ld = {active: false, text: "", tex2t: "", type: ""};
+            arrowObject[position].d = {active: false, text: "", text2: "", type: ""};
+            arrowObject[position].rd = {active: false, text: "", text2: "", type: ""};
           }
       }
     }
@@ -108,11 +109,12 @@ class TaylorDiagram extends React.Component {
     }); 
   }
   
-  addArrowToObject(row, column, direction, text, type) {
+  addArrowToObject(row, column, direction, text, text2, type) {
     let key = (row.toString()) + (column.toString());
     let obj = this.state.arrowsObject;
     obj[key][direction].active = true;
     obj[key][direction].text = text;
+    obj[key][direction].text2 = text2;
     obj[key][direction].type = type;
     this.setState({
       arrowsObject: obj,
@@ -166,7 +168,11 @@ class TaylorDiagram extends React.Component {
               rowText += " & &#92;l" + arrowType;
               let arrowText = this.state.arrowsObject[position]["l"].text;
               if (arrowText !== "") {
-                rowText += "_{" + arrowText + "}";
+                rowText += "^{" + arrowText + "}";
+              }
+              let arrowText2 = this.state.arrowsObject[position]["l"].text2;
+              if (arrowText2 !=="") {
+                rowText += "_{" + arrowText2 + "}";
               }
             }
             if (column === 1) {
@@ -175,11 +181,13 @@ class TaylorDiagram extends React.Component {
             else {
               rowText += " & " + this.state.textObject[position];
             }
-            let positionR = (row - 1).toString() + column.toString();
+            //let positionR = (row - 1).toString() + column.toString();
             let positionNextOne = row.toString() + (column+1).toString();
             if (this.state.additionalArrowsObject !== undefined 
           && this.state.arrowsObject !== undefined
+          && this.state.arrowsObject[position] !== undefined
           && !this.state.arrowsObject[position]["r"].active
+          && this.state.arrowsObject[positionNextOne] !== undefined
           && !this.state.arrowsObject[positionNextOne]["l"].active) {
             if (this.state.additionalArrowsObject[column.toString()]) {
                 rowText += " & ";
@@ -192,8 +200,12 @@ class TaylorDiagram extends React.Component {
                 rowText += " & &#92;r" + arrowType;
                 let arrowText = this.state.arrowsObject[position]["r"].text;
                 if (arrowText !== "") {
-                  rowText += "_{" + arrowText + "}";
+                  rowText += "^{" + arrowText + "}";
                 }
+                let arrowText2 = this.state.arrowsObject[position]["r"].text2;
+              if (arrowText2 !=="") {
+                rowText += "_{" + arrowText2 + "}";
+              }
           }
         }
         if (column === numOfColumns) {
@@ -241,7 +253,7 @@ class TaylorDiagram extends React.Component {
             }
           }
           if (!isAnyArrowActive) {
-            rowText = rowText.replace(/\&#92;&#92;\n/g, " ");
+            rowText = rowText.replace(/&#92;&#92;\n/g, " ");
           }    
         }
       }
@@ -265,7 +277,11 @@ class TaylorDiagram extends React.Component {
       rowText += " & &#92;" + direction + arrowType;
       let arrowText = this.state.arrowsObject[position][direction].text;
       if (arrowText !== "") {
-        rowText += "_ {" + arrowText + "}";
+        rowText += "^{" + arrowText + "}";
+      }
+      let arrowText2 = this.state.arrowsObject[position][direction].text2;
+      if (arrowText2 !=="") {
+        rowText += "_{" + arrowText2 + "}";
       }
     }
     return rowText;
@@ -296,8 +312,8 @@ class TaylorDiagram extends React.Component {
           if (this.state.arrowsObject[position]["r"].active
           || this.state.arrowsObject[position]["rd"].active
         || this.state.arrowsObject[position]["ru"].active) {
-            var key = column.toString();
-            var obj = this.state.additionalArrowsObject;
+            let key = column.toString();
+            let obj = this.state.additionalArrowsObject;
             obj[key] = true;
             this.setState({
               additionalArrowsObject: obj
@@ -306,8 +322,8 @@ class TaylorDiagram extends React.Component {
           if (this.state.arrowsObject[positionOneColumnAway]["l"].active
           || this.state.arrowsObject[positionOneColumnAway]["ld"].active 
           || this.state.arrowsObject[positionOneColumnAway]["lu"].active) {
-            var key = column.toString();
-            var obj = this.state.additionalArrowsObject;
+            let key = column.toString();
+            let obj = this.state.additionalArrowsObject;
             obj[key] = true;
             this.setState({
               additionalArrowsObject: obj
@@ -331,8 +347,8 @@ class TaylorDiagram extends React.Component {
     }
     else if (event.target.value > 15) {
       this.setState({
-        rows: 20,
-        textObject: this.initializeTextObject(),
+        rows: 15,
+        textObject: this.initializeTextObject(15,10),
         columnsObject: this.initializeColumnsObject(15),
       }, () => {
         this.setState ({ 
@@ -370,8 +386,8 @@ class TaylorDiagram extends React.Component {
     });
   }
 
-  arrowStateChanged(row, column, direction, text, type) {
-    this.addArrowToObject(row, column, direction, text, type);
+  arrowStateChanged(row, column, direction, text, text2, type) {
+    this.addArrowToObject(row, column, direction, text, text2, type);
     this.setState ({ 
       latexCode: this.generateLatexCode()
     });
@@ -390,7 +406,7 @@ class TaylorDiagram extends React.Component {
     rows.push(
     <div key={"first-row-key"}>
       Rows:
-      <input type="number" value={this.state.rows}
+      <input type="number" min="1" max="15" value={this.state.rows}
        onChange={this.onRowsChange.bind(this)}/>
     </div>
     );
@@ -439,8 +455,8 @@ class Row extends React.Component {
     }
   }
 
-  arrowStateChanged(column, direction, text, type) {
-    this.props.arrowStateChanged(column, direction, text, type);
+  arrowStateChanged(column, direction, text, text2, type) {
+    this.props.arrowStateChanged(column, direction, text, text2, type);
   }
 
   arrowDeleted(column, direction) {
@@ -486,8 +502,8 @@ class Cell extends React.Component {
     this.props.cellTextChanged(event.target.value, this.state.row, this.state.column);
   }
 
-  arrowStateChanged(direction, text, type) {
-    this.props.arrowStateChanged(direction, text, type);
+  arrowStateChanged(direction, text, text2, type) {
+    this.props.arrowStateChanged(direction, text, text2, type);
   }
 
   arrowDeleted(direction) {
@@ -503,7 +519,8 @@ class Cell extends React.Component {
               <Arrow arrowDeleted={this.arrowDeleted.bind(this)} arrowActivated={this.arrowStateChanged.bind(this)} row={this.state.row} column={this.state.column} arrowDirection="r" /><Arrow arrowDeleted={this.arrowDeleted.bind(this)} arrowActivated={this.arrowStateChanged.bind(this)} row={this.state.row} column={this.state.column} arrowDirection="ld" />
               <Arrow arrowDeleted={this.arrowDeleted.bind(this)} arrowActivated={this.arrowStateChanged.bind(this)} row={this.state.row} column={this.state.column}  arrowDirection="d" /><Arrow arrowDeleted={this.arrowDeleted.bind(this)} arrowActivated={this.arrowStateChanged.bind(this)} row={this.state.row} column={this.state.column} arrowDirection="rd" />
         </div>
-        <input type="text" value={this.state.cellText}
+        <TextareaAutosize type="text" value={this.state.cellText}
+        className="input-textarea"
         onChange={this.cellTextChanged.bind(this)}/>        
       </div>
     );
