@@ -241,7 +241,6 @@ class TaylorDiagram extends React.Component {
                     && this.state.arrowsObject[newPositionRight] !== undefined
                     && !this.state.arrowsObject[newPositionRight]["ld"].active) {
                   rowText += this.checkForArrow("ru", positionOneLevelDown);
-                  console.log(rowText)
                 }
                 if (this.state !== undefined && this.state.arrowsObject !== undefined
                   && this.state.arrowsObject[newPositionLeft] !== undefined
@@ -411,7 +410,7 @@ class TaylorDiagram extends React.Component {
     </div>
     );
     for (let row = 1; row <= this.state.rows; row++ ) {
-        rows.push(<Row cellTextChanged={this.cellTextChanged.bind(this)}
+        rows.push(<Row rowText={this.state.textObject} cellTextChanged={this.cellTextChanged.bind(this)}
          key={row} row={row} arrowDeleted={this.arrowDeleted.bind(this, row)}
          arrowStateChanged={this.arrowStateChanged.bind(this, row)}
           onColumnsChange={this.onColumnsChange.bind(this, row)}> </Row>);
@@ -431,6 +430,7 @@ class Row extends React.Component {
     this.state = {
       row: props.row,
       columns: 3,
+      rowText: props.rowText,
     }
   };
 
@@ -467,13 +467,18 @@ class Row extends React.Component {
     let cells = [];
     
     for (let column  = 1; column <= this.state.columns; column++) {
-        cells.push(
-        <div key={column} className="cellArrows">
-            <Cell arrowStateChanged={this.arrowStateChanged.bind(this, column)}
-            arrowDeleted={this.arrowDeleted.bind(this, column)}
-            row={this.state.row} column={column} 
-            cellTextChanged={this.props.cellTextChanged}/>
-        </div>)
+      let cellText = "";
+      if (this.state !== undefined && 
+      this.state.rowText !== undefined) {
+        cellText = this.state.rowText[this.state.row.toString() + column.toString()];
+      }
+      cells.push(
+      <div key={column} className="cellArrows">
+          <Cell arrowStateChanged={this.arrowStateChanged.bind(this, column)}
+          arrowDeleted={this.arrowDeleted.bind(this, column)}
+          row={this.state.row} column={column} cellText={cellText}
+          cellTextChanged={this.props.cellTextChanged}/>
+      </div>)
     }
     return (
       <div className="taylor-row">
@@ -491,7 +496,7 @@ class Cell extends React.Component {
     this.state = {
       row: props.row,
       column: props.column,
-      cellText: "",
+      cellText: props.cellText,
     };
   }
 

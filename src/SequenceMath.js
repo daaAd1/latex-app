@@ -104,7 +104,6 @@ class SequenceMath extends React.Component {
       for (let levelCell = 1; levelCell < 55; levelCell++) {
         let row = "";
         let position = level.toString() + levelCell.toString();
-        // console.log(((Math.pow(3, level-1)) / 3).toString() + " " + (((Math.pow(3, level-1)*2) / 3)).toString())
         if ((levelCell > (Math.pow(3, level) / 3) 
         && levelCell <= ((Math.pow(3, level)*2) / 3)) &&
          this.state !== undefined && 
@@ -306,11 +305,17 @@ class SequenceMath extends React.Component {
       readonlyAnnot = true;
     }
 
+    let annotationText = "";
+    if (this.state !== undefined && 
+      this.state.annotationObject !== undefined) {
+      annotationText = this.state.annotationObject[position];
+    }
     if (!levelNotHighEnough && this.state !== null && this.state.lines[position] > 0) {
       return (<div key={position} className="cellLine">
       <Line changedText={this.addTextToObject} white={boolFalse} level={level} cell={cell}  
       onClick={this.lineClick.bind(this,level, cell)}
       annotationChanged={this.annotationChanged}
+      annotationText={annotationText}
       clicked={true} readonlyAnnot={readonlyAnnot}
        readonlyText={readonlyText}></Line></div>)
     }
@@ -319,6 +324,7 @@ class SequenceMath extends React.Component {
       <Line changedText={this.addTextToObject} white={boolFalse} level={level} cell={cell} 
       onClick={this.lineClick.bind(this,level, cell)} 
       annotationChanged={this.annotationChanged}
+      annotationText={annotationText}
       clicked={false} readonlyAnnot={readonlyAnnot}
       readonlyText={readonlyText}></Line></div>)
     }
@@ -327,12 +333,14 @@ class SequenceMath extends React.Component {
       <Line changedText={this.addTextToObject} white={boolFalse} level={level} cell={cell} 
       onClick={this.lineClick.bind(this,level, cell)} 
       annotationChanged={this.annotationChanged}
+      annotationText={annotationText}
        clicked={false} readonlyAnnot={readonlyAnnot}
        readonlyText={readonlyText}></Line></div>)
     }
     else {
       return  (<div key={position} className="cellLine">
       <Line white={boolTrue} level={level} cell={cell} 
+      annotationText={annotationText}
       clicked={false}></Line></div>)
     }
   }
@@ -396,7 +404,7 @@ class Line extends React.Component {
       white: props.white,
       inputText: "",
       annotation: false,
-      annotationText: "",
+      annotationText: props.annotationText,
       readonlyText: props.readonlyText,
       readonlyAnnot: props.readonlyAnnot
     };
@@ -490,11 +498,13 @@ class Line extends React.Component {
           <div className={className} onClick={this.onClick.bind(this)}/>
           {this.state.annotation && 
             <TextareaAutosize readOnly={this.state.readonlyAnnot} type="text" className="annotationText"
-            onChange={this.annotationChanged}> 
+            onChange={this.annotationChanged}
+            value={this.state.annotationText}> 
             </TextareaAutosize> 
           }
         </div>
-        <TextareaAutosize readOnly={this.state.readonlyText}
+        <TextareaAutosize readOnly={this.state.readonlyText} 
+        value={this.state.inputText}
          type="text" onChange={this.onChange} className={inputClassName} >
         </TextareaAutosize>
       </div>

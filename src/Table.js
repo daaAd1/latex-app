@@ -29,7 +29,7 @@ class Table extends React.Component {
   }
 
   initializeTextObject(rows, columns) {
-    let initialObject = {};
+    let initialObject;
     if (this.state !== undefined && this.state.textInTable !== undefined ) {
       initialObject = this.state.textInTable;
     } 
@@ -38,15 +38,13 @@ class Table extends React.Component {
     }
     for (let row = 0; row < rows; row++) {
       for (let column = 0; column < columns; column++) {
+        let position = row.toString() + column.toString();
         if (this.state !== undefined && this.state.textInTable !== undefined 
-          && this.state.textInTable[row.toString() + column.toString()] !== undefined) {
-            initialObject[row.toString() + column.toString()]
-              = this.state.textInTable[row.toString() + column.toString()];
+          && this.state.textInTable[position] !== undefined) {
+            initialObject[position] = this.state.textInTable[position];
           } 
           else {
-            //if (!(row % 2 === 0) || !(column & 2 === 0)) {
-              initialObject[row.toString() + column.toString()] = '';
-            //}
+              initialObject[position] = '';
           }
       }
     }
@@ -81,10 +79,8 @@ class Table extends React.Component {
         }
         if (column % 2 === 0  && row === 0) {
           let textAlignment;
-          if (this.state !== undefined) {
-            //console.log(columnId + this.state.refToAlignments[columnId])
-          }
-          if (this.state !==  undefined && this.state.refToAlignments[columnId] !== undefined) {
+          if (this.state !==  undefined && this.state.refToAlignments[columnId] !== undefined
+          && this.state.refToAlignments[columnId] !== null) {
             let alignment = this.state.refToAlignments[columnId].state.alignment;
             if (alignment === "center") { 
               textAlignment = "c"
@@ -99,7 +95,6 @@ class Table extends React.Component {
           else {
             textAlignment = "l"
           }
-          //console.log(textAlignment)
           if (borderCell !== undefined) {
             if (borderCell.state.active === true) {
               if (column === columns -1 ) {
@@ -223,8 +218,8 @@ class Table extends React.Component {
     // have to call generateLatex as callback
     // because of setState asynchronity
     this.setState({
-      rows: changedRowCount * 2 + 2,
-      textInTable: this.initializeTextObject(changedRowCount * 2 + 2, this.state.columns),
+      rows: changedRowCount * 2 + 1,
+      textInTable: this.initializeTextObject(changedRowCount * 2 + 1, this.state.columns),
     },  () => {
       this.setState ({ latexCode: this.generateLatexCode(changedRowCount * 2 + 1, this.state.columns)
     })});
@@ -396,20 +391,30 @@ class Table extends React.Component {
               row={row} column={column} direction="column" />)
           }
           else {
+            let inputText = "";
             if (this.state !== undefined && 
-              this.state.refToAlignments[columnId] !== undefined) {
-                let alignValue = this.state.refToAlignments[columnId].state.alignment
+              this.state.refToAlignments[columnId] !== undefined
+              && this.state.refToAlignments[columnId] !== null) {
+              if (this.state !== undefined && 
+                this.state.textInTable !== undefined) {
+                inputText = this.state.textInTable[stringId];
+              }
+              let alignValue = this.state.refToAlignments[columnId].state.alignment
               cell.push(<td className="td" key={cellId}>
               <TableInputCell changedText={this.inputTextChanged} 
                 row={row} column={column}
-                alignment={alignValue}
+                alignment={alignValue} text={inputText}
                 ref={(input) => {this.state.refToInputs[stringId] = input}} 
                 /> </td>)
               }
             else {
+              if (this.state !== undefined && 
+              this.state.textInTable !== undefined) {
+                inputText = this.state.textInTable[stringId];
+              }
               cell.push(<td className="td" key={cellId}>
               <TableInputCell changedText={this.inputTextChanged} 
-                row={row} column={column}
+                row={row} column={column} text={inputText}
                 alignment={"left"}
                 ref={(input) => {this.state.refToInputs[stringId] = input}} 
                 /> </td>)
@@ -532,7 +537,7 @@ class TableInputCell extends React.Component {
     this.state = {
       row: props.row,
       column: props.column,
-      text: '',
+      text: props.text,
       alignment: props.alignment
     };
 
