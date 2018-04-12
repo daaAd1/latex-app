@@ -7,16 +7,15 @@ class Table extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      rows: 11, 
-      columns: 11,
-      textInTable: this.initializeTextObject(11, 11),
-      latexCode: this.generateLatexCode(11, 11),
+      rows: this.getInitialRowsState(), 
+      columns: this.getInitialColumnsState(),
+      textInTable: this.getInitialTextObject(),
+      latexCode: "",
+      caption: this.getInitialCaption(),
+      label: this.getInitialLabel(),
       refToBorders: {},
       refToAlignments: {},
       refToInputs: {},
-      value: '',
-      caption: ' ',
-      label: ' '
     };
 
     this.generateLatexCode = this.generateLatexCode.bind(this);
@@ -26,9 +25,61 @@ class Table extends React.Component {
     this.addTextToObject = this.addTextToObject.bind(this);
     this.changeCaption = this.changeCaption.bind(this);
     this.changeLabel = this.changeLabel.bind(this);
+    this.resetApplicationState = this.resetApplicationState.bind(this);
   }
 
-  initializeTextObject(rows, columns) {
+  resetApplicationState() {
+    this.setState({
+      rows: 11,
+      columns: 11,
+      textInTable: this.getInitialTextObject(),
+      latexCode: this.generateLatexCode(),
+      caption: "",
+      label: "",
+      refToBorders: {},
+      refToAlignments: {},
+      refToInputs: {},
+    });
+    window.localStorage.clear();
+    window.location.reload();
+  }
+
+  getInitialRowsState() {
+    let localRows = localStorage.getItem("table-rows") || 11;
+    return localRows;
+  }
+
+  getInitialColumnsState() {
+    let columns = localStorage.getItem("table-columns") || 11;
+    return columns;
+  }
+
+  getInitialTextObject() {
+    let textObject =JSON.parse(localStorage.getItem("table-textObject")) || this.initializeTextObject();
+    return textObject;
+  }
+
+  getInitialCaption() {
+    let caption = localStorage.getItem("table-caption") || "";
+    return caption;
+  }
+
+  getInitialLabel() {
+    let label = localStorage.getItem("table-label") || "";
+    return label;
+  }
+
+  componentDidMount() {
+    this.setState({
+      textInTable: this.initializeTextObject(),
+    }, () => {
+      this.setState({
+        latexCode: this.generateLatexCode(this.state.rows, this.state.columns)
+      });
+    });
+  }
+
+  initializeTextObject() {
     let initialObject;
     if (this.state !== undefined && this.state.textInTable !== undefined ) {
       initialObject = this.state.textInTable;
@@ -36,8 +87,16 @@ class Table extends React.Component {
     else {
       initialObject = {};
     }
-    for (let row = 0; row < rows; row++) {
-      for (let column = 0; column < columns; column++) {
+    let numOfRows = 11;
+    if (this.state !== undefined && this.state.rows !== undefined) {
+      numOfRows = this.state.rows;
+    }
+    let numOfColumns = 11;
+    if (this.state !== undefined && this.state.columns !== undefined) {
+      numOfColumns = this.state.columns;
+    }
+    for (let row = 0; row < numOfRows; row++) {
+      for (let column = 0; column < numOfColumns; column++) {
         let position = row.toString() + column.toString();
         if (this.state !== undefined && this.state.textInTable !== undefined 
           && this.state.textInTable[position] !== undefined) {
@@ -58,6 +117,7 @@ class Table extends React.Component {
     this.setState({
       textInTable: obj
     });
+    localStorage.setItem("table-textObject", JSON.stringify(obj));
   }
 
   generateLatexCode(rows, columns) {
@@ -202,16 +262,16 @@ class Table extends React.Component {
         " &#92;end{table} "
     ];
 
-    
+    let finalString = [
+      beginTable.join("\n"),
+      columnTable.join("\n"),
+      coreTable.join("\n"),
+      endTabular,
+      captionLabelTable.join("\n"),
+      endTable
+    ].join("\n");
 
-    return [
-        beginTable.join("\n"),
-        columnTable.join("\n"),
-        coreTable.join("\n"),
-        endTabular,
-        captionLabelTable.join("\n"),
-        endTable
-      ].join("\n")
+    return finalString;
   }
 
   inputRowsChanged(changedRowCount) {
@@ -223,6 +283,7 @@ class Table extends React.Component {
     },  () => {
       this.setState ({ latexCode: this.generateLatexCode(changedRowCount * 2 + 1, this.state.columns)
     })});
+    localStorage.setItem("table-rows", changedRowCount * 2 + 1);
   }
 
   inputColumnsChanged(changedColumnCount) {
@@ -234,6 +295,7 @@ class Table extends React.Component {
     }, () => {
       this.setState ({ latexCode: this.generateLatexCode(this.state.rows, changedColumnCount * 2 + 1)
     })});
+    localStorage.setItem("table-columns", changedColumnCount * 2 + 1);
   }
 
   inputTextChanged( changedTextValue, row, column) {
@@ -244,12 +306,18 @@ class Table extends React.Component {
   }
 
   selectBorder(row, column, direction) {
+    let borderCell = this.state.refToBorders[row.toString() + column.toString()];
+    let newBorderActiveValue = false;
+    if (borderCell != null) {
+      newBorderActiveValue = !borderCell.state.active;
+    }
     if (direction === "row") {
       for (let columnBorder = 0; columnBorder < this.state.columns; columnBorder++) {
         let borderCell = this.state.refToBorders[row.toString() + columnBorder.toString()];
         if (borderCell != null && borderCell.state.direction === "row") {
+          localStorage.setItem("table-border-" + row + columnBorder, newBorderActiveValue);            
           borderCell.setState({
-            active: !borderCell.state.active
+            active: newBorderActiveValue
           }, () => {this.setState({
             latexCode: this.generateLatexCode(this.state.rows, this.state.columns)
           })});
@@ -260,8 +328,9 @@ class Table extends React.Component {
       for (let rowBorder = 0; rowBorder < this.state.rows; rowBorder++) {
         let borderCell = this.state.refToBorders[rowBorder.toString() + column.toString()];
         if (borderCell != null && borderCell.state.direction === "column") {
+          localStorage.setItem("table-border-" + rowBorder + column, newBorderActiveValue);
           borderCell.setState({
-            active: !borderCell.state.active
+            active: newBorderActiveValue
           }, () => {this.setState({
             latexCode: this.generateLatexCode(this.state.rows, this.state.columns)
           })});
@@ -316,6 +385,7 @@ class Table extends React.Component {
     }, () => {this.setState({
       latexCode: this.generateLatexCode(this.state.rows, this.state.columns)
     })});
+    localStorage.setItem("table-caption", changedCaptionText);
   }
 
   changeLabel(changedLabelText) {
@@ -324,6 +394,7 @@ class Table extends React.Component {
     }, () => {this.setState({
       latexCode: this.generateLatexCode(this.state.rows, this.state.columns)
     })});
+    localStorage.setItem("table-label", changedLabelText);
   }
 
   render() {
@@ -434,6 +505,7 @@ class Table extends React.Component {
       <div className="container-table">
         <TableCaption changeCaption={this.changeCaption}> </TableCaption>
         <TableLabel changeLabel={this.changeLabel}> </TableLabel>
+        <button type="text" onClick={this.resetApplicationState}>Reset table</button>
         <div className="table-size-container">
           <TableRows rowValue={this.inputRowsChanged.bind(this)}/>
           <TableColumns columnValue={this.inputColumnsChanged.bind(this)}/>
@@ -455,11 +527,20 @@ class TableRows extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      rows: 5
+      rows: this.getInitialRowsState(),
     };
 
     this.onChange = this.onChange.bind(this);
   }
+
+  getInitialRowsState() {
+    let rows = 5;
+    if (localStorage.getItem("table-rows") !== null) {
+      rows = (localStorage.getItem("table-rows")-1)/2;
+    }
+    return rows;
+  }
+
   onChange(event) {
     if (event.target.value < 1) {
       this.setState({
@@ -494,11 +575,20 @@ class TableColumns extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-       columns: 5 
-      };
+      columns: this.getInitialColumnsState(), 
+    };
     
     this.onChange = this.onChange.bind(this);
   }
+
+  getInitialColumnsState() {
+    let columns = 5;
+    if (localStorage.getItem("table-columns") !== null) {
+      columns = (localStorage.getItem("table-column")-1)/2;
+    }
+    return columns;
+  }
+
   onChange(event) {
     if (event.target.value < 1) {
       this.setState({
@@ -578,10 +668,15 @@ class TableLabel extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      label: ''
+      label: this.getInitialLabel(),
     };
 
     this.onChange = this.onChange.bind(this);
+  }
+
+  getInitialLabel() {
+    let label = localStorage.getItem("table-label") || "";
+    return label;
   }
 
   onChange(event) {
@@ -606,10 +701,15 @@ class TableCaption extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      caption: ""
+      caption: this.getInitialCaption(),
     };
 
     this.onChange = this.onChange.bind(this);
+  }
+
+  getInitialCaption() {
+    let caption = localStorage.getItem("table-caption") || "";
+    return caption;
   }
 
   onChange(event) {
@@ -639,9 +739,15 @@ class BorderCell extends React.Component {
       column: props.column,
       direction: props.direction,
       className: '',
-      active: false,
-      hover: false
+      active: this.getInitialBorderState(),
+      hover: false,
     };
+  }
+
+  getInitialBorderState() {
+    let border = localStorage.getItem("table-border-" +
+     this.props.row + this.props.column) || false;
+     return border;
   }
 
   render() {
@@ -674,30 +780,40 @@ class AlignmentCell extends React.Component {
     this.state = {
       row: props.row,
       column: props.column,
-      alignment: "left",
-      className: ''
+      alignment: this.getInitialAlignment(),
+      className: '',
     };
 
     this.clickLeft = this.clickLeft.bind(this)
     this.clickCenter = this.clickCenter.bind(this)
     this.clickRight = this.clickRight.bind(this)
   }
+
+  getInitialAlignment() {
+    let alignment = localStorage.getItem("table-alignment-" + 
+this.props.column) || "left";
+    return alignment;
+  }
+
   clickLeft() {
     this.setState({
       alignment: "left"
     });
+    localStorage.setItem("table-alignment-" + this.state.column, "left");
     this.props.onClick();
   }
   clickCenter() {
     this.setState({
       alignment: "center"
     });
+    localStorage.setItem("table-alignment-" + this.state.column, "center");
     this.props.onClick();
   }
   clickRight() {
     this.setState({
       alignment: "right"
     });
+    localStorage.setItem("table-alignment-" + this.state.column, "right");
     this.props.onClick();
   }
   render() {
