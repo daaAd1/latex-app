@@ -25,6 +25,11 @@ class TaylorDiagram extends React.Component {
     this.checkArrowObjectForArrows = this.checkArrowObjectForArrows.bind(this);
   };
 
+  resetApplicationState() {
+    window.localStorage.clear();
+    window.location.reload();
+  }
+
   initializeColumnsObject(rows) {
     let columnsObject;
     if (this.state !== undefined && this.state.columnsObject !== undefined ) {
@@ -417,6 +422,7 @@ class TaylorDiagram extends React.Component {
     }
     return (
       <div>
+        <button type="text" onClick={this.resetApplicationState}>Reset table</button>
         {rows}
         {latexCode}
       </div>

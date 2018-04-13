@@ -29,17 +29,6 @@ class Table extends React.Component {
   }
 
   resetApplicationState() {
-    this.setState({
-      rows: 11,
-      columns: 11,
-      textInTable: this.getInitialTextObject(),
-      latexCode: this.generateLatexCode(),
-      caption: "",
-      label: "",
-      refToBorders: {},
-      refToAlignments: {},
-      refToInputs: {},
-    });
     window.localStorage.clear();
     window.location.reload();
   }
@@ -55,7 +44,7 @@ class Table extends React.Component {
   }
 
   getInitialTextObject() {
-    let textObject =JSON.parse(localStorage.getItem("table-textObject")) || this.initializeTextObject();
+    let textObject = JSON.parse(localStorage.getItem("table-textObject")) || this.initializeTextObject();
     return textObject;
   }
 

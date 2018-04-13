@@ -6,10 +6,10 @@ class SequenceMath extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      lines: this.generateLinesObject(),
-      linesText: this.generateLinesObject(),
+      lines: this.getInitialLinesObject(),
+      linesText: this.getInitialTextObject(),
       latexCode: this.generateLatexCode(),
-      annotationObject: this.generateLinesObject()
+      annotationObject: this.getInitialAnnotationObject(),
     };
 
     this.lineClick = this.lineClick.bind(this);
@@ -17,6 +17,101 @@ class SequenceMath extends React.Component {
     this.addTextToObject = this.addTextToObject.bind(this);
     this.generateLatexCode = this.generateLatexCode.bind(this);
     this.annotationChanged = this.annotationChanged.bind(this);
+  }
+
+  resetApplicationState() {
+    window.localStorage.clear();
+    window.location.reload();
+  }
+
+  getInitialLinesObject() {
+    let linesObject = JSON.parse(localStorage.getItem("math-line-object")) || this.generateLinesObject();
+    return linesObject;
+  }
+
+  getInitialTextObject() {
+    let textObject = JSON.parse(localStorage.getItem("math-text-object")) || this.generateTextObject();
+    return textObject;
+  }
+
+  getInitialAnnotationObject() {
+    let annotObject = JSON.parse(localStorage.getItem("math-annotation-object")) || this.generateAnnotationObject();
+    return annotObject;
+  }
+
+  componentDidMount() {
+    this.setState({
+      linesText: this.generateTextObject(),
+      linesObject: this.generateLinesObject(),
+      annotationObject: this.generateAnnotationObject(),
+    }, () => {
+      this.setState({
+        latexCode: this.generateLatexCode()
+      });
+    });
+  }
+
+  generateTextObject() {
+    let initialObject;
+    if (this.state !== undefined && this.state.linesText !== undefined ) {
+      initialObject = this.state.linesText;
+    } 
+    else {
+      initialObject = {};
+    }
+    let numOfRows = 5;
+    let numOfColumns = 81;
+    for (let level = 0; level < numOfRows; level++) {
+      for (let levelCell = 0; levelCell < numOfColumns; levelCell++) {
+        let position =level.toString() + levelCell.toString();
+        if (level === 0 && levelCell < 2) {
+          if (this.state !== undefined && this.state.linesText !== undefined 
+            && this.state.linesText[position] !== undefined) {
+              initialObject[position] = this.state.linesText[position];
+          } 
+          else {
+              initialObject[position] = '';
+          }
+        }
+        else if (level === 1 && levelCell < 4) {
+          if (this.state !== undefined && this.state.linesText !== undefined 
+            && this.state.linesText[position] !== undefined) {
+              initialObject[position] = this.state.linesText[position];
+          } 
+          else {
+              initialObject[position] = '';
+          }
+        }
+        else if  (level === 2 && levelCell < 10) {
+          if (this.state !== undefined && this.state.linesText !== undefined 
+            && this.state.linesText[position] !== undefined) {
+              initialObject[position] = this.state.linesText[position];
+          } 
+          else {
+              initialObject[position] = '';
+          }
+        }
+        else if  (level === 3 && levelCell < 28) {
+          if (this.state !== undefined && this.state.linesText !== undefined 
+            && this.state.linesText[position] !== undefined) {
+              initialObject[position] = this.state.linesText[position];
+          } 
+          else {
+              initialObject[position] = '';
+          }
+        }
+        else if  (level === 4 ) {
+          if (this.state !== undefined && this.state.linesText !== undefined 
+            && this.state.linesText[position] !== undefined) {
+              initialObject[position] = this.state.linesText[position];
+          } 
+          else {
+              initialObject[position] = '';
+          }
+        }
+      }
+    }
+    return initialObject;
   }
 
   addLineToObject(level, levelCell, length) {
@@ -29,6 +124,7 @@ class SequenceMath extends React.Component {
       this.setState ({
         latexCode: this.generateLatexCode()
     })});
+    localStorage.setItem("math-line-object", JSON.stringify(obj));
   }
 
   addTextToObject(level, levelCell, text) {
@@ -41,6 +137,7 @@ class SequenceMath extends React.Component {
       this.setState ({
         latexCode: this.generateLatexCode()
     })});
+    localStorage.setItem("math-text-object", JSON.stringify(obj));
   }
 
   generateLatexCode() {
@@ -214,33 +311,129 @@ class SequenceMath extends React.Component {
   }
 
   generateLinesObject() {
-    let linesObject = [];
-    let key = "";
-    for (let level = 0; level < 5; level++) {
-      for (let levelCell = 1; levelCell < 81; levelCell++) {
+    let initialObject;
+    if (this.state !== undefined && this.state.linesObject!== undefined ) {
+      initialObject = this.state.linesObject;
+    } 
+    else {
+      initialObject = {};
+    }
+    let numOfRows = 5;
+    let numOfColumns = 81;
+    for (let level = 0; level < numOfRows; level++) {
+      for (let levelCell = 0; levelCell < numOfColumns; levelCell++) {
+        let position =level.toString() + levelCell.toString();
         if (level === 0 && levelCell < 2) {
-          key = (level.toString()) + (levelCell.toString());
-          linesObject[key] = '';
+          if (this.state !== undefined && this.state.linesObject !== undefined 
+            && this.state.linesObject[position] !== undefined) {
+              initialObject[position] = this.state.linesObject[position];
+          } 
+          else {
+              initialObject[position] = '';
+          }
         }
         else if (level === 1 && levelCell < 4) {
-          key = (level.toString()) + (levelCell.toString());
-          linesObject[key] = '';
+          if (this.state !== undefined && this.state.linesObject !== undefined 
+            && this.state.linesObject[position] !== undefined) {
+              initialObject[position] = this.state.linesObject[position];
+          } 
+          else {
+              initialObject[position] = '';
+          }
         }
         else if  (level === 2 && levelCell < 10) {
-          key = (level.toString()) + (levelCell.toString());
-          linesObject[key] = '';
+          if (this.state !== undefined && this.state.linesObject !== undefined 
+            && this.state.linesObject[position] !== undefined) {
+              initialObject[position] = this.state.linesObject[position];
+          } 
+          else {
+              initialObject[position] = '';
+          }
         }
         else if  (level === 3 && levelCell < 28) {
-          key = (level.toString()) + (levelCell.toString());
-          linesObject[key] = '';
+          if (this.state !== undefined && this.state.linesObject !== undefined 
+            && this.state.linesObject[position] !== undefined) {
+              initialObject[position] = this.state.linesObject[position];
+          } 
+          else {
+              initialObject[position] = '';
+          }
         }
         else if  (level === 4 ) {
-          key = (level.toString()) + (levelCell.toString());
-          linesObject[key] = '';
+          if (this.state !== undefined && this.state.linesObject !== undefined 
+            && this.state.linesObject[position] !== undefined) {
+              initialObject[position] = this.state.linesObject[position];
+          } 
+          else {
+              initialObject[position] = '';
+          }
         }
       }
     }
-    return linesObject;
+    return initialObject;
+  }
+
+  generateAnnotationObject() {
+    let initialObject;
+    if (this.state !== undefined && this.state.annotationObject !== undefined ) {
+      initialObject = this.state.annotationObject;
+    } 
+    else {
+      initialObject = {};
+    }
+    let numOfRows = 5;
+    let numOfColumns = 81;
+    for (let level = 0; level < numOfRows; level++) {
+      for (let levelCell = 0; levelCell < numOfColumns; levelCell++) {
+        let position =level.toString() + levelCell.toString();
+        if (level === 0 && levelCell < 2) {
+          if (this.state !== undefined && this.state.annotationObject !== undefined 
+            && this.state.annotationObject[position] !== undefined) {
+              initialObject[position] = this.state.annotationObject[position];
+          } 
+          else {
+              initialObject[position] = '';
+          }
+        }
+        else if (level === 1 && levelCell < 4) {
+          if (this.state !== undefined && this.state.annotationObject !== undefined 
+            && this.state.annotationObject[position] !== undefined) {
+              initialObject[position] = this.state.annotationObject[position];
+          } 
+          else {
+              initialObject[position] = '';
+          }
+        }
+        else if  (level === 2 && levelCell < 10) {
+          if (this.state !== undefined && this.state.annotationObject!== undefined 
+            && this.state.annotationObject[position] !== undefined) {
+              initialObject[position] = this.state.annotationObject[position];
+          } 
+          else {
+              initialObject[position] = '';
+          }
+        }
+        else if  (level === 3 && levelCell < 28) {
+          if (this.state !== undefined && this.state.annotationObject !== undefined 
+            && this.state.annotationObject[position] !== undefined) {
+              initialObject[position] = this.state.annotationObject[position];
+          } 
+          else {
+              initialObject[position] = '';
+          }
+        }
+        else if  (level === 4 ) {
+          if (this.state !== undefined && this.state.annotationObject !== undefined 
+            && this.state.annotationObject[position] !== undefined) {
+              initialObject[position] = this.state.annotationObject[position];
+          } 
+          else {
+              initialObject[position] = '';
+          }
+        }
+      }
+    }
+    return initialObject;
   }
 
   annotationChanged(level, cell, annotText) {
@@ -253,6 +446,7 @@ class SequenceMath extends React.Component {
       this.setState ({
         latexCode: this.generateLatexCode()
     })});
+    localStorage.setItem("math-annotation-object", JSON.stringify(obj));
   }
 
   lineClick(level, cell, length) {
@@ -386,6 +580,7 @@ class SequenceMath extends React.Component {
     }
     return (
       <div>
+        <button type="text" onClick={this.resetApplicationState}>Reset table</button>
         {lines}
         {latexCode}
       </div>
@@ -399,12 +594,11 @@ class Line extends React.Component {
     this.state = {
       level: props.level,
       cell: props.cell,
-      clicked: props.clicked,
-      length: 0,
+      length: this.getInitialLength(),
       white: props.white,
-      inputText: "",
-      annotation: false,
-      annotationText: props.annotationText,
+      inputText: this.getInitialText(),
+      annotation: this.getInitialAnnotation(),
+      annotationText: this.getInitialAnnotationText(),
       readonlyText: props.readonlyText,
       readonlyAnnot: props.readonlyAnnot
     };
@@ -414,13 +608,34 @@ class Line extends React.Component {
     this.annotationChanged = this.annotationChanged.bind(this);
   }
 
+  getInitialText() {
+    let text = localStorage.getItem("math-line-text-" + this.props.level + this.props.cell) || "";
+    return text;
+  }
+
+  getInitialLength() {
+    let length = Number(localStorage.getItem("math-line-length-" + this.props.level + this.props.cell)) || 0;
+    return length;
+  }
+
+  getInitialAnnotation() {
+    let annotation = localStorage.getItem("math-line-annotation-" + this.props.level + this.props.cell) || false;
+    return annotation;
+  }
+
+  getInitialAnnotationText() {
+    let annotationText = localStorage.getItem("math-line-annotation-text-" + this.props.level + this.props.cell) || this.props.annotationText;
+    return annotationText;
+  }
+
   onClick(event) {
-    event.preventDefault()
     if (this.state !== null && this.state.length === 3) {
       this.setState({
         annotation: false,
         length: 0
       }, () => {
+        localStorage.setItem("math-line-length-" + this.state.level + this.state.cell, 0);
+        localStorage.setItem("math-line-annotation-" + this.state.level + this.state.cell, false);
         this.props.onClick(this.state.length);
       });
     }
@@ -429,6 +644,8 @@ class Line extends React.Component {
         annotation: true,
         length: this.state.length + 1
       }, () => {
+        localStorage.setItem("math-line-length-" + this.state.level + this.state.cell, this.state.length);
+        localStorage.setItem("math-line-annotation-" + this.state.level + this.state.cell, true);
         this.props.onClick(this.state.length);
       });
     }
@@ -438,6 +655,7 @@ class Line extends React.Component {
     this.setState({
       inputText: event.target.value
     });
+    localStorage.setItem("math-line-text-"+ this.props.level + this.props.cell, event.target.value);
     this.props.changedText(this.state.level, this.state.cell, event.target.value);
   }
 
@@ -445,7 +663,7 @@ class Line extends React.Component {
     this.setState({
       annotationText: event.target.value
     })
-
+    localStorage.setItem("math-line-annotation-text-" + this.state.level + this.state.cell, event.target.value);
     this.props.annotationChanged(this.state.level, this.state.cell, event.target.value)
   }
 
@@ -486,20 +704,14 @@ class Line extends React.Component {
         className += " filled-div3 ";
       }
    }
-    if (this.state != null && this.state.clicked === true) {
-      className += " line-div-clicked ";
-    }
-    if (this.state.annotation) {
-
-    }
     return(
       <div className="one-line">
         <div className="lineAnnotation">
           <div className={className} onClick={this.onClick.bind(this)}/>
           {this.state.annotation && 
-            <TextareaAutosize readOnly={this.state.readonlyAnnot} type="text" className="annotationText"
-            onChange={this.annotationChanged}
-            value={this.state.annotationText}> 
+            <TextareaAutosize 
+            readOnly={this.state.readonlyAnnot} type="text" className="annotationText"
+            onChange={this.annotationChanged} value={this.state.annotationText}> 
             </TextareaAutosize> 
           }
         </div>
