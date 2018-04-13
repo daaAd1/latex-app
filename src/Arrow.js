@@ -21,16 +21,36 @@ class Arrow extends React.Component {
       column: props.column,
       modalIsOpen: false,
       arrowDirection: props.arrowDirection,
-      arrowActivated: false,
-      arrowText: "",
-      arrowText2: "",
-      arrowType: "To"
+      arrowActivated: this.getInitialArrowActivated(),
+      arrowText: this.getInitialArrowText(),
+      arrowText2: this.getInitialArrowTextTwo(),
+      arrowType: this.getIntialArrowType(),
     };
  
     this.openModal = this.openModal.bind(this);
     this.afterOpenModal = this.afterOpenModal.bind(this);
     this.closeModal = this.closeModal.bind(this);
     this.passNewStateToProps = this.passNewStateToProps.bind(this);
+  }
+  
+  getInitialArrowActivated() {
+    let active = localStorage.getItem("taylor-arrow-activated-" + this.props.arrowDirection + this.props.row + this.props.column) || false;
+    return active;
+  }
+
+  getInitialArrowText() {
+    let text = localStorage.getItem("taylor-arrow-text-" + this.props.arrowDirection  + this.props.row + this.props.column) || "";
+    return text;
+  }
+
+  getInitialArrowTextTwo() {
+    let text = localStorage.getItem("taylor-arrow-text-two-" + this.props.arrowDirection  + this.props.row + this.props.column) || "";
+    return text;
+  }
+
+  getIntialArrowType() {
+    let type= localStorage.getItem("taylor-arrow-type-" + this.props.arrowDirection  + this.props.row + this.props.column) || "To";
+    return type;
   }
  
   openModal() {
@@ -43,6 +63,7 @@ class Arrow extends React.Component {
       this.setState({
         arrowActivated: true,
       }, () => this.passNewStateToProps());
+      localStorage.setItem("taylor-arrow-activated-" + this.props.arrowDirection  + this.state.row + this.state.column, true);
     }
   }
 
@@ -69,12 +90,14 @@ class Arrow extends React.Component {
     this.setState({
       arrowText: event.target.value
     }, () => this.passNewStateToProps());
+    localStorage.setItem("taylor-arrow-text-" + this.props.arrowDirection  + this.state.row + this.state.column, event.target.value);
   }
 
   arrowTextTwoChanged(event) {
     this.setState({
       arrowText2: event.target.value
     }, () => this.passNewStateToProps());
+    localStorage.setItem("taylor-arrow-text-two-" + this.props.arrowDirection  + this.state.row + this.state.column, event.target.value);
   }
 
   deleteArrow() {
@@ -82,12 +105,14 @@ class Arrow extends React.Component {
       arrowActivated: false,
       modalIsOpen: false
     }, () => this.props.arrowDeleted(this.state.arrowDirection)); 
+    localStorage.setItem("taylor-arrow-activated-" + this.props.arrowDirection  + this.state.row + this.state.column, false);
   }
 
   onArrowTypeChange(event) {
     this.setState({
       arrowType: event.target.value
     }, () => this.passNewStateToProps());
+    localStorage.setItem("taylor-arrow-type-" + this.props.arrowDirection  + this.state.row + this.state.column, event.target.value);
   }
  
   render() {

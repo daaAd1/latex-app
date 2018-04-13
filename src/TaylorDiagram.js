@@ -7,12 +7,12 @@ class TaylorDiagram extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      rows: 2,
-      columnsObject: this.initializeColumnsObject(2),
+      rows: this.getInitialRows(),
+      columnsObject: this.getInitialColumns(),
       latexCode: this.generateLatexCode(2),
-      textObject: this.initializeTextObject(2, 10),
-      arrowsObject: this.initializeArrowObject(2,10),
-      additionalArrowsObject: this.initializeAdditionalArrowObject(),
+      textObject: this.getInitialTextObject(),
+      arrowsObject: this.getInitialArrowObject(),
+      additionalArrowsObject: this.getInitialAdditionalArrowsObject(),
     }
 
     this.generateLatexCode = this.generateLatexCode.bind(this);
@@ -28,6 +28,43 @@ class TaylorDiagram extends React.Component {
   resetApplicationState() {
     window.localStorage.clear();
     window.location.reload();
+  }
+
+  getInitialRows() {
+    let rows = localStorage.getItem("taylor-rows") || 2;
+    return rows;
+  }
+
+  getInitialColumns() {
+    let columns = JSON.parse(localStorage.getItem("taylor-columns")) || this.initializeColumnsObject(2);
+    return columns;
+  }
+
+  getInitialTextObject() {
+    let textObject = JSON.parse(localStorage.getItem("taylor-text-object")) || this.initializeTextObject(2, 10);
+    return textObject;
+  }
+
+  getInitialArrowObject() {
+    let arrowObject = JSON.parse(localStorage.getItem("taylor-arrow-object")) || this.initializeArrowObject(2,10);
+    return arrowObject;
+  }
+
+  getInitialAdditionalArrowsObject() {
+    let additionalArrowObject = JSON.parse(localStorage.getItem("taylor-additional-arrow-object")) ||  this.initializeAdditionalArrowObject();
+    return additionalArrowObject;
+  }
+
+  componentDidMount() {
+    this.setState({
+      textObject: this.initializeTextObject(this.state.rows, 10),
+      arrowsObject: this.initializeArrowObject(this.state.rows, 10),
+      additionalArrowsObject: this.initializeAdditionalArrowObject(),
+    }, () => {
+      this.setState({
+        latexCode: this.generateLatexCode(this.state.rows),
+      });
+    });
   }
 
   initializeColumnsObject(rows) {
@@ -85,9 +122,9 @@ class TaylorDiagram extends React.Component {
     for (let row = 1; row <= rows; row++) {
       for (let column = 1; column <= maxColumns;  column++) {
         let position = row.toString() + column.toString();
-        if (this.state !== undefined && this.state.arrowObject !== undefined 
-          && this.state.arrowObject[position] !== undefined) {
-            arrowObject[position] = this.state.arrowObject[position];
+        if (this.state !== undefined && this.state.arrowsObject !== undefined 
+          && this.state.arrowsObject[position] !== undefined) {
+            arrowObject[position] = this.state.arrowsObject[position];
           } 
           else {
             arrowObject[position] = {};
@@ -112,6 +149,7 @@ class TaylorDiagram extends React.Component {
     this.setState({
       textObject: obj
     }); 
+    localStorage.setItem("taylor-text-object", JSON.stringify(obj));
   }
   
   addArrowToObject(row, column, direction, text, text2, type) {
@@ -127,6 +165,7 @@ class TaylorDiagram extends React.Component {
       this.setState ({ 
         latexCode: this.generateLatexCode(this.state.rows, this.state.columns)
     })});
+    localStorage.setItem("taylor-arrow-object", JSON.stringify(obj));
   }
 
   deleteArrowFromObject(row, column, direction) {
@@ -139,6 +178,7 @@ class TaylorDiagram extends React.Component {
       this.setState ({ 
         latexCode: this.generateLatexCode(this.state.rows, this.state.columns)
     })}); 
+    localStorage.setItem("taylor-arrow-object", JSON.stringify(obj));
   }
 
   generateLatexCode(rows) {
@@ -322,6 +362,7 @@ class TaylorDiagram extends React.Component {
             this.setState({
               additionalArrowsObject: obj
             });
+            localStorage.setItem("taylor-additional-arrow-object", JSON.stringify(obj));
           }
           if (this.state.arrowsObject[positionOneColumnAway]["l"].active
           || this.state.arrowsObject[positionOneColumnAway]["ld"].active 
@@ -332,6 +373,7 @@ class TaylorDiagram extends React.Component {
             this.setState({
               additionalArrowsObject: obj
             });
+            localStorage.setItem("taylor-additional-arrow-object", JSON.stringify(obj));
           }
         }
       }
@@ -345,6 +387,7 @@ class TaylorDiagram extends React.Component {
         textObject: this.initializeTextObject(1, 10),
         columnsObject: this.initializeColumnsObject(1),
       }, () => {
+        localStorage.setItem("taylor-rows", 1);
         this.setState ({ 
           latexCode: this.generateLatexCode()
       })});
@@ -355,6 +398,7 @@ class TaylorDiagram extends React.Component {
         textObject: this.initializeTextObject(15,10),
         columnsObject: this.initializeColumnsObject(15),
       }, () => {
+        localStorage.setItem("taylor-rows", 15);
         this.setState ({ 
           latexCode: this.generateLatexCode()
       })});
@@ -365,6 +409,7 @@ class TaylorDiagram extends React.Component {
         textObject: this.initializeTextObject(event.target.value, 10),
         columnsObject: this.initializeColumnsObject(event.target.value),
       }, () => {
+        localStorage.setItem("taylor-rows", this.state.rows);
         this.setState ({ 
           latexCode: this.generateLatexCode()
       })});
@@ -381,6 +426,7 @@ class TaylorDiagram extends React.Component {
       this.setState ({ 
         latexCode: this.generateLatexCode()
     })});
+    localStorage.setItem("taylor-columns", JSON.stringify(obj));
   }
 
   cellTextChanged(text, row, column) {
@@ -435,10 +481,26 @@ class Row extends React.Component {
     super(props);
     this.state = {
       row: props.row,
-      columns: 3,
-      rowText: props.rowText,
+      columns: this.getInitialColumns(),
+      rowText: this.getInitialRowText(),
     }
   };
+
+  componentDidMount() {
+    this.setState({
+      rowText: this.getInitialRowText(),
+    });
+  }
+
+  getInitialRowText() {
+    let rowText = localStorage.getItem("taylor-row-text-" + this.props.row) || this.props.rowText;
+    return rowText;
+  }
+
+  getInitialColumns() {
+    let columns = localStorage.getItem("taylor-row-columns-" + this.props.row) || 3;
+    return columns;
+  }
 
   onColumnsChange(event) {
     if (event.target.value < 1) {
@@ -446,18 +508,21 @@ class Row extends React.Component {
         columns: 1
       });
       this.props.onColumnsChange(1);
+      localStorage.setItem("taylor-row-columns-" + this.props.row, 1);
     }
     else if (event.target.value > 10) {
       this.setState({
         columns: 10
       });
       this.props.onColumnsChange(10);
+      localStorage.setItem("taylor-row-columns-" + this.props.row, 10);
     }
     else {
       this.setState({
         columns: event.target.value
       });
       this.props.onColumnsChange(event.target.value);
+      localStorage.setItem("taylor-row-columns-" + this.props.row, event.target.value);
     }
   }
 
