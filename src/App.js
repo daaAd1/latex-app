@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 //import ReactHtmlParser, { processNodes, convertNodeToElement, htmlparser2 } from 'react-html-parser';
 //import logo from './logo.svg';
 import './App.css';
-import tableIcon from "./table-large.png";
-import taylorIcon from "./chart-pie.png";
-import mathIcon from "./currency-eth.png";
+import tableIcon from "./table.svg";
+import taylorIcon from "./chart-pie.svg";
+import mathIcon from "./sequence.svg";
 import {
   Route,
   NavLink,
@@ -19,12 +19,19 @@ class App extends Component {
     return (
       <HashRouter>
       <div>
-      <h1>LaTeX generator</h1>
-        <ul className="header">
-          <li><NavLink exact to="/"><img src={tableIcon} alt="table-icon"/></NavLink></li>
-          <li><NavLink to="/math"><img src={mathIcon} alt="math-icon"/></NavLink></li>
-          <li><NavLink to="/taylor"><img src={taylorIcon} alt="taylor-icon"/></NavLink></li>
-        </ul>
+        <div className="header-container">
+          <h1 className="header">LaTeX generator</h1>
+          <ul className="header-nav">
+            <li id="table"  ><NavLink exact to="/"><img src={tableIcon} alt="table-icon"/></NavLink></li>
+            <li><NavLink to="/math"><img src={mathIcon} alt="math-icon"/></NavLink></li>
+            <li><NavLink to="/taylor"><img src={taylorIcon} alt="taylor-icon"/></NavLink></li>
+          </ul>
+          <ul className="header-nav-labels">
+            <li className="table-label"> <NavLink exact to="/">Table</NavLink> </li>
+            <li className="math-label"> <NavLink to="/math">Math</NavLink> </li>
+            <li className="taylor-label"><NavLink to="/taylor">Taylor</NavLink></li>
+          </ul>
+        </div>
         <div className="content">
           <Route exact path="/" component={Table}/>
           <Route path="/math" component={SequenceMath}/>

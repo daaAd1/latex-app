@@ -75,7 +75,7 @@ pre {
 
 h1 {
   font-size: 40px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-family: 'Roboto', sans-serif;
   padding: 20px 10px 40px 10px;
 }
 
@@ -95,15 +95,15 @@ ul > li {
 
 .border-column, .border-row {
   cursor: pointer;
-  background-color: lightgray;
+  background-color: #E8EAF6;
 }
 
 .hover {
-  background-color: black;
+  background-color: #7986CB;
 }
 
 .active-border {
-  background-color: black;
+  background-color: #7986CB;
 }
 
 .copy-button {
@@ -115,38 +115,22 @@ ul > li {
 }
 
 .code-container {
-  padding: 50px;
+  padding: 20px;
   font-family: 'Roboto Mono', monospace;
   font-size:  14px;
 }
 
-.input-rows {
-  padding: 20px 0px 0px 20px;
-}
-
-.input-columns{
-  padding: 10px 0px 20px 20px;
-} 
 .editor-table {
   margin: 0 auto;
   padding: 0px 20px;
-  width: 80%;
+  width: 82%;
 }
 
 .code-container {
   margin: 0 auto;
   width: 80%;
   text-align: left;
-  padding: 10px 40px;
-}
-
-.table-size-container {
-   display: flex;
-   flex-direction: row;
-   justify-content: center;
-   padding: 10px;
-   flex-wrap: wrap;
-   align-items: baseline;
+  padding: 10px 20px;
 }
 
 table {
@@ -207,8 +191,27 @@ td {
   display: flex;
   justify-content: center;
   align-content: center;
+  padding-bottom: 5px;
 }
 
+.alignment-part > button {
+  width: 20px;
+  height: 22px;
+  background: #3F51B5;
+  border: 0;
+  border-radius: 5%;
+  color: white;
+  margin-right: 1px;
+  text-align: center;
+  cursor: pointer;
+}
+.alignment-part > button:hover {
+  background-color: #3949AB;
+  color: white;
+  -webkit-transition-duration: 0.4s; /* Safari */
+  transition-duration: 0.4s;
+  box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+}
 textarea {
   overflow: auto;
   resize: none;
@@ -216,7 +219,7 @@ textarea {
 }
 
 label {
-  padding: 10px;
+  padding: 10px 0px;
 }
 
 input {
@@ -373,25 +376,192 @@ input {
   background-color: aquamarine;
 }
 
-@media only screen and (min-width: 120px) {
-  .code-container {
-    font-size: 10px;
-  }
-  .copy-button {
-    width: 70%;
-  }
+.header {
+  padding-top: 20px;
+  padding-bottom: 20px;
+  background-color: #3F51B5;
+  color: white;
+  font-size: 50px;
+}
+.header-nav-labels {
+  padding-bottom: 10px;
+}
+.header-nav, .header-nav-labels {
+  background-color: #3F51B5;
 }
 
-@media only screen and (min-width: 620px) {
-  .code-container {
-    font-size: 12px;
-  }
-  .copy-button {
-    width: 100%;
-  }
+.header-nav > li, .header-nav-labels > li {
+  color: white;
+  padding-top: 1px;
 }
 
-@media only screen and (min-width: 1020px) {
+.header-nav > li {
+  padding-left: 16px;
+  padding-right: 16px;
+  padding-bottom: 5px;
+   padding-top: 15px;
+}
+
+.label-container, .caption-container, .table-size-container, 
+.input-rows, .input-columns {
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  display: flex;
+  flex-flow: column;
+}
+
+.header-nav-labels > li > a{
+  font-size: 18px;
+  padding-top: 8px;
+  font-family: 'Roboto', sans-serif;
+  color: white; 
+  text-decoration: none;
+}
+.table-label{
+  padding-right: 2px;
+  padding-left: 12px;
+}
+.math-label {
+  padding-right: 3px;
+  padding-left: 15px;
+}
+.taylor-label {
+  padding-left: 10px;
+}
+
+.form-container > div > label, .form-container > div > div >label {
+  display: inline-block;
+  width: 200px;
+  text-align: left;
+  padding-left: 10px;
+  padding-bottom: 1px;
+  font-family: 'Roboto', sans-serif;  
+}
+
+.form-container > div > input {
+  width: 200px;
+  padding: 0px 1px 0px 0px;
+  text-align: right;
+}
+
+.form-container {
+  display: flex;
+  flex-flow: row;
+  justify-content: flex-start;
+}
+
+.form-reset-container {
+  display: flex;
+  flex-flow: row;
+  justify-content: center;
+  width: 80%;
+  padding: 0px 0px;
+  margin: 0 auto;
+}
+
+.table-size-container {
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 5px;
+}
+
+.basic-button {
+  width: 100px;
+  height: 50px;
+  margin: 8px;
+  background-color:#3F51B5;
+  color: white;
+  border: 0;
+  border-radius: 5%;
+  cursor: pointer;
+}
+.reset-button {
+  margin-top: 50px;
+}
+
+.basic-button:hover {
+  -webkit-transition-duration: 0.4s; /* Safari */
+  transition-duration: 0.4s;
+  box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+  color: white;
+  background-color: #3949AB;
+  box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+}
+
+input[type=range]{
+  -webkit-appearance: none;
+}
+
+input[type=range]::-webkit-slider-runnable-track {
+  width: 300px;
+  height: 5px;
+  background: #C5CAE9;
+  border: none;
+  border-radius: 3px;
+}
+
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  border: none;
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background: #3F51B5;
+  margin-top: -4px;
+}
+
+input[type=range]:focus {
+  outline: none;
+}
+
+input[type=range]:focus::-webkit-slider-runnable-track {
+  background: #C5CAE9;
+}
+
+input[type=range]{
+  /* fix for FF unable to apply focus style bug  */
+  border: 1px solid white; 
+
+  /*required for proper track sizing in FF*/
+  width: 300px;
+}
+
+input[type=range]::-moz-range-track {
+  width: 300px;
+  height: 5px;
+  background: #C5CAE9;
+  border: none;
+  border-radius: 3px;
+}
+
+input[type=range]::-moz-range-thumb {
+  border: none;
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background: #3F51B5;
+}
+
+/*hide the outline behind the border*/
+input[type=range]:-moz-focusring{
+  outline: 1px solid white;
+  outline-offset: -1px;
+}
+
+input[type=range]:focus::-moz-range-track {
+  background: #C5CAE9;
+}
+
+/*.label-caption-container {
+  display: flex; 
+  flex-flow: row;
+  margin: 0 auto;
+  align-content: center;
+  justify-content: center;
+  padding: 0px 50px;
+}*/
+
+@media only screen and (max-width: 1920px) {
   .code-container {
     font-size: 14px;
   }
@@ -401,4 +571,54 @@ input {
   .copied-container{
     padding: 0px 10px 0px 0px;
   }
+  /*.label-caption-container {
+    flex-flow: row;
+  } */ 
+}
+
+@media only screen and (max-width: 1020px) {
+  .code-container {
+    font-size: 12px;
+  }
+  .copy-button {
+    width: 100%;
+  }
+  /*.label-caption-container {
+    flex-flow: row;
+  }*/
+}
+
+@media only screen and (max-width: 620px) {
+  .code-container {
+    font-size: 10px;
+  }
+  .copy-button {
+    width: 70%;
+  }
+  .form-reset-container {
+    flex-flow: column;
+  }
+  .form-container {
+    flex-flow: column;
+  }
+  .table-size-container {
+    padding-left: 0px;
+  }
+  .table-size-container > div > input {
+    width: 100%;
+  }
+  .reset-button {
+    margin: 0 auto;
+    margin-bottom: 10px;
+    margin-top: 10px;
+  }
+  /*.label-caption-container {
+    flex-flow: column;
+  }
+  .label-caption-container > .label-container > label,
+  .label-caption-container > .caption-container > label {
+    display: inline-block;
+    width: 100px;
+    text-align: left;
+  }*/
 }

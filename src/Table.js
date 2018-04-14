@@ -3,6 +3,7 @@ import React, { } from "react";
 import TextareaAutosize from 'react-autosize-textarea';
 import LatexCode from "./LatexCode";
 
+
 class Table extends React.Component {
   constructor(props) {
     super(props);
@@ -492,12 +493,19 @@ class Table extends React.Component {
     }
     return (
       <div className="container-table">
-        <TableCaption changeCaption={this.changeCaption}> </TableCaption>
-        <TableLabel changeLabel={this.changeLabel}> </TableLabel>
-        <button type="text" onClick={this.resetApplicationState}>Reset table</button>
-        <div className="table-size-container">
-          <TableRows rowValue={this.inputRowsChanged.bind(this)}/>
-          <TableColumns columnValue={this.inputColumnsChanged.bind(this)}/>
+        <div className="form-reset-container">
+          <div className="form-container">
+          <div className="caption-label-container">
+            <TableCaption changeCaption={this.changeCaption}> </TableCaption>
+            <TableLabel changeLabel={this.changeLabel}> </TableLabel>
+              </div>
+            <div className="table-size-container">
+            <TableRows rowValue={this.inputRowsChanged.bind(this)}/>
+            <TableColumns columnValue={this.inputColumnsChanged.bind(this)}/>
+            </div>
+          </div>
+          <button className="basic-button reset-button"
+          type="text" onClick={this.resetApplicationState}>Reset table</button>
         </div>
         <div className="editor-table">
           <table>
@@ -553,8 +561,10 @@ class TableRows extends React.Component {
   render() {
     return (
       <div className="input-rows">
-        Rows: <input type="number" min="1" max="25" 
-          value={this.state.rows} onChange={this.onChange.bind(this)}/> |
+        <label htmlFor="table-rows">Rows:</label> 
+        <input id="table-rows" type="range" min="1" max="25" 
+        value={this.state.rows} onChange={this.onChange.bind(this)}/> 
+        <output>{this.state.rows}</output>
       </div>
     );
   }
@@ -573,7 +583,7 @@ class TableColumns extends React.Component {
   getInitialColumnsState() {
     let columns = 5;
     if (localStorage.getItem("table-columns") !== null) {
-      columns = (localStorage.getItem("table-column")-1)/2;
+      columns = (localStorage.getItem("table-columns")-1)/2;    
     }
     return columns;
   }
@@ -603,8 +613,10 @@ class TableColumns extends React.Component {
   render() {
     return (
       <div className="input-columns">
-        Columns: <input type="number" min="1" max="15" 
+        <label htmlFor="table-columns">Columns:</label> 
+        <input id="table-columns" type="range" min="1" max="15" 
          value={this.state.columns} onChange={this.onChange.bind(this)}/>
+         <output>{this.state.columns}</output>
       </div>
     );
   }
