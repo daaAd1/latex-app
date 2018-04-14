@@ -467,8 +467,9 @@ class TaylorDiagram extends React.Component {
           onColumnsChange={this.onColumnsChange.bind(this, row)}> </Row>);
     }
     return (
-      <div>
-        <button type="text" onClick={this.resetApplicationState}>Reset table</button>
+      <div className="taylor-container">
+        <button className="basic-button"
+        type="text" onClick={this.resetApplicationState}>Reset taylor</button>
         {rows}
         {latexCode}
       </div>

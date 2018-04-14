@@ -579,8 +579,9 @@ class SequenceMath extends React.Component {
       lines.push(<div key={level} className="level"><br/>{cell}</div>);
     }
     return (
-      <div>
-        <button type="text" onClick={this.resetApplicationState}>Reset table</button>
+      <div className="sequence-container">
+        <button className="basic-button"
+         type="text" onClick={this.resetApplicationState}>Reset sequence</button>
         {lines}
         {latexCode}
       </div>
@@ -719,6 +720,7 @@ class Line extends React.Component {
         value={this.state.inputText}
          type="text" onChange={this.onChange} className={inputClassName} >
         </TextareaAutosize>
+       
       </div>
     );
   }

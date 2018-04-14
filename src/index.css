@@ -234,7 +234,6 @@ input {
 
 .filled-div0,.filled-div1,.filled-div2,.filled-div3{
   cursor: pointer;
-  margin: 0 auto;
   width: 100px;
   height: 10px; 
   background:lightgray;
@@ -296,21 +295,55 @@ input {
   height: 5px;
 }
 
+.one-line {
+  display: flex;
+  flex-flow: row nowrap;
+  flex-grow: 1;
+  flex-basis: 0;
+  padding: 0.2em;
+  word-break: break-word;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0px;
+  white-space: nowrap;
+  font-size: .3rem;
+  margin: 0.5rem;
+  line-height: 1.5;
+}
+
+.sequence-container {
+  width: 80%;
+  margin: 0 auto;
+  display: flex;
+  flex-flow: column nowrap;
+  font-size: .3rem;
+  margin: 0.5rem;
+  line-height: 1.5;
+  flex: 1 1 auto;
+}
+
+.taylor-container {
+  width: 90%;
+  margin: 0 auto;
+  word-break: break-word;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0px;
+  white-space: nowrap;
+}
+.taylor-row {
+  display: flex;
+  flex-wrap: wrap;
+  padding-bottom: 10px;
+}
 .input-textarea {
   border: 1px solid black;
-  width: 165px;
   margin-left: 10px;
   margin-top: 5px;
 }
 
 .cellArrows {
-  display: flex;
-  flex-flow: column;
-}
-
-.taylor-row{
-  display: flex;
-  flex-flow: row;
+  padding-top: 10px;
 }
 
 .arrowButtons {
@@ -466,7 +499,7 @@ input {
 }
 
 .basic-button {
-  width: 100px;
+  width: 130px;
   height: 50px;
   margin: 8px;
   background-color:#3F51B5;
@@ -552,6 +585,10 @@ input[type=range]:focus::-moz-range-track {
   background: #C5CAE9;
 }
 
+.content {
+  width: 80%;
+}
+
 /*.label-caption-container {
   display: flex; 
   flex-flow: row;
@@ -612,13 +649,4 @@ input[type=range]:focus::-moz-range-track {
     margin-bottom: 10px;
     margin-top: 10px;
   }
-  /*.label-caption-container {
-    flex-flow: column;
-  }
-  .label-caption-container > .label-container > label,
-  .label-caption-container > .caption-container > label {
-    display: inline-block;
-    width: 100px;
-    text-align: left;
-  }*/
 }
