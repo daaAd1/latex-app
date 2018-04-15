@@ -455,9 +455,19 @@ class TaylorDiagram extends React.Component {
     let rows = [];
     rows.push(
     <div key={"first-row-key"}>
-      Rows:
-      <input type="number" min="1" max="15" value={this.state.rows}
-       onChange={this.onRowsChange.bind(this)}/>
+      <div className="taylor-num-rows">
+        <div className="taylor-size-container">
+          <label htmlFor="taylor-rows">Rows: {this.state.rows}</label>
+          <div>
+            <input id="taylor-rows" type="range" min="1" max="15" value={this.state.rows}
+            onChange={this.onRowsChange.bind(this)}/>
+            
+          </div>
+        </div>
+        <button className="basic-button"
+        type="text" onClick={this.resetApplicationState.bind(this)}>Reset taylor</button>
+       </div>
+       <hr className="taylor-separating-line"/>
     </div>
     );
     for (let row = 1; row <= this.state.rows; row++ ) {
@@ -468,8 +478,6 @@ class TaylorDiagram extends React.Component {
     }
     return (
       <div className="taylor-container">
-        <button className="basic-button"
-        type="text" onClick={this.resetApplicationState}>Reset taylor</button>
         {rows}
         {latexCode}
       </div>
@@ -553,9 +561,12 @@ class Row extends React.Component {
       </div>)
     }
     return (
-      <div className="taylor-row">
-        Columns: <input type="number" min="1" max="10" value={this.state.columns} 
-    onChange={this.onColumnsChange.bind(this)}/>
+      <div className="taylor-row-container">
+        <div className="line-size"> 
+          <label htmlFor="line-row">Columns: {this.state.columns}</label>
+          <input id="line-row" type="range" min="1" max="10" value={this.state.columns} 
+      onChange={this.onColumnsChange.bind(this)}/>
+        </div>
         {cells}
       </div>
     );

@@ -507,6 +507,7 @@ class Table extends React.Component {
           <button className="basic-button reset-button"
           type="text" onClick={this.resetApplicationState}>Reset table</button>
         </div>
+        <hr className="taylor-separating-line" />
         <div className="editor-table">
           <table>
             <tbody>
@@ -561,10 +562,9 @@ class TableRows extends React.Component {
   render() {
     return (
       <div className="input-rows">
-        <label htmlFor="table-rows">Rows:</label> 
+        <label htmlFor="table-rows">Rows: {this.state.rows}</label> 
         <input id="table-rows" type="range" min="1" max="25" 
         value={this.state.rows} onChange={this.onChange.bind(this)}/> 
-        <output>{this.state.rows}</output>
       </div>
     );
   }
@@ -613,10 +613,9 @@ class TableColumns extends React.Component {
   render() {
     return (
       <div className="input-columns">
-        <label htmlFor="table-columns">Columns:</label> 
+        <label htmlFor="table-columns">Columns: {this.state.columns}</label> 
         <input id="table-columns" type="range" min="1" max="15" 
          value={this.state.columns} onChange={this.onChange.bind(this)}/>
-         <output>{this.state.columns}</output>
       </div>
     );
   }
@@ -690,7 +689,7 @@ class TableLabel extends React.Component {
   render() {
     return(
       <div className="label-container">
-        <label htmlFor="label"> Label: </label>
+        <label htmlFor="label"> Label </label>
         <input value={this.state.label} 
          type="text" id="label" onChange={this.onChange}/>
       </div>
@@ -723,7 +722,7 @@ class TableCaption extends React.Component {
   render() {
     return(
       <div className="caption-container">
-        <label htmlFor="caption"> Caption: </label>
+        <label htmlFor="caption"> Caption </label>
         <input value={this.state.caption} 
         type="text" id="caption" onChange={this.onChange} />
       </div>

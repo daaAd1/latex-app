@@ -505,7 +505,7 @@ class SequenceMath extends React.Component {
       annotationText = this.state.annotationObject[position];
     }
     if (!levelNotHighEnough && this.state !== null && this.state.lines[position] > 0) {
-      return (<div key={position} className="cellLine">
+      return (<div key={position} className="sequence-level-cells">
       <Line changedText={this.addTextToObject} white={boolFalse} level={level} cell={cell}  
       onClick={this.lineClick.bind(this,level, cell)}
       annotationChanged={this.annotationChanged}
@@ -514,7 +514,7 @@ class SequenceMath extends React.Component {
        readonlyText={readonlyText}></Line></div>)
     }
     else if (!levelNotHighEnough && this.state !== null && this.state.lines[positionOneLevelDown] > 0){
-      return  (<div key={position} className="cellLine">
+      return  (<div key={position} className="sequence-level-cells">
       <Line changedText={this.addTextToObject} white={boolFalse} level={level} cell={cell} 
       onClick={this.lineClick.bind(this,level, cell)} 
       annotationChanged={this.annotationChanged}
@@ -523,7 +523,7 @@ class SequenceMath extends React.Component {
       readonlyText={readonlyText}></Line></div>)
     }
     else if (level === 0) {
-      return  (<div key={position} className="cellLine">
+      return  (<div key={position} className="sequence-level-cells">
       <Line changedText={this.addTextToObject} white={boolFalse} level={level} cell={cell} 
       onClick={this.lineClick.bind(this,level, cell)} 
       annotationChanged={this.annotationChanged}
@@ -532,7 +532,7 @@ class SequenceMath extends React.Component {
        readonlyText={readonlyText}></Line></div>)
     }
     else {
-      return  (<div key={position} className="cellLine">
+      return  (<div key={position} className="sequence-level-cells">
       <Line white={boolTrue} level={level} cell={cell} 
       annotationText={annotationText}
       clicked={false}></Line></div>)
@@ -576,12 +576,13 @@ class SequenceMath extends React.Component {
               break;
         }        
       }
-      lines.push(<div key={level} className="level"><br/>{cell}</div>);
+      lines.push(<div key={level} className="sequence-level"><br/>{cell}</div>);
     }
     return (
       <div className="sequence-container">
         <button className="basic-button"
-         type="text" onClick={this.resetApplicationState}>Reset sequence</button>
+         type="text" onClick={this.resetApplicationState}>
+         Reset sequence </button>
         {lines}
         {latexCode}
       </div>
@@ -686,41 +687,39 @@ class Line extends React.Component {
 
   render() {
     let className = " ";
-    let inputClassName = " input-line ";
+    let inputClassName = " sequence-cell-text ";
     if (this.state.white) {
-      className += " line-div-white ";
-      inputClassName += " no-input "
+      className += " sequence-cell-length-white ";
+      inputClassName += " sequence-cell-text-no-input "
     }
     else {
       if (this.state.length === 0) {
-        className += " filled-div0 ";
+        className += " sequence-cell-length-0 ";
       } 
       else if (this.state.length === 1) {
-        className += " filled-div1 ";
+        className += " sequence-cell-length-1 ";
       }
       else if (this.state.length === 2) {
-        className += " filled-div2 ";
+        className += " sequence-cell-length-2 ";
       }
       else if (this.state.length === 3) {
-        className += " filled-div3 ";
+        className += " sequence-cell-length-3 ";
       }
    }
     return(
-      <div className="one-line">
-        <div className="lineAnnotation">
-          <div className={className} onClick={this.onClick.bind(this)}/>
-          {this.state.annotation && 
-            <TextareaAutosize 
-            readOnly={this.state.readonlyAnnot} type="text" className="annotationText"
-            onChange={this.annotationChanged} value={this.state.annotationText}> 
-            </TextareaAutosize> 
-          }
+      <div className="sequence-line">
+        <div className="sequence-line-annotation">
+          <div className={className} onClick={this.onClick.bind(this)}>
+          </div>
+          { this.state.annotation && 
+            <TextareaAutosize readOnly={this.state.readonlyAnnot} 
+            type="text" className="sequence-annotation-text"
+            onChange={this.annotationChanged}
+            value={this.state.annotationText}/>  }
         </div>
         <TextareaAutosize readOnly={this.state.readonlyText} 
-        value={this.state.inputText}
-         type="text" onChange={this.onChange} className={inputClassName} >
-        </TextareaAutosize>
-       
+        value={this.state.inputText} className={inputClassName}
+         type="text" onChange={this.onChange} />
       </div>
     );
   }

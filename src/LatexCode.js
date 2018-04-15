@@ -43,16 +43,14 @@ class LatexCode extends React.Component {
                     <span  dangerouslySetInnerHTML= 
                     {this.generateDangerousHTML()}></span>
                     </CopyToClipboard>
-            
                     <div className="copied-container">
                     <CopyToClipboard text={this.copyText()}
                         onCopy={() =>{this.setState({copied: true})} }>
                         <img alt="copy-icon" src={copyIcon} className="copy-button"/>
                     </CopyToClipboard>
-            
                     {this.state.copied ? <span className="copied-text" style={{color: 'green'}}>Copied.</span> : null}
                     </div>
-                </pre>
+                </pre>                
             </div>
         )
     }

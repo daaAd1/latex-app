@@ -61,17 +61,7 @@ table {
   padding: 0;
 }
 
-pre {
-  display:  flex;
-  justify-content: center;
-}
 
-pre {
-  padding: 20px;
-  border: 1px solid black;
-  display: flex;
-  justify-content: space-between;
-}
 
 h1 {
   font-size: 40px;
@@ -106,31 +96,14 @@ ul > li {
   background-color: #7986CB;
 }
 
-.copy-button {
-  height: 70px;
-}
-
 .copied-text {
   padding: 20px 0px;
-}
-
-.code-container {
-  padding: 20px;
-  font-family: 'Roboto Mono', monospace;
-  font-size:  14px;
 }
 
 .editor-table {
   margin: 0 auto;
   padding: 0px 20px;
   width: 82%;
-}
-
-.code-container {
-  margin: 0 auto;
-  width: 80%;
-  text-align: left;
-  padding: 10px 20px;
 }
 
 table {
@@ -232,96 +205,6 @@ input {
   padding: 10px;
 }
 
-.filled-div0,.filled-div1,.filled-div2,.filled-div3{
-  cursor: pointer;
-  width: 100px;
-  height: 10px; 
-  background:lightgray;
-}
-.filled-div1{
-  width: 66px;
-  border-left: 33px solid black;
-}
-.filled-div2{
-  width: 33px;
-  border-left: 66px solid black;
-}
-.filled-div3{
-  width: 0px;
-  border-left: 100px solid black;
-}
-
-
-.line-div-clicked {
-  /*background: black;*/
-}
-.line-div-white {
-  background: white;
-  width: 100px;
-}
-.input-line {
-  width: 90px;
-  height: 15px;
-  border: 1px solid black;
-  margin: 3px;
-  overflow: hidden;
-  resize: none;
-  text-align: center;
-}
-.no-input{
-  display: none;
-}
-
-.level {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-}
-
-.cellLine {
-  padding: 5px;
-}
-
-.lineAnnotation{
-  display: flex;
-  flex-flow: row;
-}
-
-.annotationText {
-  border: 1px solid black;
-  width: 20px;
-  margin-left: 10px;
-  height: 5px;
-}
-
-.one-line {
-  display: flex;
-  flex-flow: row nowrap;
-  flex-grow: 1;
-  flex-basis: 0;
-  padding: 0.2em;
-  word-break: break-word;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-width: 0px;
-  white-space: nowrap;
-  font-size: .3rem;
-  margin: 0.5rem;
-  line-height: 1.5;
-}
-
-.sequence-container {
-  width: 80%;
-  margin: 0 auto;
-  display: flex;
-  flex-flow: column nowrap;
-  font-size: .3rem;
-  margin: 0.5rem;
-  line-height: 1.5;
-  flex: 1 1 auto;
-}
-
 .taylor-container {
   width: 90%;
   margin: 0 auto;
@@ -331,7 +214,7 @@ input {
   min-width: 0px;
   white-space: nowrap;
 }
-.taylor-row {
+.taylor-row-container {
   display: flex;
   flex-wrap: wrap;
   padding-bottom: 10px;
@@ -354,59 +237,247 @@ input {
 
 .arrowButtons > div > button, .arrowButtons > button  {
   border: 0.1px black solid;
-  background-color: azure;
+  background-color: #E8EAF6;
   padding: 6.5px;
 }
 
 .arrowButtons > div > button:hover, .arrowButtons > button:hover {
-  background-color: aquamarine;
+  background-color: #3F51B5;
+  color: white;
   cursor: pointer;
+  box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
 }
 
-/* The Modal (background) */
-.modal {
-  display: none; /* Hidden by default */
-  position: fixed; /* Stay in place */
-  z-index: 1; /* Sit on top */
-  left: 0;
-  top: 0;
-  width: 100%; /* Full width */
-  height: 100%; /* Full height */
-  overflow: auto; /* Enable scroll if needed */
-  background-color: rgb(0,0,0); /* Fallback color */
-  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+/**
+**
+Sequence math part
+**
+**/
+
+.sequence-container {
+  font-family: 'Roboto Mono', monospace;
 }
 
-/* Modal Content/Box */
-.modal-content {
-  background-color: #fefefe;
-  margin: 15% auto; /* 15% from the top and centered */
-  padding: 20px;
-  border: 1px solid #888;
-  width: 80%; /* Could be more or less, depending on screen size */
+.sequence-level{
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
 }
 
-/* The Close Button */
-.close {
-  color: #aaa;
-  float: right;
-  font-size: 28px;
-  font-weight: bold;
+.sequence-level-cells {
+  display: flex;
+  flex-flow: column wrap;
+  padding: 5px;
 }
 
-.close:hover,
-.close:focus {
-  color: black;
+.sequence-line-annotation{
+  display: flex;
+  flex-flow: row;
+}
+
+.sequence-cell-length-0,.sequence-cell-length-1,
+.sequence-cell-length-2,.sequence-cell-length-3 {
+  cursor: pointer;
+  width: 100px;
+  height: 10px; 
+  background: #E8EAF6;
+  margin-left: 7px;
+  margin-top: 24px;
+}
+
+.sequence-cell-length-1, .sequence-cell-length-2,
+.sequence-cell-length-3 {
+  margin-left: 31px;
+  margin-top: 24px;
+}
+
+.sequence-cell-length-white {
+  background: white;
+  width: 100px;
+  display: none;
+}
+
+.sequence-cell-length-1 {
+  width: 66px;
+  border-left: 33px solid #7986CB;
+}
+
+.sequence-cell-length-2 {
+  width: 33px;
+  border-left: 66px solid #7986CB;
+}
+
+.sequence-cell-length-3 {
+  width: 0px;
+  border-left: 100px solid #7986CB;
+}
+
+.sequence-cell-text {
+  width: 100px;
+  height: 15px;
+  border: 1px solid black;
+  margin: 3px;
+  text-align: center;
+}
+
+.sequence-cell-text-no-input{
+  display: none;
+}
+
+.sequence-annotation-text {
+  border: 1px solid black;
+  width: 20px;
+  margin-left: 5px;
+  height: 5px;
+}
+
+
+/** 
+**
+Arrow Modal
+**
+**/
+.modal-header {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-between;
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  padding: 0px 0px 10px 10px;
+}
+
+.modal-header > h2 {
+  padding-top: 5px;
+}
+
+.modal-container {
+  display: flex;
+  flex-flow: row wrap;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+}
+
+.modal-text {
+  display: flex;
+  flex-flow: column wrap;
+  padding-right: 30px;
+}
+
+.modal-text > input {
+  border: 1px solid #3F51B5;
+  width: 200px;
+}
+
+.modal-text > label {
+  padding: 10px 0px 0px 10px;
+  text-align: left;
+}
+
+.modal-types {
+  display: flex;
+  flex-flow: column wrap;
+  text-align: left;
+}
+
+.modal-types > label {
+  padding-bottom: 5px;
+}
+
+.modal-types > div > input {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  border-radius: 50%;
+  border: 2px solid #C5CAE9;
+  width: 16px;
+  height: 16px;
+  transition: 0.2s all linear;
+  outline: none;
+  position: relative;
+  top: 4px;
+  margin: 5px 5px 0px 0px;
+  padding: 0px;
+}
+
+.modal-types > div > input:checked {
+  border: 6px solid #3F51B5;
+}
+
+.modal-types > div > label {
+  margin: 0px;
+  padding: 0px;
+}
+
+.modal-button-close {
+  background-color: white;
+  border: 0;
   text-decoration: none;
   cursor: pointer;
 }
 
+
+/**
+**
+Code container
+**
+**/
+
+.code-container {
+  padding: 20px;
+  font-family: 'Roboto Mono', monospace;
+  font-size:  14px;
+  margin: 0 auto;
+  width: 80%;
+  text-align: left;
+  padding: 10px 20px;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.code-container > pre {
+  display:  flex;
+  justify-content: space-between;
+  padding: 20px;
+  border: 1px solid black;
+  overflow-x: auto;
+}
+
+.code-container > pre::-webkit-scrollbar:horizontal {
+  border-radius: 10px;
+  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5); 
+}
+.code-container > pre::-webkit-scrollbar-track
+{
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+	background-color: #C5CAE9;
+}
+
+.code-container > pre::-webkit-scrollbar
+{
+	width: 12px;
+	background-color: #C5CAE9;
+}
+
+.code-container > pre::-webkit-scrollbar-thumb
+{
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+	background-color: #3F51B5;
+}
+
+.copy-button {
+  padding-left: 10px;
+  height: 70px;
+}
+
+
 .arrowButtons > div > .arrow-activated:hover, .arrowButtons > .current-arrow-type:hover {
-  background-color: azure;
+  background-color: #3949AB;
+  color: white;
 }
 
 .arrowButtons > div > .arrow-activated, .arrowButtons > .current-arrow-type {
-  background-color: aquamarine;
+  background-color: #3F51B5;
+  color: white;
 }
 
 .header {
@@ -461,7 +532,9 @@ input {
 .taylor-label {
   padding-left: 10px;
 }
-
+.input-rows > input {
+  margin-bottom: 20px;
+}
 .form-container > div > label, .form-container > div > div >label {
   display: inline-block;
   width: 200px;
@@ -469,12 +542,47 @@ input {
   padding-left: 10px;
   padding-bottom: 1px;
   font-family: 'Roboto', sans-serif;  
+  font-size: 18px;
 }
-
+.taylor-row-container > div > label, .taylor-size-container>label {
+  display: inline-block;
+  width: 200px;
+  text-align: left;
+  padding-left: 10px;
+  font-family: 'Roboto', sans-serif;  
+  font-size: 18px;
+}
+.taylor-row-container > div > input, .taylor-size-container > div > input {
+  width: 200px;
+  padding: 0px 1px 0px 0px;
+  text-align: right;
+}
+.line-size {
+  display: flex;
+  flex-flow: column wrap;
+}
+.taylor-num-rows {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-around;
+}
+.taylor-size-container {
+  display: flex;
+  flex-flow: column;
+}
 .form-container > div > input {
   width: 200px;
   padding: 0px 1px 0px 0px;
   text-align: right;
+}
+
+.taylor-separating-line {
+  display: block;
+  height: 1px;
+  border: 0;
+  border-top: 2px solid #3949AB;
+  margin: 1em 0;
+  padding: 0; 
 }
 
 .form-container {
@@ -526,7 +634,7 @@ input[type=range]{
 }
 
 input[type=range]::-webkit-slider-runnable-track {
-  width: 300px;
+  width: 200px;
   height: 5px;
   background: #C5CAE9;
   border: none;
@@ -556,7 +664,7 @@ input[type=range]{
   border: 1px solid white; 
 
   /*required for proper track sizing in FF*/
-  width: 300px;
+  width: 200px;
 }
 
 input[type=range]::-moz-range-track {
@@ -583,10 +691,6 @@ input[type=range]:-moz-focusring{
 
 input[type=range]:focus::-moz-range-track {
   background: #C5CAE9;
-}
-
-.content {
-  width: 80%;
 }
 
 /*.label-caption-container {
