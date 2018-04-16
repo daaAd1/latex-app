@@ -7,22 +7,22 @@ class LatexCode extends React.Component {
         super(props);
         this.state = {
             copied: false,
-            innerHtml: props.code
+            innerHtml: props.code,
         }
 
-        this.copyText = this.copyText.bind(this)
-    }
+        this.copyText = this.copyText.bind(this);
+    };
 
     componentWillReceiveProps(nextProps) {
         if (nextProps.code !== this.state.innerHtml) {
           this.setState({ 
               innerHtml: nextProps.code 
-            })
+            });
         }
         if (nextProps.copied !== this.state.copied) {
             this.setState({ 
                 copied: nextProps.copied
-              })
+              });
         }
       }
 

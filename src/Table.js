@@ -2,7 +2,7 @@ import React, { } from "react";
 //import copyIcon from "./content-copy.svg";
 import TextareaAutosize from 'react-autosize-textarea';
 import LatexCode from "./LatexCode";
-
+import Symbols from "./Symbols";
 
 class Table extends React.Component {
   constructor(props) {
@@ -504,10 +504,13 @@ class Table extends React.Component {
             <TableColumns columnValue={this.inputColumnsChanged.bind(this)}/>
             </div>
           </div>
-          <button className="basic-button reset-button"
-          type="text" onClick={this.resetApplicationState}>Reset table</button>
+          <div className="table-button-symbols-container">
+            <button className="basic-button "
+            type="text" onClick={this.resetApplicationState}>Reset table</button>
+            <Symbols></Symbols>
+          </div>
         </div>
-        <hr className="taylor-separating-line" />
+        <hr className="table-separating-line" />
         <div className="editor-table">
           <table>
             <tbody>

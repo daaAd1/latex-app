@@ -2,6 +2,7 @@ import React, { } from "react";
 import LatexCode from "./LatexCode";
 import Arrow from "./Arrow";
 import TextareaAutosize from 'react-autosize-textarea';
+import Symbols from "./Symbols";
 
 class TaylorDiagram extends React.Component {
   constructor(props) {
@@ -461,9 +462,9 @@ class TaylorDiagram extends React.Component {
           <div>
             <input id="taylor-rows" type="range" min="1" max="15" value={this.state.rows}
             onChange={this.onRowsChange.bind(this)}/>
-            
           </div>
         </div>
+        <Symbols></Symbols>
         <button className="basic-button"
         type="text" onClick={this.resetApplicationState.bind(this)}>Reset taylor</button>
        </div>

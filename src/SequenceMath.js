@@ -1,6 +1,7 @@
 import React, { } from "react";
 import LatexCode from "./LatexCode";
 import TextareaAutosize from 'react-autosize-textarea';
+import Symbols from "./Symbols";
 
 class SequenceMath extends React.Component {
   constructor(props) {
@@ -580,9 +581,13 @@ class SequenceMath extends React.Component {
     }
     return (
       <div className="sequence-container">
-        <button className="basic-button"
-         type="text" onClick={this.resetApplicationState}>
-         Reset sequence </button>
+        <div className="sequence-button-symbols-container">
+          <Symbols />
+          <button className="basic-button sequence-reset-button"
+          type="text" onClick={this.resetApplicationState}>
+          Reset sequence </button>
+         </div>
+         <hr className="sequence-separating-line" />
         {lines}
         {latexCode}
       </div>
