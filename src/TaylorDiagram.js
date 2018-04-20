@@ -455,21 +455,21 @@ class TaylorDiagram extends React.Component {
     let latexCode = <LatexCode code={this.state.latexCode}></LatexCode>;
     let rows = [];
     rows.push(
-    <div key={"first-row-key"}>
-      <div className="taylor-num-rows">
-        <div className="taylor-size-container">
-          <label htmlFor="taylor-rows">Rows: {this.state.rows}</label>
-          <div>
-            <input id="taylor-rows" type="range" min="1" max="15" value={this.state.rows}
-            onChange={this.onRowsChange.bind(this)}/>
+      <div className="taylor-diagram-size-container" key={"first-row-key"}>
+        <div className="taylor-rows-count">
+          <div className="taylor-size-container">
+            <label htmlFor="taylor-rows">Rows: {this.state.rows}</label>
+            <div>
+              <input id="taylor-rows" type="range" min="1" max="15" value={this.state.rows}
+              onChange={this.onRowsChange.bind(this)}/>
+            </div>
           </div>
+          <Symbols></Symbols>
+          <button className="basic-button"
+          type="text" onClick={this.resetApplicationState.bind(this)}>Reset taylor</button>
         </div>
-        <Symbols></Symbols>
-        <button className="basic-button"
-        type="text" onClick={this.resetApplicationState.bind(this)}>Reset taylor</button>
-       </div>
-       <hr className="taylor-separating-line"/>
-    </div>
+        <hr className="taylor-separating-line"/>
+      </div>
     );
     for (let row = 1; row <= this.state.rows; row++ ) {
         rows.push(<Row rowText={this.state.textObject} cellTextChanged={this.cellTextChanged.bind(this)}
@@ -554,7 +554,7 @@ class Row extends React.Component {
         cellText = this.state.rowText[this.state.row.toString() + column.toString()];
       }
       cells.push(
-      <div key={column} className="cellArrows">
+      <div key={column} className="taylor-cell-container">
           <Cell arrowStateChanged={this.arrowStateChanged.bind(this, column)}
           arrowDeleted={this.arrowDeleted.bind(this, column)}
           row={this.state.row} column={column} cellText={cellText}
@@ -563,9 +563,9 @@ class Row extends React.Component {
     }
     return (
       <div className="taylor-row-container">
-        <div className="line-size"> 
-          <label htmlFor="line-row">Columns: {this.state.columns}</label>
-          <input id="line-row" type="range" min="1" max="10" value={this.state.columns} 
+        <div className="taylor-row-size"> 
+          <label htmlFor="taylor-row">Columns: {this.state.columns}</label>
+          <input id="taylor-row" type="range" min="1" max="10" value={this.state.columns} 
       onChange={this.onColumnsChange.bind(this)}/>
         </div>
         {cells}
@@ -601,15 +601,19 @@ class Cell extends React.Component {
 
   render() {
     return (
-      <div>
-        <div className="arrowButtons">
-              <Arrow arrowDeleted={this.arrowDeleted.bind(this)} arrowActivated={this.arrowStateChanged.bind(this)} row={this.state.row} column={this.state.column} arrowDirection="lu" /><Arrow arrowDeleted={this.arrowDeleted.bind(this)} arrowActivated={this.arrowStateChanged.bind(this)} row={this.state.row} column={this.state.column} arrowDirection="u" />
-              <Arrow arrowDeleted={this.arrowDeleted.bind(this)} arrowActivated={this.arrowStateChanged.bind(this)} row={this.state.row} column={this.state.column} arrowDirection="ru" /><Arrow arrowDeleted={this.arrowDeleted.bind(this)} arrowActivated={this.arrowStateChanged.bind(this)} row={this.state.row} column={this.state.column} arrowDirection="l" />
-              <Arrow arrowDeleted={this.arrowDeleted.bind(this)} arrowActivated={this.arrowStateChanged.bind(this)} row={this.state.row} column={this.state.column} arrowDirection="r" /><Arrow arrowDeleted={this.arrowDeleted.bind(this)} arrowActivated={this.arrowStateChanged.bind(this)} row={this.state.row} column={this.state.column} arrowDirection="ld" />
-              <Arrow arrowDeleted={this.arrowDeleted.bind(this)} arrowActivated={this.arrowStateChanged.bind(this)} row={this.state.row} column={this.state.column}  arrowDirection="d" /><Arrow arrowDeleted={this.arrowDeleted.bind(this)} arrowActivated={this.arrowStateChanged.bind(this)} row={this.state.row} column={this.state.column} arrowDirection="rd" />
+      <div className="taylor-cell-container">
+        <div className="taylor-arrow-container">
+              <Arrow arrowDirection="lu" arrowDeleted={this.arrowDeleted.bind(this)} arrowActivated={this.arrowStateChanged.bind(this)} row={this.state.row} column={this.state.column} />
+              <Arrow arrowDirection="u" arrowDeleted={this.arrowDeleted.bind(this)} arrowActivated={this.arrowStateChanged.bind(this)} row={this.state.row} column={this.state.column} />
+              <Arrow arrowDirection="ru" arrowDeleted={this.arrowDeleted.bind(this)} arrowActivated={this.arrowStateChanged.bind(this)} row={this.state.row} column={this.state.column} />
+              <Arrow arrowDirection="l" arrowDeleted={this.arrowDeleted.bind(this)} arrowActivated={this.arrowStateChanged.bind(this)} row={this.state.row} column={this.state.column} />
+              <Arrow arrowDirection="r" arrowDeleted={this.arrowDeleted.bind(this)} arrowActivated={this.arrowStateChanged.bind(this)} row={this.state.row} column={this.state.column} />
+              <Arrow arrowDirection="ld" arrowDeleted={this.arrowDeleted.bind(this)} arrowActivated={this.arrowStateChanged.bind(this)} row={this.state.row} column={this.state.column} />
+              <Arrow arrowDirection="d" arrowDeleted={this.arrowDeleted.bind(this)} arrowActivated={this.arrowStateChanged.bind(this)} row={this.state.row} column={this.state.column} />
+              <Arrow arrowDirection="rd" arrowDeleted={this.arrowDeleted.bind(this)} arrowActivated={this.arrowStateChanged.bind(this)} row={this.state.row} column={this.state.column} />
         </div>
         <TextareaAutosize type="text" value={this.state.cellText}
-        className="input-textarea"
+        className="taylor-cell-input"
         onChange={this.cellTextChanged.bind(this)}/>        
       </div>
     );

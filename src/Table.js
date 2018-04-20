@@ -492,16 +492,16 @@ class Table extends React.Component {
       }
     }
     return (
-      <div className="container-table">
-        <div className="form-reset-container">
-          <div className="form-container">
-          <div className="caption-label-container">
-            <TableCaption changeCaption={this.changeCaption}> </TableCaption>
-            <TableLabel changeLabel={this.changeLabel}> </TableLabel>
-              </div>
-            <div className="table-size-container">
-            <TableRows rowValue={this.inputRowsChanged.bind(this)}/>
-            <TableColumns columnValue={this.inputColumnsChanged.bind(this)}/>
+      <div className="table-container">
+        <div className="table-size-container">
+          <div className="table-form-container">
+            <div className="table-caption-label-container">
+              <TableCaption changeCaption={this.changeCaption}> </TableCaption>
+              <TableLabel changeLabel={this.changeLabel}> </TableLabel>
+            </div>
+            <div className="table-rows-columns-container">
+              <TableRows rowValue={this.inputRowsChanged.bind(this)}/>
+              <TableColumns columnValue={this.inputColumnsChanged.bind(this)}/>
             </div>
           </div>
           <div className="table-button-symbols-container">
@@ -511,7 +511,7 @@ class Table extends React.Component {
           </div>
         </div>
         <hr className="table-separating-line" />
-        <div className="editor-table">
+        <div className="table-container">
           <table>
             <tbody>
               {rows}
@@ -564,7 +564,7 @@ class TableRows extends React.Component {
   }
   render() {
     return (
-      <div className="input-rows">
+      <div className=" table-row-size ">
         <label htmlFor="table-rows">Rows: {this.state.rows}</label> 
         <input id="table-rows" type="range" min="1" max="25" 
         value={this.state.rows} onChange={this.onChange.bind(this)}/> 
@@ -615,7 +615,7 @@ class TableColumns extends React.Component {
   }
   render() {
     return (
-      <div className="input-columns">
+      <div className=" table-column-size">
         <label htmlFor="table-columns">Columns: {this.state.columns}</label> 
         <input id="table-columns" type="range" min="1" max="15" 
          value={this.state.columns} onChange={this.onChange.bind(this)}/>
@@ -651,13 +651,13 @@ class TableInputCell extends React.Component {
   render() {
     let className;
     if (this.state.alignment === "left") {
-      className = "left-aligned";
+      className = " table-left-aligned ";
     }
     else if (this.state.alignment === "center") {
-      className = "center-aligned"
+      className = " table-center-aligned "
     }
     else if (this.state.alignment === "right") {
-      className = "right-aligned";
+      className = " table-right-aligned ";
     }
     let cellId = this.state.row + "-" + this.state.column;
     return(
@@ -691,10 +691,10 @@ class TableLabel extends React.Component {
 
   render() {
     return(
-      <div className="label-container">
-        <label htmlFor="label"> Label </label>
+      <div className="table-label-container">
+        <label htmlFor="table-label"> Label </label>
         <input value={this.state.label} 
-         type="text" id="label" onChange={this.onChange}/>
+         type="text" id="table-label" onChange={this.onChange}/>
       </div>
     );
   }
@@ -724,10 +724,10 @@ class TableCaption extends React.Component {
 
   render() {
     return(
-      <div className="caption-container">
-        <label htmlFor="caption"> Caption </label>
+      <div className="table-caption-container">
+        <label htmlFor="table-caption"> Caption </label>
         <input value={this.state.caption} 
-        type="text" id="caption" onChange={this.onChange} />
+        type="text" id="table-caption" onChange={this.onChange} />
       </div>
     );
   }
@@ -756,16 +756,16 @@ class BorderCell extends React.Component {
   render() {
     let cellId = this.state.row + "-" + this.state.column;
     if (this.state.direction === "row") {
-      this.className = " border-row "
+      this.className = " table-border-row "
     }
     else if (this.state.direction === "column") {
-      this.className = " border-column "
+      this.className = " table-border-column "
     }
     if (this.state.active) {
-      this.className += " active-border "
+      this.className += " table-active-border "
     }
     if (this.state.hover) {
-      this.className += " hover "
+      this.className += " table-hover-border "
     }
     return(
       <td onMouseEnter={this.props.onMouseEnter} 
@@ -824,16 +824,16 @@ this.props.column) || "left";
     let centerClassName = "";
     let rightClassName = "";
     if (this.state.alignment === "left") {
-      leftClassName = "left-aligned";
+      leftClassName = "table-left-aligned";
     }
     else if (this.state.alignment === "center")  {
-      centerClassName = "center-aligned";
+      centerClassName = "table-center-aligned";
     }
     else if (this.state.alignment === "right") {
-      rightClassName = "right-aligned";
+      rightClassName = "table-right-aligned";
     }
     return (
-      <td className="alignment-part">
+      <td className="table-alignment">
         <button className={leftClassName} onClick={this.clickLeft}>l</button>
         <button className={centerClassName} onClick={this.clickCenter}>c</button>
         <button className={rightClassName} onClick={this.clickRight}>r</button>
