@@ -7,6 +7,7 @@ import TableCaption from './TableCaption';
 import TableLabel from './TableLabel';
 import TableBorderCell from './TableBorderCell';
 import TableAlignmentCell from './TableAlignmentCell';
+import TableInputCell from './TableInputCell';
 
 /*  global localStorage: false, console: false, window: false */
 
