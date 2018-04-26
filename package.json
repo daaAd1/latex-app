@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "prop-types": "^15.6.1",
     "react": "^16.2.0",
     "react-autosize-textarea": "^3.0.2",
     "react-dom": "^16.2.0",
@@ -21,7 +22,14 @@
   },
   "homepage": "https://daaad1.github.io/latex-app",
   "devDependencies": {
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb": "^16.1.0",
+    "eslint-plugin-import": "^2.11.0",
+    "eslint-plugin-jsx-a11y": "^6.0.3",
+    "eslint-plugin-prettier": "^2.6.0",
+    "eslint-plugin-react": "^7.7.0",
     "gh-pages": "^1.1.0",
-    "git-push": "^0.1.1"
+    "git-push": "^0.1.1",
+    "prettier-eslint": "^8.8.1"
   }
 }
