@@ -11,24 +11,6 @@ class SequenceMath extends React.Component {
     window.location.reload();
   }
 
-  static getInitialLinesObject() {
-    const linesObject =
-      JSON.parse(localStorage.getItem('math-line-object')) || this.generateLinesObject();
-    return linesObject;
-  }
-
-  static getInitialTextObject() {
-    const textObject =
-      JSON.parse(localStorage.getItem('math-text-object')) || this.generateTextObject();
-    return textObject;
-  }
-
-  static getInitialAnnotationObject() {
-    const annotObject =
-      JSON.parse(localStorage.getItem('math-annotation-object')) || this.generateAnnotationObject();
-    return annotObject;
-  }
-
   constructor(props) {
     super(props);
     this.state = {
@@ -43,23 +25,40 @@ class SequenceMath extends React.Component {
     this.addTextToObject = this.addTextToObject.bind(this);
     this.generateLatexCode = this.generateLatexCode.bind(this);
     this.annotationChanged = this.annotationChanged.bind(this);
+    this.addLineToObject = this.addLineToObject.bind(this);
   }
 
   componentDidMount() {
-    this.onMount(function callback() {
-      this.setState(
-        {
-          linesText: this.generateTextObject(),
-          linesObject: this.generateLinesObject(),
-          annotationObject: this.generateAnnotationObject(),
-        },
-        () => {
-          this.setState({
-            latexCode: this.generateLatexCode(),
-          });
-        },
-      );
-    });
+    this.setState(
+      {
+        linesText: this.generateTextObject(),
+        linesObject: this.generateLinesObject(),
+        annotationObject: this.generateAnnotationObject(),
+      },
+      () => {
+        this.setState({
+          latexCode: this.generateLatexCode(),
+        });
+      },
+    );
+  }
+
+  getInitialLinesObject() {
+    const linesObject =
+      JSON.parse(localStorage.getItem('math-line-object')) || this.generateLinesObject();
+    return linesObject;
+  }
+
+  getInitialTextObject() {
+    const textObject =
+      JSON.parse(localStorage.getItem('math-text-object')) || this.generateTextObject();
+    return textObject;
+  }
+
+  getInitialAnnotationObject() {
+    const annotObject =
+      JSON.parse(localStorage.getItem('math-annotation-object')) || this.generateAnnotationObject();
+    return annotObject;
   }
 
   generateTextObject() {
@@ -134,11 +133,13 @@ class SequenceMath extends React.Component {
     const key = level.toString() + levelCell.toString();
     const obj = this.state.lines;
     obj[key] = length;
+    console.log(level, levelCell, length);
     this.setState(
       {
         lines: obj,
       },
       () => {
+        console.log(this.state.lines);
         this.setState({
           latexCode: this.generateLatexCode(),
         });
@@ -507,6 +508,7 @@ class SequenceMath extends React.Component {
     const position = level.toString() + cell.toString();
     let positionOneLevelDown = (level - 1).toString() + (cell / 2).toString();
     let levelNotHighEnough = false;
+
     if ((cell + 2) % 3 === 0) {
       positionOneLevelDown = (level - 1).toString() + ((cell + 2) / 3).toString();
       if (this.state.lines[positionOneLevelDown] < 1) {
@@ -552,7 +554,7 @@ class SequenceMath extends React.Component {
             white={boolFalse}
             level={level}
             cell={cell}
-            onClick={this.lineClick(level, cell)}
+            onClick={length => this.lineClick(level, cell, length)}
             annotationChanged={this.annotationChanged}
             annotationText={annotationText}
             clicked
@@ -573,7 +575,7 @@ class SequenceMath extends React.Component {
             white={boolFalse}
             level={level}
             cell={cell}
-            onClick={this.lineClick(level, cell)}
+            onClick={length => this.lineClick(level, cell, length)}
             annotationChanged={this.annotationChanged}
             annotationText={annotationText}
             clicked={false}
@@ -590,7 +592,7 @@ class SequenceMath extends React.Component {
             white={boolFalse}
             level={level}
             cell={cell}
-            onClick={this.lineClick(level, cell)}
+            onClick={length => this.lineClick(level, cell, length)}
             annotationChanged={this.annotationChanged}
             annotationText={annotationText}
             clicked={false}
@@ -664,7 +666,7 @@ class SequenceMath extends React.Component {
           <button
             className="basic-button sequence-reset-button"
             type="text"
-            onClick={this.resetApplicationState}
+            onClick={SequenceMath.resetApplicationState}
           >
             Reset sequence{' '}
           </button>

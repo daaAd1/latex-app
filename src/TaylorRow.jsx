@@ -3,7 +3,7 @@ import TaylorCell from './TaylorCell';
 
 /*  global localStorage: false, console: false, */
 
-class TaylorRow extends React.Component {
+class TaylorRow extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
@@ -16,10 +16,8 @@ class TaylorRow extends React.Component {
   }
 
   componentDidMount() {
-    this.onMount(function callback() {
-      this.setState({
-        rowText: this.getInitialRowText(),
-      });
+    this.setState({
+      rowText: this.getInitialRowText(),
     });
   }
 
@@ -74,8 +72,10 @@ class TaylorRow extends React.Component {
       cells.push(
         <div key={column} className="taylor-cell-container">
           <TaylorCell
-            arrowStateChanged={this.arrowStateChanged(column)}
-            arrowDeleted={this.arrowDeleted(column)}
+            arrowStateChanged={(direction, text, text2, type) =>
+              this.arrowStateChanged(column, direction, text, text2, type)
+            }
+            arrowDeleted={direction => this.arrowDeleted(column, direction)}
             row={this.state.row}
             column={column}
             cellText={cellText}
@@ -88,7 +88,7 @@ class TaylorRow extends React.Component {
       <div className="taylor-row-container">
         <div className="taylor-row-size">
           <label htmlFor="taylor-row">
-            Columns: {this.state.columns}
+            <p>Columns: {this.state.columns}</p>
             <input
               id="taylor-row"
               type="range"

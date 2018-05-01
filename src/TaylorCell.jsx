@@ -4,7 +4,7 @@ import Arrow from './Arrow';
 
 /*  global console: false, */
 
-class TaylorCell extends React.Component {
+class TaylorCell extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {

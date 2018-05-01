@@ -1,7 +1,7 @@
 import React from 'react';
 /*  global localStorage: false, console: false, */
 
-class TableColumns extends React.Component {
+class TableColumns extends React.PureComponent {
   static getInitialColumnsState() {
     let columns = 5;
     if (localStorage.getItem('table-columns') !== null) {
@@ -13,7 +13,7 @@ class TableColumns extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      columns: this.getInitialColumnsState(),
+      columns: TableColumns.getInitialColumnsState(),
     };
 
     this.onChange = this.onChange.bind(this);

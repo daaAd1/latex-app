@@ -3,7 +3,7 @@ import TextareaAutosize from 'react-autosize-textarea';
 
 /*  global localStorage: false, console: false, */
 
-class SequenceMathLine extends React.Component {
+class SequenceMathLine extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
@@ -134,7 +134,7 @@ class SequenceMathLine extends React.Component {
     return (
       <div className="sequence-line">
         <div className="sequence-line-annotation">
-          <div role="button" className={className} onKeyDown={this.onClick} tabIndex={0} />
+          <div role="button" className={className} onClick={this.onClick} tabIndex={0} />
           {this.state.annotation && (
             <TextareaAutosize
               readOnly={this.state.readonlyAnnot}

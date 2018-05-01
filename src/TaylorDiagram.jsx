@@ -5,7 +5,7 @@ import TaylorRow from './TaylorRow';
 
 /*  global localStorage: false, console: false, window: false */
 
-class TaylorDiagram extends React.Component {
+class TaylorDiagram extends React.PureComponent {
   static resetApplicationState() {
     window.localStorage.clear();
     window.location.reload();
@@ -28,7 +28,7 @@ class TaylorDiagram extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      rows: this.getInitialRows(),
+      rows: TaylorDiagram.getInitialRows(),
       columnsObject: this.getInitialColumns(),
       latexCode: this.generateLatexCode(2),
       textObject: this.getInitialTextObject(),
@@ -42,28 +42,26 @@ class TaylorDiagram extends React.Component {
     this.addArrowToObject = this.addArrowToObject.bind(this);
     this.deleteArrowFromObject = this.deleteArrowFromObject.bind(this);
     this.checkForArrow = this.checkForArrow.bind(this);
-    this.initializeAdditionalArrowObject = this.initializeAdditionalArrowObject.bind(this);
     this.checkArrowObjectForArrows = this.checkArrowObjectForArrows.bind(this);
     this.onRowsChange = this.onRowsChange.bind(this);
     this.onColumnsChange = this.onColumnsChange.bind(this);
     this.cellTextChanged = this.cellTextChanged.bind(this);
+    this.getInitialAdditionalArrowsObject = this.getInitialAdditionalArrowsObject.bind(this);
   }
 
   componentDidMount() {
-    this.onMount(function callback() {
-      this.setState(
-        {
-          textObject: this.initializeTextObject(this.state.rows, 10),
-          arrowsObject: this.initializeArrowObject(this.state.rows, 10),
-          additionalArrowsObject: this.initializeAdditionalArrowObject(),
-        },
-        () => {
-          this.setState({
-            latexCode: this.generateLatexCode(this.state.rows),
-          });
-        },
-      );
-    });
+    this.setState(
+      {
+        textObject: this.initializeTextObject(this.state.rows, 10),
+        arrowsObject: this.initializeArrowObject(this.state.rows, 10),
+        additionalArrowsObject: TaylorDiagram.initializeAdditionalArrowObject(),
+      },
+      () => {
+        this.setState({
+          latexCode: this.generateLatexCode(this.state.rows),
+        });
+      },
+    );
   }
 
   onRowsChange(event) {
@@ -150,7 +148,7 @@ class TaylorDiagram extends React.Component {
   getInitialAdditionalArrowsObject() {
     const additionalArrowObject =
       JSON.parse(localStorage.getItem('taylor-additional-arrow-object')) ||
-      this.initializeAdditionalArrowObject();
+      TaylorDiagram.initializeAdditionalArrowObject();
     return additionalArrowObject;
   }
 
@@ -289,6 +287,7 @@ class TaylorDiagram extends React.Component {
     obj[key][direction].text = text;
     obj[key][direction].text2 = text2;
     obj[key][direction].type = type;
+
     this.setState(
       {
         arrowsObject: obj,
@@ -574,7 +573,11 @@ class TaylorDiagram extends React.Component {
             </div>
           </div>
           <Symbols />
-          <button className="basic-button" type="text" onClick={this.resetApplicationState}>
+          <button
+            className="basic-button"
+            type="text"
+            onClick={TaylorDiagram.resetApplicationState}
+          >
             Reset taylor
           </button>
         </div>
@@ -588,9 +591,11 @@ class TaylorDiagram extends React.Component {
           cellTextChanged={this.cellTextChanged}
           key={row}
           row={row}
-          arrowDeleted={this.arrowDeleted(row)}
-          arrowStateChanged={this.arrowStateChanged(row)}
-          onColumnsChange={this.onColumnsChange(row)}
+          arrowDeleted={(column, direction) => this.arrowDeleted(row, column, direction)}
+          arrowStateChanged={(column, direction, text, text2, type) =>
+            this.arrowStateChanged(row, column, direction, text, text2, type)
+          }
+          onColumnsChange={() => this.onColumnsChange(row)}
         >
           {' '}
         </TaylorRow>,

@@ -6,6 +6,7 @@
     "prop-types": "^15.6.1",
     "react": "^16.2.0",
     "react-autosize-textarea": "^3.0.2",
+    "react-copy-to-clipboard": "^5.0.1",
     "react-dom": "^16.2.0",
     "react-modal": "^3.3.2",
     "react-numeric-input": "^2.2.3",

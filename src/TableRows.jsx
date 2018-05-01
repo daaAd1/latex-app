@@ -1,7 +1,7 @@
 import React from 'react';
 /*  global localStorage: false, console: false, */
 
-class TableRows extends React.Component {
+class TableRows extends React.PureComponent {
   static getInitialRowsState() {
     let rows = 5;
     if (localStorage.getItem('table-rows') !== null) {
@@ -13,7 +13,7 @@ class TableRows extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      rows: this.getInitialRowsState(),
+      rows: TableRows.getInitialRowsState(),
     };
 
     this.onChange = this.onChange.bind(this);

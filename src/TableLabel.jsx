@@ -1,7 +1,7 @@
 import React from 'react';
 /*  global localStorage: false, console: false, */
 
-class TableLabel extends React.Component {
+class TableLabel extends React.PureComponent {
   static getInitialLabel() {
     const label = localStorage.getItem('table-label') || '';
     return label;
@@ -10,7 +10,7 @@ class TableLabel extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      label: this.getInitialLabel(),
+      label: TableLabel.getInitialLabel(),
     };
 
     this.onChange = this.onChange.bind(this);

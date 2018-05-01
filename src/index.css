@@ -198,7 +198,7 @@ label {
 }
 
 input {
-  margin: 10px;
+  margin-top: 10px;
 }
 
 .content {
@@ -593,7 +593,7 @@ Taylor diagram part
   text-align: right;
 }
 
-.taylor-row-size {
+.taylor-row-size > label {
   display: flex;
   flex-flow: column wrap;
 }

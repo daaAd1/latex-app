@@ -1,7 +1,7 @@
 import React from 'react';
 /*  global localStorage: false, console: false, */
 
-class TableCaption extends React.Component {
+class TableCaption extends React.PureComponent {
   static getInitialCaption() {
     const caption = localStorage.getItem('table-caption') || '';
     return caption;
@@ -10,7 +10,7 @@ class TableCaption extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      caption: this.getInitialCaption(),
+      caption: TableCaption.getInitialCaption(),
     };
 
     this.onChange = this.onChange.bind(this);

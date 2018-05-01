@@ -27,12 +27,6 @@ class Table extends React.Component {
     return columns;
   }
 
-  static getInitialTextObject() {
-    const textObject =
-      JSON.parse(localStorage.getItem('table-textObject')) || this.initializeTextObject();
-    return textObject;
-  }
-
   static getInitialCaption() {
     const caption = localStorage.getItem('table-caption') || '';
     return caption;
@@ -46,11 +40,11 @@ class Table extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      rows: this.getInitialRowsState(),
-      columns: this.getInitialColumnsState(),
+      rows: Table.getInitialRowsState(),
+      columns: Table.getInitialColumnsState(),
       textInTable: this.getInitialTextObject(),
-      caption: this.getInitialCaption(),
-      label: this.getInitialLabel(),
+      caption: Table.getInitialCaption(),
+      label: Table.getInitialLabel(),
       latexCode: '',
       refToBorders: {},
       refToAlignments: {},
@@ -64,22 +58,25 @@ class Table extends React.Component {
     this.addTextToObject = this.addTextToObject.bind(this);
     this.changeCaption = this.changeCaption.bind(this);
     this.changeLabel = this.changeLabel.bind(this);
-    this.resetApplicationState = this.resetApplicationState.bind(this);
   }
 
   componentDidMount() {
-    this.onMount(function callback() {
-      this.setState(
-        {
-          textInTable: this.initializeTextObject(),
-        },
-        () => {
-          this.setState({
-            latexCode: this.generateLatexCode(this.state.rows, this.state.columns),
-          });
-        },
-      );
-    });
+    this.setState(
+      {
+        textInTable: this.initializeTextObject(),
+      },
+      () => {
+        this.setState({
+          latexCode: this.generateLatexCode(this.state.rows, this.state.columns),
+        });
+      },
+    );
+  }
+
+  getInitialTextObject() {
+    const textObject =
+      JSON.parse(localStorage.getItem('table-textObject')) || this.initializeTextObject();
+    return textObject;
   }
 
   initializeTextObject() {
@@ -160,7 +157,7 @@ class Table extends React.Component {
           } else {
             textAlignment = 'l';
           }
-          if (borderCell !== undefined) {
+          if (borderCell !== undefined && borderCell !== null) {
             if (borderCell.state.active === true) {
               if (column === columns - 1) {
                 columnBorderText += '|';
@@ -186,9 +183,9 @@ class Table extends React.Component {
           if (column === columns - 2) {
             rowText += textOnPosition;
           } else if (column === 1) {
-            rowText += `        ${textOnPosition}   & `;
+            rowText += `        ${textOnPosition} & `;
           } else {
-            rowText += `${textOnPosition}   & `;
+            rowText += `${textOnPosition} & `;
           }
         }
       }
@@ -230,7 +227,9 @@ class Table extends React.Component {
       } else if (borderCell !== undefined && borderCell.state.active === true) {
         rowText += ' &#92;hline';
       }
-      coreTable.push(rowText);
+      if (row % 2 !== 0) {
+        coreTable.push(rowText);
+      }
 
       if (row === 0) {
         columnBorderText += '}';
@@ -265,12 +264,18 @@ class Table extends React.Component {
     this.setState(
       {
         rows: changedRowCount * 2 + 1,
-        textInTable: this.initializeTextObject(changedRowCount * 2 + 1, this.state.columns),
       },
       () => {
-        this.setState({
-          latexCode: this.generateLatexCode(changedRowCount * 2 + 1, this.state.columns),
-        });
+        this.setState(
+          {
+            textInTable: this.initializeTextObject(),
+          },
+          () => {
+            this.setState({
+              latexCode: this.generateLatexCode(changedRowCount * 2 + 1, this.state.columns),
+            });
+          },
+        );
       },
     );
     localStorage.setItem('table-rows', changedRowCount * 2 + 1);
@@ -282,12 +287,18 @@ class Table extends React.Component {
     this.setState(
       {
         columns: changedColumnCount * 2 + 1,
-        textInTable: this.initializeTextObject(this.state.rows, changedColumnCount * 2 + 1),
       },
       () => {
-        this.setState({
-          latexCode: this.generateLatexCode(this.state.rows, changedColumnCount * 2 + 1),
-        });
+        this.setState(
+          {
+            textInTable: this.initializeTextObject(this.state.rows, changedColumnCount * 2 + 1),
+          },
+          () => {
+            this.setState({
+              latexCode: this.generateLatexCode(this.state.rows, changedColumnCount * 2 + 1),
+            });
+          },
+        );
       },
     );
     localStorage.setItem('table-columns', changedColumnCount * 2 + 1);
@@ -303,13 +314,17 @@ class Table extends React.Component {
   selectBorder(row, column, direction) {
     const border = this.state.refToBorders[row.toString() + column.toString()];
     let newBorderActiveValue = false;
-    if (border != null) {
+    if (border !== null && border !== undefined) {
       newBorderActiveValue = !border.state.active;
     }
     if (direction === 'row') {
       for (let columnBorder = 0; columnBorder < this.state.columns; columnBorder += 1) {
         const borderCell = this.state.refToBorders[row.toString() + columnBorder.toString()];
-        if (borderCell != null && borderCell.state.direction === 'row') {
+        if (
+          borderCell !== null &&
+          borderCell !== undefined &&
+          borderCell.state.direction === 'row'
+        ) {
           localStorage.setItem(`table-border-${row}${columnBorder}`, newBorderActiveValue);
           borderCell.setState(
             {
@@ -326,7 +341,11 @@ class Table extends React.Component {
     } else if (direction === 'column') {
       for (let rowBorder = 0; rowBorder < this.state.rows; rowBorder += 1) {
         const borderCell = this.state.refToBorders[rowBorder.toString() + column.toString()];
-        if (borderCell != null && borderCell.state.direction === 'column') {
+        if (
+          borderCell !== null &&
+          borderCell !== undefined &&
+          borderCell.state.direction === 'column'
+        ) {
           localStorage.setItem(`table-border-${rowBorder}${column}`, newBorderActiveValue);
           borderCell.setState(
             {
@@ -347,7 +366,7 @@ class Table extends React.Component {
     if (direction === 'row') {
       for (let columnBorder = 0; columnBorder < this.state.columns; columnBorder += 1) {
         const borderCell = this.state.refToBorders[row.toString() + columnBorder.toString()];
-        if (borderCell != null) {
+        if (borderCell !== null && borderCell !== undefined) {
           borderCell.setState({
             hover,
           });
@@ -356,7 +375,7 @@ class Table extends React.Component {
     } else if (direction === 'column') {
       for (let rowBorder = 0; rowBorder < this.state.rows; rowBorder += 1) {
         const borderCell = this.state.refToBorders[rowBorder.toString() + column.toString()];
-        if (borderCell != null) {
+        if (borderCell !== null && borderCell !== undefined) {
           borderCell.setState({
             hover,
           });
@@ -433,7 +452,7 @@ class Table extends React.Component {
               <TableAlignmentCell
                 key={cellId}
                 column={column}
-                onClick={this.alignCell(column)}
+                onClick={this.alignCell.bind(this, column)}
                 ref={input => {
                   this.state.refToAlignments[columnId] = input;
                 }}
@@ -448,9 +467,9 @@ class Table extends React.Component {
                 row={row}
                 column={column}
                 direction="column"
-                onMouseEnter={this.hoverBorder(row, column, 'column', true)}
-                onMouseLeave={this.hoverBorder(row, column, 'column', false)}
-                onClick={this.selectBorder(row, column, 'column')}
+                onClick={this.selectBorder.bind(this, row, column, 'column')}
+                onMouseEnter={this.hoverBorder.bind(this, row, column, 'column', true)}
+                onMouseLeave={this.hoverBorder.bind(this, row, column, 'column', false)}
                 ref={input => {
                   this.state.refToBorders[stringId] = input;
                 }}
@@ -463,9 +482,9 @@ class Table extends React.Component {
                 row={row}
                 column={column}
                 direction="row"
-                onMouseEnter={this.hoverBorder(row, column, 'row', true)}
-                onMouseLeave={this.hoverBorder(row, column, 'row', false)}
-                onClick={this.selectBorder(row, column, 'row')}
+                onClick={this.selectBorder.bind(this, row, column, 'row')}
+                onMouseEnter={this.hoverBorder.bind(this, row, column, 'row', true)}
+                onMouseLeave={this.hoverBorder.bind(this, row, column, 'row', false)}
                 ref={input => {
                   this.state.refToBorders[stringId] = input;
                 }}
@@ -477,9 +496,9 @@ class Table extends React.Component {
             cell.push(
               <TableBorderCell
                 key={cellId}
-                onClick={this.selectBorder(row, column, 'column', true)}
-                onMouseEnter={this.hoverBorder(row, column, 'column')}
-                onMouseLeave={this.hoverBorder(row, column, 'column', false)}
+                onClick={this.selectBorder.bind(this, row, column, 'column')}
+                onMouseEnter={this.hoverBorder.bind(this, row, column, 'column')}
+                onMouseLeave={this.hoverBorder.bind(this, row, column, 'column', false)}
                 row={row}
                 column={column}
                 direction="column"
@@ -492,9 +511,9 @@ class Table extends React.Component {
             cell.push(
               <TableBorderCell
                 key={cellId}
-                onClick={this.selectBorder(row, column, 'row', true)}
-                onMouseEnter={this.hoverBorder(row, column, 'row', true)}
-                onMouseLeave={this.hoverBorder(row, column, 'row', false)}
+                onClick={this.selectBorder.bind(this, row, column, 'row')}
+                onMouseEnter={this.hoverBorder.bind(this, row, column, 'row', true)}
+                onMouseLeave={this.hoverBorder.bind(this, row, column, 'row', false)}
                 row={row}
                 column={column}
                 direction="row"
@@ -508,9 +527,9 @@ class Table extends React.Component {
           cell.push(
             <TableBorderCell
               key={cellId}
-              onClick={this.selectBorder(row, column, 'column')}
-              onMouseEnter={this.hoverBorder(row, column, 'column', true)}
-              onMouseLeave={this.hoverBorder(row, column, 'column', false)}
+              onClick={this.selectBorder.bind(this, row, column, 'column')}
+              onMouseEnter={this.hoverBorder.bind(this, row, column, 'column', true)}
+              onMouseLeave={this.hoverBorder.bind(this, row, column, 'column', false)}
               ref={input => {
                 this.state.refToBorders[stringId] = input;
               }}
@@ -593,7 +612,7 @@ class Table extends React.Component {
             </div>
           </div>
           <div className="table-button-symbols-container">
-            <button className="basic-button " type="text" onClick={this.resetApplicationState}>
+            <button className="basic-button " type="text" onClick={Table.resetApplicationState}>
               Reset table
             </button>
             <Symbols />

@@ -1,7 +1,7 @@
 import React from 'react';
 /*  global localStorage: false, console: false, */
 
-class BorderCell extends React.Component {
+class BorderCell extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
@@ -43,8 +43,7 @@ class BorderCell extends React.Component {
         id={cellId}
         className={this.className}
         onMouseLeave={this.props.onMouseLeave}
-        onClick={() => {}}
-        onKeyDown={this.props.onClick}
+        onClick={this.props.onClick}
       />
     );
   }
