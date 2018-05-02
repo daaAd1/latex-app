@@ -135,9 +135,10 @@ class Table extends React.Component {
       let rowText = '';
       for (let column = 0; column < columns; column += 1) {
         const columnId = (column + 1).toString();
+        const borderId = `${row}-${column}`;
         let borderCell;
         if (this.state !== undefined) {
-          borderCell = this.state.refToBorders[row.toString() + column.toString()];
+          borderCell = this.state.refToBorders[borderId];
         }
         if (column % 2 === 0 && row === 0) {
           let textAlignment;
@@ -195,14 +196,14 @@ class Table extends React.Component {
       if (row % 2 !== 0) {
         if (this.state !== undefined) {
           if (row === 1) {
-            if (this.state.refToBorders[(row - 1).toString() + 1] !== null) {
-              borderCell = this.state.refToBorders[(row - 1).toString() + 1];
+            if (this.state.refToBorders[`${row - 1}-1`] !== null) {
+              borderCell = this.state.refToBorders[`${row - 1}-1`];
             }
-            if (this.state.refToBorders[(row + 1).toString() + 1] !== null) {
-              borderCell2 = this.state.refToBorders[(row + 1).toString() + 1];
+            if (this.state.refToBorders[`${row + 1}-1`] !== null) {
+              borderCell2 = this.state.refToBorders[`${row + 1}-1`];
             }
-          } else if (this.state.refToBorders[(row + 1).toString() + 1] !== null) {
-            borderCell = this.state.refToBorders[(row + 1).toString() + 1];
+          } else if (this.state.refToBorders[`${row + 1}-1`] !== null) {
+            borderCell = this.state.refToBorders[`${row + 1}-1`];
           }
         }
       }
@@ -239,8 +240,8 @@ class Table extends React.Component {
 
     const captionLabelTable = [];
     if (this.state !== undefined) {
-      captionLabelTable.push(`   &#92;caption{'${this.state.caption}}`);
-      captionLabelTable.push(`   &#92;label{'${this.state.label}}`);
+      captionLabelTable.push(`   &#92;caption{${this.state.caption}}`);
+      captionLabelTable.push(`   &#92;label{${this.state.label}}`);
     } else {
       captionLabelTable.push('   &#92;caption{ }');
       captionLabelTable.push('   &#92;label{ }');
@@ -312,14 +313,14 @@ class Table extends React.Component {
   }
 
   selectBorder(row, column, direction) {
-    const border = this.state.refToBorders[row.toString() + column.toString()];
+    const border = this.state.refToBorders[`${row}-${column}`];
     let newBorderActiveValue = false;
     if (border !== null && border !== undefined) {
       newBorderActiveValue = !border.state.active;
     }
     if (direction === 'row') {
       for (let columnBorder = 0; columnBorder < this.state.columns; columnBorder += 1) {
-        const borderCell = this.state.refToBorders[row.toString() + columnBorder.toString()];
+        const borderCell = this.state.refToBorders[`${row}-${column}`];
         if (
           borderCell !== null &&
           borderCell !== undefined &&
@@ -340,13 +341,16 @@ class Table extends React.Component {
       }
     } else if (direction === 'column') {
       for (let rowBorder = 0; rowBorder < this.state.rows; rowBorder += 1) {
-        const borderCell = this.state.refToBorders[rowBorder.toString() + column.toString()];
+        const borderCell = this.state.refToBorders[`${rowBorder}-${column}`];
         if (
           borderCell !== null &&
           borderCell !== undefined &&
           borderCell.state.direction === 'column'
         ) {
-          localStorage.setItem(`table-border-${rowBorder}${column}`, newBorderActiveValue);
+          localStorage.setItem(
+            `table-border-row${rowBorder}-column${column}`,
+            newBorderActiveValue,
+          );
           borderCell.setState(
             {
               active: newBorderActiveValue,
@@ -365,7 +369,7 @@ class Table extends React.Component {
   hoverBorder(row, column, direction, hover) {
     if (direction === 'row') {
       for (let columnBorder = 0; columnBorder < this.state.columns; columnBorder += 1) {
-        const borderCell = this.state.refToBorders[row.toString() + columnBorder.toString()];
+        const borderCell = this.state.refToBorders[`${row}-${columnBorder}`];
         if (borderCell !== null && borderCell !== undefined) {
           borderCell.setState({
             hover,
@@ -374,7 +378,7 @@ class Table extends React.Component {
       }
     } else if (direction === 'column') {
       for (let rowBorder = 0; rowBorder < this.state.rows; rowBorder += 1) {
-        const borderCell = this.state.refToBorders[rowBorder.toString() + column.toString()];
+        const borderCell = this.state.refToBorders[`${rowBorder}-${column}`];
         if (borderCell !== null && borderCell !== undefined) {
           borderCell.setState({
             hover,
@@ -444,7 +448,7 @@ class Table extends React.Component {
       const cell = [];
       for (let column = 0; column < this.state.columns; column += 1) {
         const cellId = `cell${row}-${column}`;
-        const stringId = row.toString() + column.toString();
+        const stringId = `${row}-${column}`;
         const columnId = column.toString();
         if (row === -1) {
           if (column % 2 !== 0) {

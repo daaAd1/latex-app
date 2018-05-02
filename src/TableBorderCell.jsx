@@ -15,7 +15,7 @@ class BorderCell extends React.PureComponent {
 
   getInitialBorderState() {
     const border =
-      localStorage.getItem(`table-border-${this.props.row}${this.props.column}`) || false;
+      localStorage.getItem(`table-border-row${this.props.row}-column${this.props.column}`) || false;
     return border;
   }
 
@@ -28,7 +28,7 @@ class BorderCell extends React.PureComponent {
       this.className = ' table-border-column ';
     }
 
-    if (this.state.active) {
+    if (this.state.active && this.state.active !== 'false') {
       this.className += ' table-active-border ';
     }
 

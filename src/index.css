@@ -414,6 +414,13 @@ Table part
   margin-bottom: 20px;
 }
 
+textarea,
+input {
+  background-color: white;
+  color: black;
+  border: 0.1px solid black;
+}
+
 /**
 **
 Sequence math part
@@ -554,6 +561,7 @@ Taylor diagram part
   border: 0;
   background-color: #e8eaf6;
   padding: 6.9px;
+  color: black;
 }
 
 .taylor-arrow-container > div > button:hover,
@@ -588,7 +596,7 @@ Taylor diagram part
 
 .taylor-row-container > div > label > input,
 .taylor-size-container > div > input {
-  width: 200px;
+  width: 100%;
   padding: 0px 1px 0px 0px;
   text-align: right;
 }
@@ -932,5 +940,14 @@ input[type='range']:focus::-moz-range-track {
   .sequence-reset-button {
     margin-left: 10px;
     margin-top: 15px;
+  }
+  .taylor-row-container {
+    display: flex;
+    flex-flow: column wrap;
+  }
+  .taylor-cell-container {
+    display: flex;
+    flex-flow: column wrap;
+    align-items: center;
   }
 }
