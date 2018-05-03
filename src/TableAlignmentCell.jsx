@@ -45,15 +45,15 @@ class TableAlignmentCell extends React.Component {
   }
 
   render() {
-    let leftClassName = '';
-    let centerClassName = '';
-    let rightClassName = '';
+    let leftClassName = ' table-align-button ';
+    let centerClassName = ' table-align-button ';
+    let rightClassName = ' table-align-button ';
     if (this.state.alignment === 'left') {
-      leftClassName = 'table-left-aligned';
+      leftClassName += ' table-button-left ';
     } else if (this.state.alignment === 'center') {
-      centerClassName = 'table-center-aligned';
+      centerClassName += ' table-button-center ';
     } else if (this.state.alignment === 'right') {
-      rightClassName = 'table-right-aligned';
+      rightClassName += ' table-button-right ';
     }
 
     return (

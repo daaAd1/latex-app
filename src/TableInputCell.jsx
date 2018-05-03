@@ -1,7 +1,7 @@
 import React from 'react';
 import TextareaAutosize from 'react-autosize-textarea';
 
-class TableInputCell extends React.PureComponent {
+class TableInputCell extends React.Component {
   constructor(props) {
     super(props);
     this.state = {

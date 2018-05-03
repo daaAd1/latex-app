@@ -76,6 +76,8 @@ class Table extends React.Component {
   getInitialTextObject() {
     const textObject =
       JSON.parse(localStorage.getItem('table-textObject')) || this.initializeTextObject();
+
+    console.log(textObject);
     return textObject;
   }
 
@@ -97,7 +99,7 @@ class Table extends React.Component {
 
     for (let row = 0; row < numOfRows; row += 1) {
       for (let column = 0; column < numOfColumns; column += 1) {
-        const position = row.toString() + column.toString();
+        const position = row.toString() + '-' + column.toString();
         if (
           this.state !== undefined &&
           this.state.textInTable !== undefined &&
@@ -113,7 +115,7 @@ class Table extends React.Component {
   }
 
   addTextToObject(row, column, text) {
-    const key = row.toString() + column.toString();
+    const key = row.toString() + '-' + column.toString();
     const obj = this.state.textInTable;
     obj[key] = text;
     this.setState({
@@ -175,7 +177,7 @@ class Table extends React.Component {
 
         let textOnPosition = '';
         if (this.state !== undefined) {
-          textOnPosition = this.state.textInTable[row.toString() + column.toString()];
+          textOnPosition = this.state.textInTable[row.toString() + '-' + column.toString()];
         }
         if (textOnPosition === '') {
           textOnPosition = '~';
@@ -320,13 +322,17 @@ class Table extends React.Component {
     }
     if (direction === 'row') {
       for (let columnBorder = 0; columnBorder < this.state.columns; columnBorder += 1) {
-        const borderCell = this.state.refToBorders[`${row}-${column}`];
+        const borderCell = this.state.refToBorders[`${row}-${columnBorder}`];
+        console.log(borderCell);
         if (
           borderCell !== null &&
           borderCell !== undefined &&
           borderCell.state.direction === 'row'
         ) {
-          localStorage.setItem(`table-border-${row}${columnBorder}`, newBorderActiveValue);
+          localStorage.setItem(
+            `table-border-row${row}-column${columnBorder}`,
+            newBorderActiveValue,
+          );
           borderCell.setState(
             {
               active: newBorderActiveValue,
@@ -395,10 +401,10 @@ class Table extends React.Component {
         this.state !== undefined &&
         row % 2 !== 0 &&
         this.state.refToAlignments[columnId] !== undefined &&
-        this.state.refToInputs[row + columnId] !== undefined
+        this.state.refToInputs[`${row}-${columnId}`] !== undefined
       ) {
         const { alignment } = this.state.refToAlignments[columnId].state;
-        const inputCell = this.state.refToInputs[row + columnId];
+        const inputCell = this.state.refToInputs[`${row}-${columnId}`];
         inputCell.setState(
           {
             alignment,
