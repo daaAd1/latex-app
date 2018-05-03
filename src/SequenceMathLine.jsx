@@ -93,8 +93,14 @@ class SequenceMathLine extends React.PureComponent {
   }
 
   getInitialAnnotation() {
-    const annotation =
-      localStorage.getItem(`math-line-annotation-${this.props.level}${this.props.cell}`) || false;
+    let annotation = localStorage.getItem(
+      `math-line-annotation-${this.props.level}${this.props.cell}`,
+    );
+    if (annotation === 'true') {
+      annotation = true;
+    } else {
+      annotation = false;
+    }
     return annotation;
   }
 

@@ -133,13 +133,11 @@ class SequenceMath extends React.Component {
     const key = level.toString() + levelCell.toString();
     const obj = this.state.lines;
     obj[key] = length;
-    console.log(level, levelCell, length);
     this.setState(
       {
         lines: obj,
       },
       () => {
-        console.log(this.state.lines);
         this.setState({
           latexCode: this.generateLatexCode(),
         });

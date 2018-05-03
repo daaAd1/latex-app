@@ -62,7 +62,6 @@ class Arrow extends React.PureComponent {
       localStorage.getItem(
         `taylor-arrow-activated-${this.props.arrowDirection}${this.props.row}${this.props.column}`,
       ) || false;
-    console.log(active);
     return active;
   }
 
@@ -114,7 +113,6 @@ class Arrow extends React.PureComponent {
     const text = this.state.arrowText;
     const text2 = this.state.arrowText2;
     const type = this.state.arrowType;
-    console.log(direction, text, text2, type);
     this.props.arrowActivated(direction, text, text2, type);
   }
 

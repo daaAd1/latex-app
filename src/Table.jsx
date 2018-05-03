@@ -77,7 +77,6 @@ class Table extends React.Component {
     const textObject =
       JSON.parse(localStorage.getItem('table-textObject')) || this.initializeTextObject();
 
-    console.log(textObject);
     return textObject;
   }
 
@@ -323,7 +322,6 @@ class Table extends React.Component {
     if (direction === 'row') {
       for (let columnBorder = 0; columnBorder < this.state.columns; columnBorder += 1) {
         const borderCell = this.state.refToBorders[`${row}-${columnBorder}`];
-        console.log(borderCell);
         if (
           borderCell !== null &&
           borderCell !== undefined &&

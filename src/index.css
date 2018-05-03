@@ -264,6 +264,10 @@ Header part
   padding-left: 10px;
 }
 
+.header-nav-labels > .page-active > a {
+  color: coral;
+}
+
 /** 
 **
 Copy container
@@ -338,7 +342,7 @@ Table part
 }
 
 .table-align-button:hover {
-  background-color: #3949ab;
+  background-color: coral;
   color: white;
   -webkit-transition-duration: 0.4s; /* Safari */
   transition-duration: 0.4s;
