@@ -1,4 +1,22 @@
 import React from 'react';
+
+/*
+**
+Autor: Samuel Sepeši
+Dátum: 10.5.2018
+Komponent: TableCaption
+**
+*/
+
+/*
+Komponent, ktorý má na starosti nadpis tabuľky.
+*/
+
+/*
+Komponent po zmene nadpisu posiela rodičovi novú hodnotu napdisu, ktorú si rodič uloží
+a vygeneruje LaTeX kód.
+*/
+
 /*  global localStorage: false, console: false, */
 
 class TableCaption extends React.PureComponent {

@@ -1,4 +1,22 @@
 import React from 'react';
+
+/*
+**
+Autor: Samuel Sepeši
+Dátum: 10.5.2018
+Komponent: TableBorderCell
+**
+*/
+
+/*
+Komponent, ktorý má na starosti hranice tabuľky.
+*/
+
+/*
+Komponent dostáva od rodiča číslo riadku, číslo stĺpca a smer hranice, ktorý môže byť riadok alebo stĺpec.
+Pri kliknutí na hranicu volá funkciu rodiča, ktorý si nový stav hranice uloží a vygeneruje LaTeX kód.
+*/
+
 /*  global localStorage: false, console: false, */
 
 class BorderCell extends React.PureComponent {
@@ -14,8 +32,13 @@ class BorderCell extends React.PureComponent {
   }
 
   getInitialBorderState() {
-    const border =
+    let border =
       localStorage.getItem(`table-border-row${this.props.row}-column${this.props.column}`) || false;
+    if (border === 'true') {
+      border = true;
+    } else {
+      border = false;
+    }
     return border;
   }
 

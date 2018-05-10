@@ -1,4 +1,22 @@
 import React from 'react';
+
+/*
+**
+Autor: Samuel Sepeši
+Dátum: 10.5.2018
+Komponent: TableRows
+**
+*/
+
+/*
+Komponent, ktorý sa stará o počet riadkov v tabuľke. Vstupné pole je typu škála.
+*/
+
+/*
+Pri zmene počtu riadkov odošle rodičovi novú hodnotu riadkov, ktorý si ju uloží, 
+zmení veľkosť tabuľky a vygeneruje nový kód.
+*/
+
 /*  global localStorage: false, console: false, */
 
 class TableRows extends React.PureComponent {

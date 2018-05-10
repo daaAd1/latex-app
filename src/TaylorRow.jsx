@@ -1,6 +1,22 @@
 import React from 'react';
 import TaylorCell from './TaylorCell';
 
+/*
+**
+Autor: Samuel Sepeši
+Dátum: 10.5.2018
+Komponent: TaylorRow
+*/
+
+/*
+Komponent, ktorý má na starosti zobrazenie riadkov so vstupnými poliami v Taylorovych diagramoch.
+*/
+
+/*
+Komponent dostáva od rodiča číslo riadku. Rodičovi posiela pri zmene počtu stĺpcov nový počet stĺpcov.
+Taktiež mu posiela dáta pri zmene textu vo vstupnom poli, alebo pri zmene vlastností šípky.
+*/
+
 /*  global localStorage: false, console: false, */
 
 class TaylorRow extends React.PureComponent {

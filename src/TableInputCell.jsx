@@ -1,6 +1,24 @@
 import React from 'react';
 import TextareaAutosize from 'react-autosize-textarea';
 
+/*
+**
+Autor: Samuel Sepeši
+Dátum: 10.5.2018
+Komponent: TableInputCell
+**
+*/
+
+/*
+Komponent, ktorý sa stará o vstupné polia tabuľky.
+*/
+
+/*
+Od rodiča dostáva tento komponent číslo riadku, číslo stĺpca, text a zarovnanie. Po zmene textu
+vo vstupnom poli pošle rodičovi novú hodnotu, riadok a stĺpec. Ten si hodnotu uloží a vygeneruje nový
+LaTeX kód.
+*/
+
 class TableInputCell extends React.Component {
   constructor(props) {
     super(props);
@@ -13,11 +31,13 @@ class TableInputCell extends React.Component {
 
     this.onChange = this.onChange.bind(this);
   }
+
   componentWillReceiveProps(nextProps) {
     if (nextProps.alignment !== this.state.alignment) {
       this.setState({ alignment: nextProps.alignment });
     }
   }
+
   onChange(event) {
     this.setState({
       text: event.target.value,

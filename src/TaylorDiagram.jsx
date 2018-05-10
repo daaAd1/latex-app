@@ -3,6 +3,27 @@ import LatexCode from './LatexCode';
 import Symbols from './Symbols';
 import TaylorRow from './TaylorRow';
 
+/*
+**
+Autor: Samuel Sepeši
+Dátum: 10.5.2018
+Komponent: TaylorDiagram
+**
+*/
+
+/*
+Hlavný komponent časti Taylorovych diagramov. Komponent pozostáva hlavne z komponentu TaylorRow
+a zo všeobecných komponentov Symbols a LatexCode. 
+*/
+
+/*
+Tento komponent dostáva od komponentu TaylorRow dáta, ako sú text v jednotlivých bunkách,
+aktívne šípky, texty pri šípkach a typy šípiek. Taktiež dostáva informácie o
+veľkosti/dĺžke jednotlivých riadkov. Tieto informácie si potom ukladá a
+generuje nový LaTeX kód pomocou funkcie generateLatexCode, ktorý pošle komponentu
+LatexCode, ktorý ho zobrazí.
+*/
+
 /*  global localStorage: false, console: false, window: false */
 
 class TaylorDiagram extends React.PureComponent {

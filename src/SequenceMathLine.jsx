@@ -1,7 +1,27 @@
 import React from 'react';
 import TextareaAutosize from 'react-autosize-textarea';
 
+/*
+**
+Autor: Samuel Sepeši
+Dátum: 10.5.2018
+Komponent: SequenceMathLine
+**
+*/
+
 /*  global localStorage: false, console: false, */
+
+/*
+Komponent, ktorý pozostáva z čiary, ktorá určuje počet potomkov, zo vstupného poľa dôkazu
+a vstupného poľa podmienky pri dôkaze. Z týchto komponentov pozostáva hlavný komponent SequenceMath.
+*/
+
+/*
+Komponent dostáva od rodiča - level/riadok, bunku/stĺpec, atribút, 
+ktorý hovorí o tom či sa komponent zobrazí a atribút, ktorý zabraňuje upravovaniu vstupného poľa komponentu.
+Komponent posiela rodičovi svoju dĺžku, keď používateľ klikne na čiaru, nový text dôkazu, 
+ak bol pôvodný upravený a nový text podmienky, ak bola zmenená.
+*/
 
 class SequenceMathLine extends React.PureComponent {
   constructor(props) {
@@ -15,7 +35,6 @@ class SequenceMathLine extends React.PureComponent {
       annotation: this.getInitialAnnotation(),
       annotationText: this.getInitialAnnotationText(),
       readonlyText: props.readonlyText,
-      readonlyAnnot: props.readonlyAnnot,
     };
 
     this.onClick = this.onClick.bind(this);
@@ -143,7 +162,6 @@ class SequenceMathLine extends React.PureComponent {
           <div role="button" className={className} onClick={this.onClick} tabIndex={0} />
           {this.state.annotation && (
             <TextareaAutosize
-              readOnly={this.state.readonlyAnnot}
               type="text"
               className="sequence-annotation-text"
               onChange={this.annotationChanged}

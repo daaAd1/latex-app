@@ -3,6 +3,27 @@ import LatexCode from './LatexCode';
 import Symbols from './Symbols';
 import SequenceMathLine from './SequenceMathLine';
 
+/*
+**
+Autor: Samuel Sepeši
+Dátum: 10.5.2018
+Komponent: SequenceMath
+**
+*/
+
+/*
+Hlavný komponent pri sekventových dôkazoch. Pozostáva hlavne z komponentov SequenceMathLine
+a z reset tlačidla a zoznamu používaných symbolov.
+*/
+
+/*
+Tento komponent dostáva dáta od svojich potomkov, následne ich ukladá a potom generuje a posiela 
+do komponentu LatexCode, ktorý ich zobrazí.
+Po zmene textu dôkazu, komponent SequenceMathLine odošle level aj stĺpec dôkazu spolu s novým textom.
+Tento komponent informácie prijme a pomocou funkcie addTextToObject ich pridá do objektu linesText.
+Potom vygeneruje funkcia generateLatexCode nový LaTeX kód a tento kód odošle komponentu LatexCode.
+*/
+
 /*  global localStorage: false, console: false, window: false */
 
 class SequenceMath extends React.Component {
@@ -523,7 +544,6 @@ class SequenceMath extends React.Component {
         levelNotHighEnough = true;
       }
     }
-    let readonlyAnnot = false;
     let readonlyText = true;
     if (this.state.linesText[positionOneLevelDown] !== '') {
       readonlyText = false;
@@ -531,14 +551,6 @@ class SequenceMath extends React.Component {
     const positionChildrenOne = (level + 1).toString() + (cell * 3).toString();
     const positionChildrenTwo = (level + 1).toString() + (cell * 3 - 1).toString();
     const positionChildrenThree = (level + 1).toString() + (cell * 3 - 2).toString();
-
-    if (
-      this.state.linesText[positionChildrenOne] === '' &&
-      this.state.linesText[positionChildrenTwo] === '' &&
-      this.state.linesText[positionChildrenThree] === ''
-    ) {
-      readonlyAnnot = true;
-    }
 
     let annotationText = '';
     if (this.state !== undefined && this.state.annotationObject !== undefined) {
@@ -556,7 +568,6 @@ class SequenceMath extends React.Component {
             annotationChanged={this.annotationChanged}
             annotationText={annotationText}
             clicked
-            readonlyAnnot={readonlyAnnot}
             readonlyText={readonlyText}
           />
         </div>
@@ -577,7 +588,6 @@ class SequenceMath extends React.Component {
             annotationChanged={this.annotationChanged}
             annotationText={annotationText}
             clicked={false}
-            readonlyAnnot={readonlyAnnot}
             readonlyText={readonlyText}
           />
         </div>
@@ -594,7 +604,6 @@ class SequenceMath extends React.Component {
             annotationChanged={this.annotationChanged}
             annotationText={annotationText}
             clicked={false}
-            readonlyAnnot={readonlyAnnot}
             readonlyText={readonlyText}
           />
         </div>

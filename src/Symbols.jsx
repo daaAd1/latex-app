@@ -1,6 +1,19 @@
 import React from 'react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 
+/*
+**
+Autor: Samuel Sepeši
+Dátum: 10.5.2018
+Komponent: Symbols
+**
+*/
+
+/*
+Komponent, ktorý zobrazuje používané symboly, ktoré nie je jednoduché napísať na klávesnici.
+Tieto symboly je možné skopírovať kliknutím.
+*/
+
 class Symbols extends React.PureComponent {
   constructor(props) {
     super(props);

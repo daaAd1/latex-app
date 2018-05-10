@@ -1,4 +1,22 @@
 import React from 'react';
+
+/*
+**
+Autor: Samuel Sepeši
+Dátum: 10.5.2018
+Komponent: TableLabel
+**
+*/
+
+/*
+Komponent, ktorý má na starosti označenie tabuľky.
+*/
+
+/*
+Pri zmene označenia tabuľky, pošle rodičovi novú hodnotu, ten si ju uloží a 
+vygeneruje nový LaTeX kód.
+*/
+
 /*  global localStorage: false, console: false, */
 
 class TableLabel extends React.PureComponent {

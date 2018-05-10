@@ -1,4 +1,22 @@
 import React from 'react';
+
+/*
+**
+Autor: Samuel Sepeši
+Dátum: 10.5.2018
+Komponent: TableColumns
+**
+*/
+
+/*
+Komponent, ktorý sa stará o počet stĺpcov v tabuľke. Vstupné pole je typu škála.
+*/
+
+/*
+Po zmene počtu stĺpcov volá rodičovskú funkciu s aktualizovanou hodnotou stĺpcou. 
+Rodič si hodnotu uloží, zväčší alebo zmenší tabuľku a vygeneruje nový LaTeX kód.
+*/
+
 /*  global localStorage: false, console: false, */
 
 class TableColumns extends React.PureComponent {

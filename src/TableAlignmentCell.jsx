@@ -1,5 +1,23 @@
 import React from 'react';
-// import PropTypes from 'prop-types';
+
+/*
+**
+Autor: Samuel Sepeši
+Dátum: 10.5.2018
+Komponent: TableAlignmentCell
+**
+*/
+
+/*
+Komponent, ktorý má na starosti zarovnávanie textu v jednotlivých stĺpcoch.
+Pozostáva z troch tlačidiel l, c a r, ktoré značia zarovnanie vľavo, do stredu a vpravo.
+*/
+
+/*
+Komponent dostáva od rodiča číslo stĺpca.  Pri zmene zarovnania volá funkciu onClick rodiča, 
+ktorý sa postará o zmenu LaTeX kódu.
+*/
+
 /*  global localStorage: false, console: false, */
 
 class TableAlignmentCell extends React.Component {

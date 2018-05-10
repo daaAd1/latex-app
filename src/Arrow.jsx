@@ -3,6 +3,22 @@ import Modal from 'react-modal';
 import closeIcon from './window-close.svg';
 import deleteIcon from './delete.svg';
 
+/*
+**
+Autor: Samuel Sepeši
+Dátum: 10.5.2018
+Komponent: Arrow
+**
+*/
+
+/*
+Komponent starajúci sa o zobrazenie šípiek v časti Taylorovych diagramov.
+Má na starosti zobrazenie jedného typu šípky podľa vstupných parametrov.
+Taktiež sa stará o otváranie vyskakujúceho okna, v ktorom je možné šípku upravovať.
+Prvý klik šípku označí a aktivuje, 
+druhý klik otvorí vyskakujúce okno - v tomto komponente nazvané 'modal'. 
+*/
+
 /*  global localStorage: false, console: false */
 
 const customStyles = {
@@ -15,6 +31,12 @@ const customStyles = {
     transform: 'translate(-50%, -50%)',
   },
 };
+
+/*
+Komponent dostáva od svojho rodiča číslo riadku, číslo stĺpca a smer šípky.
+Komponent pri zmene nejakého atribútu šípky posiela rodičovi typ šípky, riadok, stĺpec, text pri šípke
+a typ šípky.
+*/
 
 class Arrow extends React.PureComponent {
   constructor(props) {
@@ -58,10 +80,15 @@ class Arrow extends React.PureComponent {
   }
 
   getInitialArrowActivated() {
-    const active =
+    let active =
       localStorage.getItem(
         `taylor-arrow-activated-${this.props.arrowDirection}${this.props.row}${this.props.column}`,
       ) || false;
+    if (active === 'true') {
+      active = true;
+    } else {
+      active = false;
+    }
     return active;
   }
 

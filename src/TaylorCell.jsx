@@ -2,6 +2,24 @@ import React from 'react';
 import TextareaAutosize from 'react-autosize-textarea';
 import Arrow from './Arrow';
 
+/*
+**
+Autor: Samuel Sepeši
+Dátum: 10.5.2018
+Komponent: TaylorCell
+**
+*/
+
+/*
+Komponent, ktorý má na starosti vstupný text pri Taylorovych diagramoch.
+*/
+
+/*
+Komponent dostáva od rodiča číslo riadku, číslo stĺpca a text v poli.
+Pri zmene textu, šípky, alebo nejakej vlastnosti šípky posiela rodičovi nový text, riadok a stĺpec
+alebo text šípky, smer šípky a typ šípky.
+*/
+
 /*  global console: false, */
 
 class TaylorCell extends React.PureComponent {

@@ -9,6 +9,30 @@ import TableBorderCell from './TableBorderCell';
 import TableAlignmentCell from './TableAlignmentCell';
 import TableInputCell from './TableInputCell';
 
+/*
+**
+Autor: Samuel Sepeši
+Dátum: 10.5.2018
+Komponent: Table
+**
+*/
+
+/*
+Hlavný komponent časti generovania LaTeX kódu z tabuľky. Tento komponent pozostáva z
+viacerých komponentov: TableAlignmentCell, TableBorderCell, TableCaption, TableLabel, 
+TableInputCell, TableRows a taktiež aj z komponentov Symbols a LatexCode,
+ktoré majú všetky časti spoločné.
+*/
+
+/*
+Tento komponent dostáva od jednotlivých komponentov dáta, tieto dáta si potom zapisuje
+a potom z nich generuje LaTeX kód, ktorý posiela do komponentu LatexCode na zobrazenie.
+Príkladom môže byť zmena textu v tabuľke, kde TableInputCell pošle tomuto komponentu
+riadok, stĺpec aj nový text. Funkcia addTextToObject pridá tento text do objektu textInTable
+a vygeneruje nový kód funkciou generateLatexCode a následne vygenerovaný kód pošle
+komponentu LatexCode.
+*/
+
 /*  global localStorage: false, console: false, window: false */
 
 class Table extends React.Component {
@@ -248,7 +272,7 @@ class Table extends React.Component {
       captionLabelTable.push('   &#92;label{ }');
     }
 
-    const finalString = [
+    return [
       beginTable.join('\n'),
       columnTable.join('\n'),
       coreTable.join('\n'),
@@ -256,8 +280,6 @@ class Table extends React.Component {
       captionLabelTable.join('\n'),
       endTable,
     ].join('\n');
-
-    return finalString;
   }
 
   inputRowsChanged(changedRowCount) {
@@ -329,7 +351,7 @@ class Table extends React.Component {
         ) {
           localStorage.setItem(
             `table-border-row${row}-column${columnBorder}`,
-            newBorderActiveValue,
+            Boolean(newBorderActiveValue),
           );
           borderCell.setState(
             {
@@ -353,7 +375,7 @@ class Table extends React.Component {
         ) {
           localStorage.setItem(
             `table-border-row${rowBorder}-column${column}`,
-            newBorderActiveValue,
+            Boolean(newBorderActiveValue),
           );
           borderCell.setState(
             {

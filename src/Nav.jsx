@@ -7,6 +7,20 @@ import taylorActiveIcon from './chart-pie-active.svg';
 import mathIcon from './sequence.svg';
 import mathActiveIcon from './sequence-active.svg';
 
+/*
+**
+Autor: Samuel Sepeši
+Dátum: 10.5.2018
+Komponent: Nav
+**
+*/
+
+/*
+Komponent, ktorý predstavuje menu aplikácie. Zobrazuje hornú čast stránky 
+a prepínanie medzi jednotlivými časťami aplikácie. V menu pri kliku na aplikácie
+sa označí kliknutá časť oranžovou farbou, aby používateľ vedel, na ktorej časti sa nachádza.
+*/
+
 class Nav extends React.Component {
   constructor(props) {
     super(props);
@@ -48,22 +62,29 @@ class Nav extends React.Component {
   render() {
     return (
       <div className="header-container">
-        <h1 className="header">LaTeX generator</h1>
+        <div className="header-docs-container">
+          <NavLink onClick={this.tableClicked.bind(this)} className="header" exact to="/">
+            LaTeX generator
+          </NavLink>
+          <NavLink className="docs-link" exact to="/docs">
+            Documentation
+          </NavLink>
+        </div>
         <ul className="header-nav">
-          <li onClick={this.tableClicked.bind(this)}>
-            <NavLink exact to="/">
+          <li>
+            <NavLink onClick={this.tableClicked.bind(this)} exact to="/">
               {!this.state.tableActive && <img src={tableIcon} alt="table-icon" />}
               {this.state.tableActive && <img src={tableActiveIcon} alt="table-active-icon" />}
             </NavLink>
           </li>
-          <li onClick={this.sequenceClicked.bind(this)}>
-            <NavLink to="/math">
+          <li>
+            <NavLink onClick={this.sequenceClicked.bind(this)} to="/math">
               {!this.state.sequenceActive && <img src={mathIcon} alt="math-icon" />}
               {this.state.sequenceActive && <img src={mathActiveIcon} alt="math-active-icon" />}
             </NavLink>
           </li>
-          <li onClick={this.taylorClicked.bind(this)}>
-            <NavLink to="/taylor">
+          <li>
+            <NavLink onClick={this.taylorClicked.bind(this)} to="/taylor">
               {!this.state.taylorActive && <img src={taylorIcon} alt="taylor-icon" />}
               {this.state.taylorActive && <img src={taylorActiveIcon} alt="taylor-active-icon" />}
             </NavLink>
