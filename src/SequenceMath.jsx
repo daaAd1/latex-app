@@ -53,7 +53,6 @@ class SequenceMath extends React.Component {
     this.setState(
       {
         linesText: this.generateTextObject(),
-        linesObject: this.generateLinesObject(),
         annotationObject: this.generateAnnotationObject(),
       },
       () => {
@@ -193,6 +192,32 @@ class SequenceMath extends React.Component {
       for (let levelCell = 1; levelCell < 28; levelCell += 1) {
         let row = '';
         const position = level.toString() + levelCell.toString();
+        const positionOfText = (level + 1).toString() + (levelCell * 3).toString();
+        const positionOfTextTwo = (level + 1).toString() + (levelCell * 3 - 1).toString();
+        const positionOfTextThree = (level + 1).toString() + (levelCell * 3 - 2).toString();
+        const positionOfTextBefore = (level - 1).toString() + (levelCell / 3).toString();
+        const positionOfTextTwoBefore = (level - 1).toString() + ((levelCell + 1) / 3).toString();
+        const positionOfTextThreeBefore = (level - 1).toString() + ((levelCell + 2) / 3).toString();
+        if (
+          levelCell <= Math.pow(3, level) / 3 &&
+          this.state !== undefined &&
+          this.state.annotationObject[position] !== '' &&
+          this.state.annotationObject[position] !== undefined
+        ) {
+          if (
+            this.state.lines[position] > 0 &&
+            this.state.linesText[positionOfText] === '' &&
+            this.state.linesText[positionOfTextTwo] === '' &&
+            this.state.linesText[positionOfTextThree] === ''
+          ) {
+            row = '     &#92;AxiomC{}';
+            middleCode.push(row);
+          }
+          row = `     &#92;RightLabel{&#92;scriptsize(${this.state.annotationObject[position]})}`;
+          middleCode.push(row);
+          row = '';
+        }
+
         if (
           levelCell <= Math.pow(3, level) / 3 &&
           this.state !== undefined &&
@@ -202,39 +227,15 @@ class SequenceMath extends React.Component {
           if (level === 4) {
             row = `      &#92;AxiomC{${this.state.linesText[position]}}`;
           } else {
-            const positionOfText = (level + 1).toString() + (levelCell * 3).toString();
-            const positionOfTextTwo = (level + 1).toString() + (levelCell * 3 - 1).toString();
-            const positionOfTextThree = (level + 1).toString() + (levelCell * 3 - 2).toString();
-            if (
-              this.state.linesText[positionOfText] === '' &&
-              this.state.linesText[positionOfTextTwo] === '' &&
-              this.state.linesText[positionOfTextThree] === ''
-            ) {
+            let numberOfNodes = this.state.lines[position];
+            if (numberOfNodes < 1) {
               row = `     &#92;AxiomC{${this.state.linesText[position]}}`;
-            } else {
-              if (this.state.annotationObject[position] !== '') {
-                row = `     &#92;RightLabel{&#92;scriptsize(${
-                  this.state.annotationObject[position]
-                })}`;
-                middleCode.push(row);
-              }
-              let numberOfNodes = 0;
-              if (this.state.linesText[positionOfText] !== '') {
-                numberOfNodes += 1;
-              }
-              if (this.state.linesText[positionOfTextTwo] !== '') {
-                numberOfNodes += 1;
-              }
-              if (this.state.linesText[positionOfTextThree] !== '') {
-                numberOfNodes += 1;
-              }
-              if (numberOfNodes === 1) {
-                row = `     &#92;UnaryInfC{${this.state.linesText[position]}}`;
-              } else if (numberOfNodes === 2) {
-                row = `     &#92;BinaryInfC{${this.state.linesText[position]}}`;
-              } else if (numberOfNodes === 3) {
-                row = `     &#92;TrinaryInfC{${this.state.linesText[position]}}`;
-              }
+            } else if (numberOfNodes === 1) {
+              row = `     &#92;UnaryInfC{${this.state.linesText[position]}}`;
+            } else if (numberOfNodes === 2) {
+              row = `     &#92;BinaryInfC{${this.state.linesText[position]}}`;
+            } else if (numberOfNodes === 3) {
+              row = `     &#92;TrinaryInfC{${this.state.linesText[position]}}`;
             }
           }
         }
@@ -248,6 +249,33 @@ class SequenceMath extends React.Component {
       for (let levelCell = 1; levelCell < 55; levelCell += 1) {
         let row = '';
         const position = level.toString() + levelCell.toString();
+        const positionOfText = (level + 1).toString() + (levelCell * 3).toString();
+        const positionOfTextTwo = (level + 1).toString() + (levelCell * 3 - 1).toString();
+        const positionOfTextThree = (level + 1).toString() + (levelCell * 3 - 2).toString();
+        const positionOfTextBefore = (level - 1).toString() + (levelCell / 3).toString();
+        const positionOfTextTwoBefore = (level - 1).toString() + ((levelCell + 1) / 3).toString();
+        const positionOfTextThreeBefore = (level - 1).toString() + ((levelCell + 2) / 3).toString();
+        if (
+          levelCell > Math.pow(3, level) / 3 &&
+          levelCell <= Math.pow(3, level) * 2 / 3 &&
+          this.state !== undefined &&
+          this.state.annotationObject[position] !== '' &&
+          this.state.annotationObject[position] !== undefined
+        ) {
+          if (
+            this.state.lines[position] > 0 &&
+            this.state.linesText[positionOfText] === '' &&
+            this.state.linesText[positionOfTextTwo] === '' &&
+            this.state.linesText[positionOfTextThree] === ''
+          ) {
+            row = '     &#92;AxiomC{}';
+            middleCode.push(row);
+          }
+          row = `     &#92;RightLabel{&#92;scriptsize(${this.state.annotationObject[position]}}`;
+          middleCode.push(row);
+          row = '';
+        }
+
         if (
           levelCell > Math.pow(3, level) / 3 &&
           levelCell <= Math.pow(3, level) * 2 / 3 &&
@@ -258,39 +286,15 @@ class SequenceMath extends React.Component {
           if (level === 4) {
             row = `      &#92;AxiomC{${this.state.linesText[position]}}`;
           } else {
-            const positionOfText = (level + 1).toString() + (levelCell * 3).toString();
-            const positionOfTextTwo = (level + 1).toString() + (levelCell * 3 - 1).toString();
-            const positionOfTextThree = (level + 1).toString() + (levelCell * 3 - 2).toString();
-            if (
-              this.state.linesText[positionOfText] === '' &&
-              this.state.linesText[positionOfTextTwo] === '' &&
-              this.state.linesText[positionOfTextThree] === ''
-            ) {
+            let numberOfNodes = this.state.lines[position];
+            if (numberOfNodes < 1) {
               row = `     &#92;AxiomC{${this.state.linesText[position]}}`;
-            } else {
-              if (this.state.annotationObject[position] !== '') {
-                row = `     &#92;RightLabel{&#92;scriptsize(${
-                  this.state.annotationObject[position]
-                }}`;
-                middleCode.push(row);
-              }
-              let numberOfNodes = 0;
-              if (this.state.linesText[positionOfText] !== '') {
-                numberOfNodes += 1;
-              }
-              if (this.state.linesText[positionOfTextTwo] !== '') {
-                numberOfNodes += 1;
-              }
-              if (this.state.linesText[positionOfTextThree] !== '') {
-                numberOfNodes += 1;
-              }
-              if (numberOfNodes === 1) {
-                row = `     &#92;UnaryInfC{${this.state.linesText[position]}}`;
-              } else if (numberOfNodes === 2) {
-                row = `     &#92;BinaryInfC{${this.state.linesText[position]}}`;
-              } else if (numberOfNodes === 3) {
-                row = `     &#92;TrinaryInfC{${this.state.linesText[position]}}`;
-              }
+            } else if (numberOfNodes === 1) {
+              row = `     &#92;UnaryInfC{${this.state.linesText[position]}}`;
+            } else if (numberOfNodes === 2) {
+              row = `     &#92;BinaryInfC{${this.state.linesText[position]}}`;
+            } else if (numberOfNodes === 3) {
+              row = `     &#92;TrinaryInfC{${this.state.linesText[position]}}`;
             }
           }
         }
@@ -303,6 +307,31 @@ class SequenceMath extends React.Component {
       for (let levelCell = 0; levelCell < 82; levelCell += 1) {
         let row = '';
         const position = level.toString() + levelCell.toString();
+        const positionOfText = (level + 1).toString() + (levelCell * 3).toString();
+        const positionOfTextTwo = (level + 1).toString() + (levelCell * 3 - 1).toString();
+        const positionOfTextThree = (level + 1).toString() + (levelCell * 3 - 2).toString();
+        const positionOfTextBefore = (level - 1).toString() + (levelCell / 3).toString();
+        const positionOfTextTwoBefore = (level - 1).toString() + ((levelCell + 1) / 3).toString();
+        const positionOfTextThreeBefore = (level - 1).toString() + ((levelCell + 2) / 3).toString();
+        if (
+          levelCell > Math.pow(3, level) * 2 / 3 &&
+          this.state !== undefined &&
+          this.state.annotationObject[position] !== '' &&
+          this.state.annotationObject[position] !== undefined
+        ) {
+          if (
+            this.state.lines[position] > 0 &&
+            this.state.linesText[positionOfText] === '' &&
+            this.state.linesText[positionOfTextTwo] === '' &&
+            this.state.linesText[positionOfTextThree] === ''
+          ) {
+            row = '     &#92;AxiomC{}';
+            middleCode.push(row);
+          }
+          row = `     &#92;RightLabel{&#92;scriptsize(${this.state.annotationObject[position]})}`;
+          middleCode.push(row);
+          row = '';
+        }
         if (
           levelCell > Math.pow(3, level) * 2 / 3 &&
           this.state !== undefined &&
@@ -312,39 +341,15 @@ class SequenceMath extends React.Component {
           if (level === 4) {
             row = `      &#92;AxiomC{${this.state.linesText[position]}}`;
           } else {
-            const positionOfText = (level + 1).toString() + (levelCell * 3).toString();
-            const positionOfTextTwo = (level + 1).toString() + (levelCell * 3 - 1).toString();
-            const positionOfTextThree = (level + 1).toString() + (levelCell * 3 - 2).toString();
-            if (
-              this.state.linesText[positionOfText] === '' &&
-              this.state.linesText[positionOfTextTwo] === '' &&
-              this.state.linesText[positionOfTextThree] === ''
-            ) {
+            let numberOfNodes = this.state.lines[position];
+            if (numberOfNodes < 1) {
               row = `     &#92;AxiomC{${this.state.linesText[position]}}`;
-            } else {
-              if (this.state.annotationObject[position] !== '') {
-                row = `     &#92;RightLabel{&#92;scriptsize(${
-                  this.state.annotationObject[position]
-                })}`;
-                middleCode.push(row);
-              }
-              let numberOfNodes = 0;
-              if (this.state.linesText[positionOfText] !== '') {
-                numberOfNodes += 1;
-              }
-              if (this.state.linesText[positionOfTextTwo] !== '') {
-                numberOfNodes += 1;
-              }
-              if (this.state.linesText[positionOfTextThree] !== '') {
-                numberOfNodes += 1;
-              }
-              if (numberOfNodes === 1) {
-                row = `     &#92;UnaryInfC{${this.state.linesText[position]}}`;
-              } else if (numberOfNodes === 2) {
-                row = `     &#92;BinaryInfC{${this.state.linesText[position]}}`;
-              } else if (numberOfNodes === 3) {
-                row = `     &#92;TrinaryInfC{${this.state.linesText[position]}}`;
-              }
+            } else if (numberOfNodes === 1) {
+              row = `     &#92;UnaryInfC{${this.state.linesText[position]}}`;
+            } else if (numberOfNodes === 2) {
+              row = `     &#92;BinaryInfC{${this.state.linesText[position]}}`;
+            } else if (numberOfNodes === 3) {
+              row = `     &#92;TrinaryInfC{${this.state.linesText[position]}}`;
             }
           }
         }
@@ -360,7 +365,7 @@ class SequenceMath extends React.Component {
   generateLinesObject() {
     let initialObject;
     if (this.state !== undefined && this.state.linesObject !== undefined) {
-      initialObject = this.state.linesObject;
+      initialObject = this.state.lines;
     } else {
       initialObject = {};
     }
@@ -372,50 +377,50 @@ class SequenceMath extends React.Component {
         if (level === 0 && levelCell < 2) {
           if (
             this.state !== undefined &&
-            this.state.linesObject !== undefined &&
-            this.state.linesObject[position] !== undefined
+            this.state.lines !== undefined &&
+            this.state.lines[position] !== undefined
           ) {
-            initialObject[position] = this.state.linesObject[position];
+            initialObject[position] = this.state.lines[position];
           } else {
             initialObject[position] = '';
           }
         } else if (level === 1 && levelCell < 4) {
           if (
             this.state !== undefined &&
-            this.state.linesObject !== undefined &&
-            this.state.linesObject[position] !== undefined
+            this.state.lines !== undefined &&
+            this.state.lines[position] !== undefined
           ) {
-            initialObject[position] = this.state.linesObject[position];
+            initialObject[position] = this.state.lines[position];
           } else {
             initialObject[position] = '';
           }
         } else if (level === 2 && levelCell < 10) {
           if (
             this.state !== undefined &&
-            this.state.linesObject !== undefined &&
-            this.state.linesObject[position] !== undefined
+            this.state.lines !== undefined &&
+            this.state.lines[position] !== undefined
           ) {
-            initialObject[position] = this.state.linesObject[position];
+            initialObject[position] = this.state.lines[position];
           } else {
             initialObject[position] = '';
           }
         } else if (level === 3 && levelCell < 28) {
           if (
             this.state !== undefined &&
-            this.state.linesObject !== undefined &&
-            this.state.linesObject[position] !== undefined
+            this.state.lines !== undefined &&
+            this.state.lines[position] !== undefined
           ) {
-            initialObject[position] = this.state.linesObject[position];
+            initialObject[position] = this.state.lines[position];
           } else {
             initialObject[position] = '';
           }
         } else if (level === 4) {
           if (
             this.state !== undefined &&
-            this.state.linesObject !== undefined &&
-            this.state.linesObject[position] !== undefined
+            this.state.lines !== undefined &&
+            this.state.lines[position] !== undefined
           ) {
-            initialObject[position] = this.state.linesObject[position];
+            initialObject[position] = this.state.lines[position];
           } else {
             initialObject[position] = '';
           }
