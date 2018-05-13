@@ -135,6 +135,7 @@ class TaylorDiagram extends React.PureComponent {
     const key = row.toString();
     const obj = this.state.columnsObject;
     obj[key] = Number(columnsNewValue);
+    console.log(columnsNewValue);
     this.setState(
       {
         columnsObject: obj,
@@ -378,7 +379,7 @@ class TaylorDiagram extends React.PureComponent {
           if (column === 1) {
             rowText += `   ${this.state.textObject[position]}`;
           } else {
-            rowText += ` &   ${this.state.textObject[position]}`;
+            rowText += ` & ${this.state.textObject[position]}`;
           }
           // let positionR = (row - 1).toString() + column.toString();
           const positionNextOne = row.toString() + (column + 1).toString();
@@ -616,7 +617,7 @@ class TaylorDiagram extends React.PureComponent {
           arrowStateChanged={(column, direction, text, text2, type) =>
             this.arrowStateChanged(row, column, direction, text, text2, type)
           }
-          onColumnsChange={() => this.onColumnsChange(row)}
+          onColumnsChange={columnsNewValue => this.onColumnsChange(row, columnsNewValue)}
         >
           {' '}
         </TaylorRow>,

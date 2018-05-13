@@ -23,13 +23,18 @@ export const Documentation = () => {
         To use generated code in your own LaTeX project, you have to download and add package to
         your project. You can download package{' '}
         <a href="http://math.ucsd.edu/~sbuss/ResearchWeb/bussproofs/">here</a>. Then you should add
-        package to your project like this: \usepackagebussproofs .
+        package to your project like this:
+        <pre>
+          <code>\usepackage&#123;bussproofs&#125;</code>
+        </pre>
       </p>
       <h2>Taylor diagram - LaTeX package</h2>
       To use generated code in your own LaTeX project, you have to download and add package to your
       project. You can download package <a href="http://www.paultaylor.eu/diagrams/">here</a>. Then
-      you should add package to your project like this: \usepackage[small,nohug,heads=vee]diagrams .
-      <p>Diagrams</p>
+      you should add package to your project like this:
+      <pre>
+        <code>\usepackage[small,nohug,heads=vee]&#123;diagrams&#125;</code>
+      </pre>
     </div>
   );
 };
