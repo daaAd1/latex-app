@@ -6,6 +6,10 @@ import taylorIcon from './chart-pie.svg';
 import taylorActiveIcon from './chart-pie-active.svg';
 import mathIcon from './sequence.svg';
 import mathActiveIcon from './sequence-active.svg';
+import SignOutButton from './SignOut';
+import * as routes from './constants/routes';
+import { auth } from './firebase';
+import * as firebase from 'firebase';
 
 /*
 **
@@ -28,11 +32,22 @@ class Nav extends React.Component {
       tableActive: true,
       sequenceActive: false,
       taylorActive: false,
+      userLoggedIn: false,
     };
 
     this.tableClicked = this.tableClicked.bind(this);
     this.sequenceActive = this.sequenceClicked.bind(this);
     this.taylorClicked = this.taylorClicked.bind(this);
+  }
+
+  componentDidMount() {
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        this.setState({
+          userLoggedIn: true,
+        });
+      }
+    });
   }
 
   tableClicked() {
@@ -69,10 +84,12 @@ class Nav extends React.Component {
           <NavLink className="docs-link" exact to="/docs">
             Documentation
           </NavLink>
+          {!this.state.userLoggedIn && <NavLink to={routes.SIGN_IN}>Sign In</NavLink>}
+          {this.state.userLoggedIn && <SignOutButton />}
         </div>
         <ul className="header-nav">
           <li>
-            <NavLink onClick={this.tableClicked.bind(this)} exact to="/">
+            <NavLink onClick={this.tableClicked.bind(this)} exact to="/table">
               {!this.state.tableActive && <img src={tableIcon} alt="table-icon" />}
               {this.state.tableActive && <img src={tableActiveIcon} alt="table-active-icon" />}
             </NavLink>

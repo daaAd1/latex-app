@@ -8,6 +8,8 @@ import TableLabel from './TableLabel';
 import TableBorderCell from './TableBorderCell';
 import TableAlignmentCell from './TableAlignmentCell';
 import TableInputCell from './TableInputCell';
+import { auth, db } from './firebase';
+import * as firebase from 'firebase';
 
 /*
 **
@@ -61,6 +63,11 @@ class Table extends React.Component {
     return label;
   }
 
+  static getInitialWorkId() {
+    const workId = localStorage.getItem('table-work-id') || 0;
+    return workId;
+  }
+
   constructor(props) {
     super(props);
     this.state = {
@@ -73,6 +80,7 @@ class Table extends React.Component {
       refToBorders: {},
       refToAlignments: {},
       refToInputs: {},
+      workId: Table.getInitialWorkId(),
     };
 
     this.generateLatexCode = this.generateLatexCode.bind(this);
@@ -82,6 +90,7 @@ class Table extends React.Component {
     this.addTextToObject = this.addTextToObject.bind(this);
     this.changeCaption = this.changeCaption.bind(this);
     this.changeLabel = this.changeLabel.bind(this);
+    this.writeToFirebase = this.writeToFirebase.bind(this);
   }
 
   componentDidMount() {
@@ -147,7 +156,56 @@ class Table extends React.Component {
     localStorage.setItem('table-textObject', JSON.stringify(obj));
   }
 
+  updateWorkCount() {
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        let workCount = 0;
+        db.onceGetWorkCount(user.uid).then((snapshot) => {
+          if (snapshot.val() === null) {
+            workCount = 1;
+          } else {
+            workCount = Number(snapshot.val().newWorkCount) + 1;
+          }
+          console.log(workCount);
+          db.writeToWorkCount(user.uid, workCount);
+          this.setState({
+            workId: workCount,
+          });
+          localStorage.setItem('table-work-id', Number(workCount));
+          this.writeToFirebase(workCount);
+        });
+      }
+    });
+  }
+
+  writeToFirebase(workId) {
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        db.writeTableToDatabase(
+          user.uid,
+          workId,
+          'table',
+          this.state.rows,
+          this.state.columns,
+          this.state.textInTable,
+          this.state.caption,
+          this.state.label,
+        );
+      }
+    });
+  }
+
+  saveTable() {
+    if (this.state.workId === 0) {
+      console.log('id = 0');
+      this.updateWorkCount();
+    } else {
+      this.writeToFirebase(this.state.workId);
+    }
+  }
+
   generateLatexCode(rows, columns) {
+    this.saveTable();
     const beginTable = [' &#92;begin{table} '];
     const endTabular = ['   &#92;end{tabular} '];
     const endTable = [' &#92;end{table} '];
@@ -483,7 +541,7 @@ class Table extends React.Component {
                 key={cellId}
                 column={column}
                 onClick={this.alignCell.bind(this, column)}
-                ref={input => {
+                ref={(input) => {
                   this.state.refToAlignments[columnId] = input;
                 }}
               />,
@@ -500,7 +558,7 @@ class Table extends React.Component {
                 onClick={this.selectBorder.bind(this, row, column, 'column')}
                 onMouseEnter={this.hoverBorder.bind(this, row, column, 'column', true)}
                 onMouseLeave={this.hoverBorder.bind(this, row, column, 'column', false)}
-                ref={input => {
+                ref={(input) => {
                   this.state.refToBorders[stringId] = input;
                 }}
               />,
@@ -515,7 +573,7 @@ class Table extends React.Component {
                 onClick={this.selectBorder.bind(this, row, column, 'row')}
                 onMouseEnter={this.hoverBorder.bind(this, row, column, 'row', true)}
                 onMouseLeave={this.hoverBorder.bind(this, row, column, 'row', false)}
-                ref={input => {
+                ref={(input) => {
                   this.state.refToBorders[stringId] = input;
                 }}
               />,
@@ -532,7 +590,7 @@ class Table extends React.Component {
                 row={row}
                 column={column}
                 direction="column"
-                ref={input => {
+                ref={(input) => {
                   this.state.refToBorders[stringId] = input;
                 }}
               />,
@@ -547,7 +605,7 @@ class Table extends React.Component {
                 row={row}
                 column={column}
                 direction="row"
-                ref={input => {
+                ref={(input) => {
                   this.state.refToBorders[stringId] = input;
                 }}
               />,
@@ -560,7 +618,7 @@ class Table extends React.Component {
               onClick={this.selectBorder.bind(this, row, column, 'column')}
               onMouseEnter={this.hoverBorder.bind(this, row, column, 'column', true)}
               onMouseLeave={this.hoverBorder.bind(this, row, column, 'column', false)}
-              ref={input => {
+              ref={(input) => {
                 this.state.refToBorders[stringId] = input;
               }}
               row={row}
@@ -587,7 +645,7 @@ class Table extends React.Component {
                   column={column}
                   alignment={alignValue}
                   text={inputText}
-                  ref={input => {
+                  ref={(input) => {
                     this.state.refToInputs[stringId] = input;
                   }}
                 />{' '}
@@ -605,7 +663,7 @@ class Table extends React.Component {
                   column={column}
                   text={inputText}
                   alignment="left"
-                  ref={input => {
+                  ref={(input) => {
                     this.state.refToInputs[stringId] = input;
                   }}
                 />{' '}

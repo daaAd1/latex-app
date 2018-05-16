@@ -406,6 +406,10 @@ Table part
   flex-flow: column;
 }
 
+.table-caption-label-container input {
+  border: 1px solid black;
+}
+
 .table-form-container > div > label > input {
   width: 200px;
   padding: 0px 1px 0px 0px;
