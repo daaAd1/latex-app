@@ -1,7 +1,10 @@
 import React from 'react';
+import * as firebase from 'firebase';
 import LatexCode from './LatexCode';
 import Symbols from './Symbols';
 import TaylorRow from './TaylorRow';
+import ProjectName from './ProjectName';
+import { db } from './firebase';
 
 /*
 **
@@ -46,15 +49,29 @@ class TaylorDiagram extends React.PureComponent {
     return arrowObject;
   }
 
+  static getInitialWorkId() {
+    const workId = localStorage.getItem('taylor-work-id') || 0;
+    return workId;
+  }
+
+  static getInitialProjectName() {
+    const projectName = localStorage.getItem('Taylor-project-name') || 'Taylor project';
+    return projectName;
+  }
+
   constructor(props) {
     super(props);
     this.state = {
       rows: TaylorDiagram.getInitialRows(),
       columnsObject: this.getInitialColumns(),
-      latexCode: this.generateLatexCode(2),
+      latexCode: '',
       textObject: this.getInitialTextObject(),
       arrowsObject: this.getInitialArrowObject(),
       additionalArrowsObject: this.getInitialAdditionalArrowsObject(),
+      workId: TaylorDiagram.getInitialWorkId(),
+      projectName: TaylorDiagram.getInitialProjectName(),
+      isSignedIn: false,
+      userUid: '',
     };
 
     this.generateLatexCode = this.generateLatexCode.bind(this);
@@ -68,9 +85,14 @@ class TaylorDiagram extends React.PureComponent {
     this.onColumnsChange = this.onColumnsChange.bind(this);
     this.cellTextChanged = this.cellTextChanged.bind(this);
     this.getInitialAdditionalArrowsObject = this.getInitialAdditionalArrowsObject.bind(this);
+    this.projectNameChanged = this.projectNameChanged.bind(this);
   }
 
   componentDidMount() {
+    this.unregisterAuthObserver = firebase.auth().onAuthStateChanged((user) => {
+      this.setState({ isSignedIn: !!user, userUid: user.uid });
+    });
+
     this.setState(
       {
         textObject: this.initializeTextObject(this.state.rows, 10),
@@ -340,8 +362,49 @@ class TaylorDiagram extends React.PureComponent {
     localStorage.setItem('taylor-arrow-object', JSON.stringify(obj));
   }
 
+  updateWorkCount() {
+    let workCount = 0;
+    db.onceGetWorkCount(this.state.userUid).then((snapshot) => {
+      if (snapshot.val() === null) {
+        workCount = 1;
+      } else {
+        workCount = Number(snapshot.val().newWorkCount) + 1;
+      }
+      db.writeToWorkCount(this.state.userUid, workCount);
+      this.setState({
+        workId: workCount,
+      });
+      localStorage.setItem('taylor-work-id', Number(workCount));
+      this.writeToFirebase(workCount);
+    });
+  }
+
+  writeToFirebase(workId) {
+    db.writeDiagramToDatabase(
+      this.state.userUid,
+      workId,
+      this.state.projectName,
+      'taylor',
+      this.state.rows,
+      this.state.textObject,
+      this.state.arrowsObject,
+      this.state.additionalArrowsObject,
+    );
+  }
+
+  saveTaylor() {
+    if (this.state.isSignedIn) {
+      if (this.state.workId === 0) {
+        this.updateWorkCount();
+      } else {
+        this.writeToFirebase(this.state.workId);
+      }
+    }
+  }
+
   generateLatexCode(rows) {
     this.checkArrowObjectForArrows();
+    this.saveTaylor();
     const beginDiagram = ['&#92;begin{diagram}'];
     const endDiagram = ['&#92;end{diagram}'];
     const coreDiagram = [];
@@ -575,6 +638,17 @@ class TaylorDiagram extends React.PureComponent {
     });
   }
 
+  projectNameChanged(changedName) {
+    this.setState(
+      {
+        projectName: changedName,
+      },
+      () => {
+        this.saveTaylor();
+      },
+    );
+  }
+
   render() {
     const latexCode = <LatexCode code={this.state.latexCode} />;
     const rows = [];
@@ -593,6 +667,12 @@ class TaylorDiagram extends React.PureComponent {
                 onChange={this.onRowsChange}
               />
             </div>
+            <ProjectName
+              type="Taylor"
+              projectNameChanged={(newValue) => {
+                this.projectNameChanged(newValue);
+              }}
+            />
           </div>
           <Symbols />
           <button
@@ -617,7 +697,7 @@ class TaylorDiagram extends React.PureComponent {
           arrowStateChanged={(column, direction, text, text2, type) =>
             this.arrowStateChanged(row, column, direction, text, text2, type)
           }
-          onColumnsChange={columnsNewValue => this.onColumnsChange(row, columnsNewValue)}
+          onColumnsChange={(columnsNewValue) => this.onColumnsChange(row, columnsNewValue)}
         >
           {' '}
         </TaylorRow>,

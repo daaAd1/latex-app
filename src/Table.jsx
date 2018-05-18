@@ -1,4 +1,5 @@
 import React from 'react';
+import * as firebase from 'firebase';
 import LatexCode from './LatexCode';
 import Symbols from './Symbols';
 import TableRows from './TableRows';
@@ -8,8 +9,8 @@ import TableLabel from './TableLabel';
 import TableBorderCell from './TableBorderCell';
 import TableAlignmentCell from './TableAlignmentCell';
 import TableInputCell from './TableInputCell';
+import ProjectName from './ProjectName';
 import { auth, db } from './firebase';
-import * as firebase from 'firebase';
 
 /*
 **
@@ -68,6 +69,11 @@ class Table extends React.Component {
     return workId;
   }
 
+  static getInitialProjectName() {
+    const projectName = localStorage.getItem('Table-project-name') || 'Table project';
+    return projectName;
+  }
+
   constructor(props) {
     super(props);
     this.state = {
@@ -81,6 +87,9 @@ class Table extends React.Component {
       refToAlignments: {},
       refToInputs: {},
       workId: Table.getInitialWorkId(),
+      projectName: Table.getInitialProjectName(),
+      isSignedIn: false,
+      userUid: '',
     };
 
     this.generateLatexCode = this.generateLatexCode.bind(this);
@@ -91,9 +100,15 @@ class Table extends React.Component {
     this.changeCaption = this.changeCaption.bind(this);
     this.changeLabel = this.changeLabel.bind(this);
     this.writeToFirebase = this.writeToFirebase.bind(this);
+    this.projectNameChanged = this.projectNameChanged.bind(this);
+    this.saveTable = this.saveTable.bind(this);
   }
 
   componentDidMount() {
+    this.unregisterAuthObserver = firebase.auth().onAuthStateChanged((user) => {
+      this.setState({ isSignedIn: !!user, userUid: user.uid });
+    });
+
     this.setState(
       {
         textInTable: this.initializeTextObject(),
@@ -147,7 +162,7 @@ class Table extends React.Component {
   }
 
   addTextToObject(row, column, text) {
-    const key = row.toString() + '-' + column.toString();
+    const key = `${row}-${column}`;
     const obj = this.state.textInTable;
     obj[key] = text;
     this.setState({
@@ -157,50 +172,43 @@ class Table extends React.Component {
   }
 
   updateWorkCount() {
-    firebase.auth().onAuthStateChanged((user) => {
-      if (user) {
-        let workCount = 0;
-        db.onceGetWorkCount(user.uid).then((snapshot) => {
-          if (snapshot.val() === null) {
-            workCount = 1;
-          } else {
-            workCount = Number(snapshot.val().newWorkCount) + 1;
-          }
-          console.log(workCount);
-          db.writeToWorkCount(user.uid, workCount);
-          this.setState({
-            workId: workCount,
-          });
-          localStorage.setItem('table-work-id', Number(workCount));
-          this.writeToFirebase(workCount);
-        });
+    let workCount = 0;
+    db.onceGetWorkCount(this.state.userUid).then((snapshot) => {
+      if (snapshot.val() === null) {
+        workCount = 1;
+      } else {
+        workCount = Number(snapshot.val().newWorkCount) + 1;
       }
+      db.writeToWorkCount(this.state.userUid, workCount);
+      this.setState({
+        workId: workCount,
+      });
+      localStorage.setItem('table-work-id', Number(workCount));
+      this.writeToFirebase(workCount);
     });
   }
 
   writeToFirebase(workId) {
-    firebase.auth().onAuthStateChanged((user) => {
-      if (user) {
-        db.writeTableToDatabase(
-          user.uid,
-          workId,
-          'table',
-          this.state.rows,
-          this.state.columns,
-          this.state.textInTable,
-          this.state.caption,
-          this.state.label,
-        );
-      }
-    });
+    db.writeTableToDatabase(
+      this.state.userUid,
+      workId,
+      this.state.projectName,
+      'table',
+      this.state.rows,
+      this.state.columns,
+      this.state.textInTable,
+      this.state.caption,
+      this.state.label,
+    );
   }
 
   saveTable() {
-    if (this.state.workId === 0) {
-      console.log('id = 0');
-      this.updateWorkCount();
-    } else {
-      this.writeToFirebase(this.state.workId);
+    if (this.state.isSignedIn) {
+      if (this.state.workId === 0) {
+        this.updateWorkCount();
+      } else {
+        this.writeToFirebase(this.state.workId);
+      }
     }
   }
 
@@ -525,6 +533,17 @@ class Table extends React.Component {
     localStorage.setItem('table-label', changedLabelText);
   }
 
+  projectNameChanged(changedName) {
+    this.setState(
+      {
+        projectName: changedName,
+      },
+      () => {
+        this.saveTable();
+      },
+    );
+  }
+
   render() {
     const latexCode = <LatexCode code={this.state.latexCode} />;
     const rows = [];
@@ -693,6 +712,12 @@ class Table extends React.Component {
             <div className="table-caption-label-container">
               <TableCaption changeCaption={this.changeCaption} />
               <TableLabel changeLabel={this.changeLabel} />
+              <ProjectName
+                type="Table"
+                projectNameChanged={(newName) => {
+                  this.projectNameChanged(newName);
+                }}
+              />
             </div>
             <div className="table-rows-columns-container">
               <TableRows rowValue={this.inputRowsChanged} />

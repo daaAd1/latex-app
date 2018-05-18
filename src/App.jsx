@@ -11,6 +11,7 @@ import SignUp from './SignUp';
 import PasswordForgetPage from './PasswordForget';
 import * as routes from './constants/routes';
 import { firebase } from './firebase';
+import SavedWorksContainer from './SavedWorks';
 
 /*
 **
@@ -37,7 +38,7 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    firebase.auth.onAuthStateChanged(authUser => {
+    firebase.auth.onAuthStateChanged((authUser) => {
       authUser ? this.setState(() => ({ authUser })) : this.setState(() => ({ authUser: null }));
     });
   }
@@ -55,6 +56,7 @@ class App extends React.Component {
             <Route exact path={routes.SIGN_IN} component={() => <SignIn />} />
             <Route exact path={routes.SIGN_UP} component={() => <SignUp />} />
             <Route exact path={routes.PASSWORD_FORGET} component={() => <PasswordForgetPage />} />
+            <Route exact path={routes.SAVED_WORKS} component={() => <SavedWorksContainer />} />
           </div>
         </div>
       </HashRouter>

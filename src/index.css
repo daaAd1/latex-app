@@ -560,6 +560,10 @@ Sequence math part
   justify-content: center;
 }
 
+.sequence-button-symbols-container input {
+  border: 1px solid black;
+}
+
 /**
 **
 Taylor diagram part

@@ -41,7 +41,7 @@ class Nav extends React.Component {
   }
 
   componentDidMount() {
-    firebase.auth().onAuthStateChanged(user => {
+    firebase.auth().onAuthStateChanged((user) => {
       if (user) {
         this.setState({
           userLoggedIn: true,
@@ -86,6 +86,7 @@ class Nav extends React.Component {
           </NavLink>
           {!this.state.userLoggedIn && <NavLink to={routes.SIGN_IN}>Sign In</NavLink>}
           {this.state.userLoggedIn && <SignOutButton />}
+          {this.state.userLoggedIn && <NavLink to={routes.SAVED_WORKS}>Saved works </NavLink>}
         </div>
         <ul className="header-nav">
           <li>
@@ -113,7 +114,7 @@ class Nav extends React.Component {
             className={this.state.tableActive ? 'table-label page-active' : ' table-label '}
           >
             {' '}
-            <NavLink exact to="/">
+            <NavLink exact to={routes.TABLE}>
               Table
             </NavLink>{' '}
           </li>
@@ -122,13 +123,13 @@ class Nav extends React.Component {
             className={this.state.sequenceActive ? 'math-label page-active' : ' math-label '}
           >
             {' '}
-            <NavLink to="/math">Math</NavLink>{' '}
+            <NavLink to={routes.MATH}>Math</NavLink>{' '}
           </li>
           <li
             onClick={this.taylorClicked.bind(this)}
             className={this.state.taylorActive ? 'taylor-label page-active' : ' taylor-label '}
           >
-            <NavLink to="/taylor">Taylor</NavLink>
+            <NavLink to={routes.TAYLOR}>Taylor</NavLink>
           </li>
         </ul>
       </div>

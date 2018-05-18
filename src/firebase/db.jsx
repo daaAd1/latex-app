@@ -11,8 +11,9 @@ export const doCreateUser = (id, username, email) =>
 export const onceGetUsers = () => db.ref('users').once('value');
 
 export const writeTableToDatabase = (
-  id,
+  userId,
   workId,
+  name,
   type,
   rows,
   columns,
@@ -20,7 +21,8 @@ export const writeTableToDatabase = (
   caption,
   label,
 ) =>
-  db.ref(`work/${id}/${workId}`).set({
+  db.ref(`work/${userId}/${workId}`).set({
+    name,
     type,
     rows,
     columns,
@@ -29,8 +31,17 @@ export const writeTableToDatabase = (
     label,
   });
 
-export const writeMathToDatabase = (type, id, lines, linesText, annotationObject) =>
-  db.ref(`work/${id}`).push({
+export const writeMathToDatabase = (
+  userId,
+  workId,
+  name,
+  type,
+  lines,
+  linesText,
+  annotationObject,
+) =>
+  db.ref(`work/${userId}/${workId}`).set({
+    name,
     type,
     lines: JSON.stringify(lines),
     linesText: JSON.stringify(linesText),
@@ -38,14 +49,17 @@ export const writeMathToDatabase = (type, id, lines, linesText, annotationObject
   });
 
 export const writeDiagramToDatabase = (
+  userId,
+  workId,
+  name,
   type,
-  id,
   rows,
   textObject,
   arrowsObject,
   additionalArrowsObject,
 ) =>
-  db.ref(`work/${id}`).push({
+  db.ref(`work/${userId}/${workId}`).set({
+    name,
     type,
     rows,
     textObject: JSON.stringify(textObject),
@@ -53,11 +67,18 @@ export const writeDiagramToDatabase = (
     additionalArrowsObject: JSON.stringify(additionalArrowsObject),
   });
 
-export const onceGetWorks = id => db.ref(`work/${id}`).once('value');
+export const onceGetWorks = (userId) => db.ref(`work/${userId}`).once('value');
+
+export const onceGetWorkWithId = (userId, workId) =>
+  db.ref(`work/${userId}/${workId}`).once('value');
+
+export const updateWorkNode = (userId, update) => db.ref(`work/${userId}`).update(update);
 
 export const writeToWorkCount = (id, newCount) =>
   db.ref(`workCount/${id}`).set({
     newWorkCount: newCount,
   });
 
-export const onceGetWorkCount = id => db.ref(`workCount/${id}`).once('value');
+export const onceGetWorkCount = (userId) => db.ref(`workCount/${userId}`).once('value');
+
+export const deleteWork = (userId, workId) => db.ref(`work/${userId}/${workId}`).remove();

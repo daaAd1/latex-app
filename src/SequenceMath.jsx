@@ -1,7 +1,10 @@
 import React from 'react';
+import * as firebase from 'firebase';
 import LatexCode from './LatexCode';
 import Symbols from './Symbols';
 import SequenceMathLine from './SequenceMathLine';
+import ProjectName from './ProjectName';
+import { db } from './firebase';
 
 /*
 **
@@ -32,13 +35,27 @@ class SequenceMath extends React.Component {
     window.location.reload();
   }
 
+  static getInitialWorkId() {
+    const workId = localStorage.getItem('math-work-id') || 0;
+    return workId;
+  }
+
+  static getInitialProjectName() {
+    const projectName = localStorage.getItem('Math-project-name') || 'Math project';
+    return projectName;
+  }
+
   constructor(props) {
     super(props);
     this.state = {
       lines: this.getInitialLinesObject(),
       linesText: this.getInitialTextObject(),
-      latexCode: this.generateLatexCode(),
+      latexCode: '',
       annotationObject: this.getInitialAnnotationObject(),
+      projectName: SequenceMath.getInitialProjectName(),
+      workId: SequenceMath.getInitialWorkId(),
+      isSignedIn: false,
+      userUid: '',
     };
 
     this.lineClick = this.lineClick.bind(this);
@@ -47,9 +64,16 @@ class SequenceMath extends React.Component {
     this.generateLatexCode = this.generateLatexCode.bind(this);
     this.annotationChanged = this.annotationChanged.bind(this);
     this.addLineToObject = this.addLineToObject.bind(this);
+    this.writeToFirebase = this.writeToFirebase.bind(this);
+    this.projectNameChanged = this.projectNameChanged.bind(this);
+    this.saveSequence = this.saveSequence.bind(this);
   }
 
   componentDidMount() {
+    this.unregisterAuthObserver = firebase.auth().onAuthStateChanged((user) => {
+      this.setState({ isSignedIn: !!user, userUid: user.uid });
+    });
+
     this.setState(
       {
         linesText: this.generateTextObject(),
@@ -183,7 +207,47 @@ class SequenceMath extends React.Component {
     localStorage.setItem('math-text-object', JSON.stringify(obj));
   }
 
+  updateWorkCount() {
+    let workCount = 0;
+    db.onceGetWorkCount(this.state.userUid).then((snapshot) => {
+      if (snapshot.val() === null) {
+        workCount = 1;
+      } else {
+        workCount = Number(snapshot.val().newWorkCount) + 1;
+      }
+      db.writeToWorkCount(this.state.userUid, workCount);
+      this.setState({
+        workId: workCount,
+      });
+      localStorage.setItem('math-work-id', Number(workCount));
+      this.writeToFirebase(workCount);
+    });
+  }
+
+  writeToFirebase(workId) {
+    db.writeMathToDatabase(
+      this.state.userUid,
+      workId,
+      this.state.projectName,
+      'math',
+      this.state.lines,
+      this.state.linesText,
+      this.state.annotationObject,
+    );
+  }
+
+  saveSequence() {
+    if (this.state.isSignedIn) {
+      if (this.state.workId === 0) {
+        this.updateWorkCount();
+      } else {
+        this.writeToFirebase(this.state.workId);
+      }
+    }
+  }
+
   generateLatexCode() {
+    this.saveSequence();
     const beginCode = [' &#92;begin{prooftree}'];
     const endCode = [' &#92;end{prooftree}'];
     const middleCode = [];
@@ -569,7 +633,7 @@ class SequenceMath extends React.Component {
             white={boolFalse}
             level={level}
             cell={cell}
-            onClick={length => this.lineClick(level, cell, length)}
+            onClick={(length) => this.lineClick(level, cell, length)}
             annotationChanged={this.annotationChanged}
             annotationText={annotationText}
             clicked
@@ -589,7 +653,7 @@ class SequenceMath extends React.Component {
             white={boolFalse}
             level={level}
             cell={cell}
-            onClick={length => this.lineClick(level, cell, length)}
+            onClick={(length) => this.lineClick(level, cell, length)}
             annotationChanged={this.annotationChanged}
             annotationText={annotationText}
             clicked={false}
@@ -605,7 +669,7 @@ class SequenceMath extends React.Component {
             white={boolFalse}
             level={level}
             cell={cell}
-            onClick={length => this.lineClick(level, cell, length)}
+            onClick={(length) => this.lineClick(level, cell, length)}
             annotationChanged={this.annotationChanged}
             annotationText={annotationText}
             clicked={false}
@@ -624,6 +688,17 @@ class SequenceMath extends React.Component {
           clicked={false}
         />
       </div>
+    );
+  }
+
+  projectNameChanged(changedName) {
+    this.setState(
+      {
+        projectName: changedName,
+      },
+      () => {
+        this.saveSequence();
+      },
     );
   }
 
@@ -682,6 +757,7 @@ class SequenceMath extends React.Component {
           >
             Reset sequence{' '}
           </button>
+          <ProjectName type="Math" projectNameChanged={this.projectNameChanged} />
         </div>
         <hr className="sequence-separating-line" />
         {lines}
