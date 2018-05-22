@@ -71,7 +71,9 @@ class SequenceMath extends React.Component {
 
   componentDidMount() {
     this.unregisterAuthObserver = firebase.auth().onAuthStateChanged((user) => {
-      this.setState({ isSignedIn: !!user, userUid: user.uid });
+      if (user) {
+        this.setState({ isSignedIn: !!user, userUid: user.uid });
+      }
     });
 
     this.setState(

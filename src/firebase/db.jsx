@@ -13,7 +13,7 @@ export const onceGetUsers = () => db.ref('users').once('value');
 export const writeTableToDatabase = (
   userId,
   workId,
-  name,
+  projectName,
   type,
   rows,
   columns,
@@ -22,7 +22,7 @@ export const writeTableToDatabase = (
   label,
 ) =>
   db.ref(`work/${userId}/${workId}`).set({
-    name,
+    projectName,
     type,
     rows,
     columns,

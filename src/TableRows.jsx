@@ -37,6 +37,12 @@ class TableRows extends React.PureComponent {
     this.onChange = this.onChange.bind(this);
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.rows !== this.state.rows) {
+      this.setState({ rows: nextProps.rows });
+    }
+  }
+
   onChange(event) {
     if (event.target.value < 1) {
       this.setState({

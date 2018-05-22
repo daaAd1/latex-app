@@ -34,6 +34,12 @@ class TableLabel extends React.PureComponent {
     this.onChange = this.onChange.bind(this);
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.label !== this.state.label) {
+      this.setState({ label: nextProps.label });
+    }
+  }
+
   onChange(event) {
     this.setState({
       label: event.target.value,

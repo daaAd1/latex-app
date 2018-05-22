@@ -21,6 +21,12 @@ class ProjectName extends React.PureComponent {
     this.onChange = this.onChange.bind(this);
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.name !== this.state.name) {
+      this.setState({ name: nextProps.name });
+    }
+  }
+
   onChange(event) {
     this.setState({
       name: event.target.value,

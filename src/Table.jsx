@@ -1,4 +1,5 @@
 import React from 'react';
+import { withRouter } from 'react-router-dom';
 import * as firebase from 'firebase';
 import LatexCode from './LatexCode';
 import Symbols from './Symbols';
@@ -79,9 +80,11 @@ class Table extends React.Component {
     this.state = {
       rows: Table.getInitialRowsState(),
       columns: Table.getInitialColumnsState(),
-      textInTable: this.getInitialTextObject(),
       caption: Table.getInitialCaption(),
       label: Table.getInitialLabel(),
+      textInTable: this.getInitialTextObject(),
+      bordersInTable: this.getInitialBorderObject(),
+      alignmentInTable: this.getInitialAligmentObject(),
       latexCode: '',
       refToBorders: {},
       refToAlignments: {},
@@ -97,6 +100,8 @@ class Table extends React.Component {
     this.inputColumnsChanged = this.inputColumnsChanged.bind(this);
     this.inputTextChanged = this.inputTextChanged.bind(this);
     this.addTextToObject = this.addTextToObject.bind(this);
+    this.addBorderToObject = this.addBorderToObject.bind(this);
+    this.addAlignmentToObject = this.addAlignmentToObject.bind(this);
     this.changeCaption = this.changeCaption.bind(this);
     this.changeLabel = this.changeLabel.bind(this);
     this.writeToFirebase = this.writeToFirebase.bind(this);
@@ -104,9 +109,36 @@ class Table extends React.Component {
     this.saveTable = this.saveTable.bind(this);
   }
 
+  componentWillMount() {
+    if (this.props.location !== undefined && this.props.location.state !== undefined) {
+      const { key } = this.props.location.state;
+      db.onceGetWorks(this.state.userUid).then((snapshot) => {
+        const data = snapshot.val()[this.state.userUid][key];
+        localStorage.setItem('table-rows', Number(data.rows));
+        localStorage.setItem('table-columns', Number(data.columns));
+        localStorage.setItem('table-caption', data.caption);
+        localStorage.setItem('table-label', data.label);
+        localStorage.setItem('Table-project-name', data.projectName);
+        localStorage.setItem('table-textObject', JSON.stringify(data.textInTable));
+        this.setState(
+          {
+            rows: Number(data.rows),
+            columns: Number(data.columns),
+            caption: data.caption,
+            label: data.label,
+            projectName: data.projectName,
+            textInTable: JSON.parse(data.textInTable),
+          },
+          () => this.render(),
+        );
+      });
+    }
+  }
   componentDidMount() {
     this.unregisterAuthObserver = firebase.auth().onAuthStateChanged((user) => {
-      this.setState({ isSignedIn: !!user, userUid: user.uid });
+      if (user) {
+        this.setState({ isSignedIn: !!user, userUid: user.uid });
+      }
     });
 
     this.setState(
@@ -128,10 +160,27 @@ class Table extends React.Component {
     return textObject;
   }
 
+  getInitialBorderObject() {
+    const borderObject =
+      JSON.parse(localStorage.getItem('table-borderObject')) || this.initializeBorderObject();
+
+    return borderObject;
+  }
+
+  getInitialAligmentObject() {
+    const alignmentObject =
+      JSON.parse(localStorage.getItem('table-alignmentObject')) || this.initializeAlignmentObject();
+
+    return alignmentObject;
+  }
+
   initializeTextObject() {
     let initialObject = {};
     if (this.state !== undefined && this.state.textInTable !== undefined) {
       initialObject = this.state.textInTable;
+      if (typeof initialObject === 'string') {
+        initialObject = JSON.parse(initialObject);
+      }
     }
 
     let numOfRows = 11;
@@ -146,7 +195,7 @@ class Table extends React.Component {
 
     for (let row = 0; row < numOfRows; row += 1) {
       for (let column = 0; column < numOfColumns; column += 1) {
-        const position = row.toString() + '-' + column.toString();
+        const position = `${row}-${column}`;
         if (
           this.state !== undefined &&
           this.state.textInTable !== undefined &&
@@ -161,6 +210,78 @@ class Table extends React.Component {
     return initialObject;
   }
 
+  initializeBorderObject() {
+    let initialObject = {};
+    if (this.state !== undefined && this.state.bordersInTable !== undefined) {
+      initialObject = this.state.bordersInTable;
+      if (typeof initialObject === 'string') {
+        initialObject = JSON.parse(initialObject);
+      }
+    }
+
+    let numOfRows = 11;
+    if (this.state !== undefined && this.state.rows !== undefined) {
+      numOfRows = this.state.rows;
+    }
+
+    let numOfColumns = 11;
+    if (this.state !== undefined && this.state.columns !== undefined) {
+      numOfColumns = this.state.columns;
+    }
+
+    for (let row = 0; row < numOfRows; row += 1) {
+      for (let column = 0; column < numOfColumns; column += 1) {
+        const position = `${row}-${column}`;
+        if (
+          this.state !== undefined &&
+          this.state.bordersInTable !== undefined &&
+          this.state.bordersInTable[position] !== undefined
+        ) {
+          initialObject[position] = this.state.bordersInTable[position];
+        } else {
+          initialObject[position] = false;
+        }
+      }
+    }
+    return initialObject;
+  }
+
+  initializeAlignmentObject() {
+    let initialObject = {};
+    if (this.state !== undefined && this.state.alignmentInTable !== undefined) {
+      initialObject = this.state.alignmentInTable;
+      if (typeof initialObject === 'string') {
+        initialObject = JSON.parse(initialObject);
+      }
+    }
+
+    let numOfRows = 11;
+    if (this.state !== undefined && this.state.rows !== undefined) {
+      numOfRows = this.state.rows;
+    }
+
+    let numOfColumns = 11;
+    if (this.state !== undefined && this.state.columns !== undefined) {
+      numOfColumns = this.state.columns;
+    }
+
+    for (let row = 0; row < numOfRows; row += 1) {
+      for (let column = 0; column < numOfColumns; column += 1) {
+        const position = `${row}-${column}`;
+        if (
+          this.state !== undefined &&
+          this.state.alignmentInTable !== undefined &&
+          this.state.alignmentInTable !== undefined
+        ) {
+          initialObject[position] = this.state.alignmentInTable[position];
+        } else {
+          initialObject[position] = 'left';
+        }
+      }
+    }
+    return initialObject;
+  }
+
   addTextToObject(row, column, text) {
     const key = `${row}-${column}`;
     const obj = this.state.textInTable;
@@ -169,6 +290,26 @@ class Table extends React.Component {
       textInTable: obj,
     });
     localStorage.setItem('table-textObject', JSON.stringify(obj));
+  }
+
+  addBorderToObject(row, column, border) {
+    const key = `${row}-${column}`;
+    const obj = this.state.bordersInTable;
+    obj[key] = Boolean(border);
+    this.setState({
+      bordersInTable: obj,
+    });
+    localStorage.setItem('table-borderObject', JSON.stringify(obj));
+  }
+
+  addAlignmentToObject(row, column, alignment) {
+    const key = `${row}-${column}`;
+    const obj = this.state.alignmentInTable;
+    obj[key] = alignment;
+    this.setState({
+      alignmentInTable: obj,
+    });
+    localStorage.setItem('table-alignmentObject', JSON.stringify(obj));
   }
 
   updateWorkCount() {
@@ -415,6 +556,7 @@ class Table extends React.Component {
           borderCell !== undefined &&
           borderCell.state.direction === 'row'
         ) {
+          this.addBorderToObject(row, columnBorder, newBorderActiveValue);
           localStorage.setItem(
             `table-border-row${row}-column${columnBorder}`,
             Boolean(newBorderActiveValue),
@@ -439,6 +581,7 @@ class Table extends React.Component {
           borderCell !== undefined &&
           borderCell.state.direction === 'column'
         ) {
+          this.addBorderToObject(rowBorder, column, newBorderActiveValue);
           localStorage.setItem(
             `table-border-row${rowBorder}-column${column}`,
             Boolean(newBorderActiveValue),
@@ -496,6 +639,8 @@ class Table extends React.Component {
             alignment,
           },
           () => {
+            const alignValue = this.state.refToAlignments[columnId].state.alignment;
+            this.addAlignmentToObject(row, column, alignValue);
             this.setState({
               latexCode: this.generateLatexCode(this.state.rows, this.state.columns),
             });
@@ -705,23 +850,27 @@ class Table extends React.Component {
         );
       }
     }
+    const { caption, label, projectName } = this.state;
+    const rowsValue = (this.state.rows - 1) / 2;
+    const columnsValue = (this.state.columns - 1) / 2;
     return (
       <div className="table-container">
         <div className="table-size-container">
           <div className="table-form-container">
             <div className="table-caption-label-container">
-              <TableCaption changeCaption={this.changeCaption} />
-              <TableLabel changeLabel={this.changeLabel} />
+              <TableCaption changeCaption={this.changeCaption} caption={caption} />
+              <TableLabel changeLabel={this.changeLabel} label={label} />
               <ProjectName
                 type="Table"
+                name={projectName}
                 projectNameChanged={(newName) => {
                   this.projectNameChanged(newName);
                 }}
               />
             </div>
             <div className="table-rows-columns-container">
-              <TableRows rowValue={this.inputRowsChanged} />
-              <TableColumns columnValue={this.inputColumnsChanged} />
+              <TableRows rowValue={this.inputRowsChanged} rows={rowsValue} />
+              <TableColumns columnValue={this.inputColumnsChanged} columns={columnsValue} />
             </div>
           </div>
           <div className="table-button-symbols-container">
@@ -743,4 +892,4 @@ class Table extends React.Component {
   }
 }
 
-export default Table;
+export default withRouter(Table);

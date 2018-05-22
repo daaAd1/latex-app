@@ -37,6 +37,12 @@ class TableColumns extends React.PureComponent {
     this.onChange = this.onChange.bind(this);
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.columns !== this.state.columns) {
+      this.setState({ columns: nextProps.columns });
+    }
+  }
+
   onChange(event) {
     if (event.target.value < 1) {
       this.setState({

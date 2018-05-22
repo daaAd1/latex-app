@@ -14,8 +14,6 @@ class SavedWorks extends React.Component {
     };
 
     this.deleteWork = this.deleteWork.bind(this);
-
-    this.deleteWork = this.deleteWork.bind(this);
   }
 
   componentDidMount() {
@@ -47,7 +45,6 @@ class SavedWorks extends React.Component {
     db.onceGetWorks(this.state.userUid).then((snapshot) => {
       const data = snapshot.val();
       if (data !== null) {
-        console.log(key, data.length);
         if (Number(key) === 1 && data.length === undefined) {
           const update = {};
           update[2] = null;
@@ -55,7 +52,6 @@ class SavedWorks extends React.Component {
           db.updateWorkNode(this.state.userUid, update);
         } else {
           for (let node = Number(key); node < data.length - 1; node += 1) {
-            console.log('hi');
             const update = {};
             update[node + 1] = null;
             update[node] = data[node + 1];

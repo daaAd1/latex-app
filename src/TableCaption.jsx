@@ -33,7 +33,11 @@ class TableCaption extends React.PureComponent {
 
     this.onChange = this.onChange.bind(this);
   }
-
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.caption !== this.state.caption) {
+      this.setState({ caption: nextProps.caption });
+    }
+  }
   onChange(event) {
     this.setState({
       caption: event.target.value,

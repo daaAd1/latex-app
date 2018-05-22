@@ -36,6 +36,9 @@ class TableInputCell extends React.Component {
     if (nextProps.alignment !== this.state.alignment) {
       this.setState({ alignment: nextProps.alignment });
     }
+    if (nextProps.text !== this.state.text) {
+      this.setState({ text: nextProps.text });
+    }
   }
 
   onChange(event) {
