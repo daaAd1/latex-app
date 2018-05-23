@@ -32,6 +32,13 @@ class TableAlignmentCell extends React.Component {
     this.clickCenter = this.clickCenter.bind(this);
     this.clickRight = this.clickRight.bind(this);
   }
+  componentWillReceiveProps(nextProps) {
+    if (this.state.alignment !== nextProps.alignment) {
+      this.setState({
+        alignment: nextProps.alignment,
+      });
+    }
+  }
 
   getInitialAlignment() {
     const alignment = localStorage.getItem(`table-alignment-${this.props.column}`) || 'left';

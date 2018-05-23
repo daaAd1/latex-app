@@ -1,5 +1,6 @@
 import React from 'react';
 import * as firebase from 'firebase';
+import { withRouter } from 'react-router-dom';
 import LatexCode from './LatexCode';
 import Symbols from './Symbols';
 import SequenceMathLine from './SequenceMathLine';
@@ -67,6 +68,36 @@ class SequenceMath extends React.Component {
     this.writeToFirebase = this.writeToFirebase.bind(this);
     this.projectNameChanged = this.projectNameChanged.bind(this);
     this.saveSequence = this.saveSequence.bind(this);
+  }
+
+  componentWillMount() {
+    if (this.props.location !== undefined && this.props.location.state !== undefined) {
+      const { key } = this.props.location.state;
+      db.onceGetWorks(this.state.userUid).then((snapshot) => {
+        const data = snapshot.val()[this.state.userUid][key];
+        localStorage.setItem('Math-project-name', data.projectName);
+        localStorage.setItem('math-line-object', JSON.stringify(JSON.parse(data.lines)));
+        localStorage.setItem('math-text-object', JSON.stringify(JSON.parse(data.linesText)));
+        localStorage.setItem(
+          'math-annotation-object',
+          JSON.stringify(JSON.parse(data.annotationObject)),
+        );
+
+        this.setState(
+          {
+            projectName: data.projectName,
+            lines: JSON.parse(data.lines),
+            linesText: JSON.parse(data.linesText),
+            annotationObject: JSON.parse(data.annotationObject),
+          },
+          () => {
+            this.setState({
+              latexCode: this.generateLatexCode(),
+            });
+          },
+        );
+      });
+    }
   }
 
   componentDidMount() {
@@ -627,17 +658,28 @@ class SequenceMath extends React.Component {
     if (this.state !== undefined && this.state.annotationObject !== undefined) {
       annotationText = this.state.annotationObject[position];
     }
+    const inputText = this.state.linesText[position];
+    const length = this.state.lines[position];
+    let annotation = false;
+    if (this.state.lines[position] > 0) {
+      annotation = true;
+      console.log('true');
+    }
+
     if (!levelNotHighEnough && this.state !== null && this.state.lines[position] > 0) {
       return (
         <div key={position} className="sequence-level-cells">
           <SequenceMathLine
             changedText={this.addTextToObject}
             white={boolFalse}
+            inputText={inputText}
+            length={length}
             level={level}
             cell={cell}
             onClick={(length) => this.lineClick(level, cell, length)}
             annotationChanged={this.annotationChanged}
             annotationText={annotationText}
+            annotation={annotation}
             clicked
             readonlyText={readonlyText}
           />
@@ -655,6 +697,9 @@ class SequenceMath extends React.Component {
             white={boolFalse}
             level={level}
             cell={cell}
+            inputText={inputText}
+            length={length}
+            annotation={annotation}
             onClick={(length) => this.lineClick(level, cell, length)}
             annotationChanged={this.annotationChanged}
             annotationText={annotationText}
@@ -671,6 +716,9 @@ class SequenceMath extends React.Component {
             white={boolFalse}
             level={level}
             cell={cell}
+            inputText={inputText}
+            length={length}
+            annotation={annotation}
             onClick={(length) => this.lineClick(level, cell, length)}
             annotationChanged={this.annotationChanged}
             annotationText={annotationText}
@@ -748,6 +796,8 @@ class SequenceMath extends React.Component {
         </div>,
       );
     }
+    const { projectName } = this.state;
+
     return (
       <div className="sequence-container">
         <div className="sequence-button-symbols-container">
@@ -759,7 +809,11 @@ class SequenceMath extends React.Component {
           >
             Reset sequence{' '}
           </button>
-          <ProjectName type="Math" projectNameChanged={this.projectNameChanged} />
+          <ProjectName
+            name={projectName}
+            type="Math"
+            projectNameChanged={this.projectNameChanged}
+          />
         </div>
         <hr className="sequence-separating-line" />
         {lines}
@@ -769,4 +823,4 @@ class SequenceMath extends React.Component {
   }
 }
 
-export default SequenceMath;
+export default withRouter(SequenceMath);

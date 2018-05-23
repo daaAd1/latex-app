@@ -26,6 +26,7 @@ class TaylorRow extends React.PureComponent {
       row: props.row,
       columns: this.getInitialColumns(),
       rowText: this.getInitialRowText(),
+      arrowObject: JSON.parse(props.arrowObject),
     };
 
     this.onColumnsChange = this.onColumnsChange.bind(this);
@@ -35,6 +36,19 @@ class TaylorRow extends React.PureComponent {
     this.setState({
       rowText: this.getInitialRowText(),
     });
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.rowText !== JSON.stringify(this.state.rowText)) {
+      this.setState({
+        rowText: JSON.parse(nextProps.rowText),
+      });
+    }
+    if (nextProps.arrowObject !== JSON.stringify(this.state.arrowObject)) {
+      this.setState({
+        arrowObject: JSON.parse(nextProps.arrowObject),
+      });
+    }
   }
 
   onColumnsChange(event) {
@@ -60,7 +74,8 @@ class TaylorRow extends React.PureComponent {
   }
 
   getInitialRowText() {
-    const rowText = localStorage.getItem(`taylor-row-text-${this.props.row}`) || this.props.rowText;
+    const rowText =
+      localStorage.getItem(`taylor-row-text-${this.props.row}`) || JSON.parse(this.props.rowText);
     return rowText;
   }
 
@@ -85,16 +100,19 @@ class TaylorRow extends React.PureComponent {
       if (this.state !== undefined && this.state.rowText !== undefined) {
         cellText = this.state.rowText[this.state.row.toString() + column.toString()];
       }
+      const arrowObject = this.state.arrowObject[this.state.row.toString() + column.toString()];
+      //console.log(arrowObject);
       cells.push(
         <div key={column} className="taylor-cell-container">
           <TaylorCell
             arrowStateChanged={(direction, text, text2, type) =>
               this.arrowStateChanged(column, direction, text, text2, type)
             }
-            arrowDeleted={direction => this.arrowDeleted(column, direction)}
+            arrowDeleted={(direction) => this.arrowDeleted(column, direction)}
             row={this.state.row}
             column={column}
             cellText={cellText}
+            arrowObject={JSON.stringify(arrowObject)}
             cellTextChanged={this.props.cellTextChanged}
           />
         </div>,

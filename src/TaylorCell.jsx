@@ -29,11 +29,25 @@ class TaylorCell extends React.PureComponent {
       row: props.row,
       column: props.column,
       cellText: props.cellText,
+      arrowObject: JSON.parse(props.arrowObject),
     };
 
     this.cellTextChanged = this.cellTextChanged.bind(this);
     this.arrowStateChanged = this.arrowStateChanged.bind(this);
     this.arrowDeleted = this.arrowDeleted.bind(this);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.cellText !== this.state.cellText) {
+      this.setState({
+        cellText: nextProps.cellText,
+      });
+    }
+    if (nextProps.arrowObject !== JSON.stringify(this.state.arrowObject)) {
+      this.setState({
+        arrowObject: JSON.parse(nextProps.arrowObject),
+      });
+    }
   }
 
   cellTextChanged(event) {
@@ -52,10 +66,14 @@ class TaylorCell extends React.PureComponent {
   }
 
   render() {
+    const { lu, u, ru, l, r, ld, d, rd } = this.state.arrowObject;
     return (
       <div className="taylor-cell-container">
         <div className="taylor-arrow-container">
           <Arrow
+            arrowActive={lu.active}
+            arrowText={lu.text}
+            arrowText2={lu.text2}
             arrowDirection="lu"
             arrowDeleted={this.arrowDeleted}
             arrowActivated={this.arrowStateChanged}
@@ -63,6 +81,9 @@ class TaylorCell extends React.PureComponent {
             column={this.state.column}
           />
           <Arrow
+            arrowActive={u.active}
+            arrowText={u.text}
+            arrowText2={u.text2}
             arrowDirection="u"
             arrowDeleted={this.arrowDeleted}
             arrowActivated={this.arrowStateChanged}
@@ -70,6 +91,9 @@ class TaylorCell extends React.PureComponent {
             column={this.state.column}
           />
           <Arrow
+            arrowActive={ru.active}
+            arrowText={ru.text}
+            arrowText2={ru.text2}
             arrowDirection="ru"
             arrowDeleted={this.arrowDeleted}
             arrowActivated={this.arrowStateChanged}
@@ -77,6 +101,9 @@ class TaylorCell extends React.PureComponent {
             column={this.state.column}
           />
           <Arrow
+            arrowActive={l.active}
+            arrowText={l.text}
+            arrowText2={l.text2}
             arrowDirection="l"
             arrowDeleted={this.arrowDeleted}
             arrowActivated={this.arrowStateChanged}
@@ -84,6 +111,9 @@ class TaylorCell extends React.PureComponent {
             column={this.state.column}
           />
           <Arrow
+            arrowActive={r.active}
+            arrowText={r.text}
+            arrowText2={r.text2}
             arrowDirection="r"
             arrowDeleted={this.arrowDeleted}
             arrowActivated={this.arrowStateChanged}
@@ -91,6 +121,9 @@ class TaylorCell extends React.PureComponent {
             column={this.state.column}
           />
           <Arrow
+            arrowActive={ld.active}
+            arrowText={ld.text}
+            arrowText2={ld.text2}
             arrowDirection="ld"
             arrowDeleted={this.arrowDeleted}
             arrowActivated={this.arrowStateChanged}
@@ -98,6 +131,9 @@ class TaylorCell extends React.PureComponent {
             column={this.state.column}
           />
           <Arrow
+            arrowActive={d.active}
+            arrowText={d.text}
+            arrowText2={d.text2}
             arrowDirection="d"
             arrowDeleted={this.arrowDeleted}
             arrowActivated={this.arrowStateChanged}
@@ -105,6 +141,9 @@ class TaylorCell extends React.PureComponent {
             column={this.state.column}
           />
           <Arrow
+            arrowActive={rd.active}
+            arrowText={rd.text}
+            arrowText2={rd.text2}
             arrowDirection="rd"
             arrowDeleted={this.arrowDeleted}
             arrowActivated={this.arrowStateChanged}

@@ -18,6 +18,8 @@ export const writeTableToDatabase = (
   rows,
   columns,
   textInTable,
+  borderInTable,
+  alignmentInTable,
   caption,
   label,
 ) =>
@@ -27,6 +29,8 @@ export const writeTableToDatabase = (
     rows,
     columns,
     textInTable: JSON.stringify(textInTable),
+    borderInTable: JSON.stringify(borderInTable),
+    alignmentInTable: JSON.stringify(alignmentInTable),
     caption,
     label,
   });
@@ -34,14 +38,14 @@ export const writeTableToDatabase = (
 export const writeMathToDatabase = (
   userId,
   workId,
-  name,
+  projectName,
   type,
   lines,
   linesText,
   annotationObject,
 ) =>
   db.ref(`work/${userId}/${workId}`).set({
-    name,
+    projectName,
     type,
     lines: JSON.stringify(lines),
     linesText: JSON.stringify(linesText),
@@ -51,18 +55,20 @@ export const writeMathToDatabase = (
 export const writeDiagramToDatabase = (
   userId,
   workId,
-  name,
+  projectName,
   type,
   rows,
   textObject,
+  columnsObject,
   arrowsObject,
   additionalArrowsObject,
 ) =>
   db.ref(`work/${userId}/${workId}`).set({
-    name,
+    projectName,
     type,
     rows,
     textObject: JSON.stringify(textObject),
+    columnsObject: JSON.stringify(columnsObject),
     arrowsObject: JSON.stringify(arrowsObject),
     additionalArrowsObject: JSON.stringify(additionalArrowsObject),
   });

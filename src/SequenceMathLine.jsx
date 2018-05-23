@@ -56,6 +56,34 @@ class SequenceMathLine extends React.PureComponent {
         readonlyText: nextProps.readonlyText,
       });
     }
+    if (nextProps.inputText !== this.state.inputText) {
+      this.setState({
+        inputText: nextProps.inputText,
+      });
+    }
+    if (nextProps.annotation !== this.state.annotation) {
+      this.setState(
+        {
+          annotation: Boolean(nextProps.annotation),
+        },
+        () => this.render(),
+      );
+    }
+    if (nextProps.annotationText !== this.state.annotationText) {
+      this.setState({
+        annotationText: nextProps.annotationText,
+      });
+    }
+    if (
+      nextProps.length !== this.state.length &&
+      nextProps.length !== null &&
+      nextProps.length !== '' &&
+      nextProps.length > -1
+    ) {
+      this.setState({
+        length: nextProps.length,
+      });
+    }
   }
 
   onChange(event) {
@@ -156,11 +184,12 @@ class SequenceMathLine extends React.PureComponent {
     } else if (this.state.length === 3) {
       className += ' sequence-cell-length-3 ';
     }
+    const { annotation } = this.state;
     return (
       <div className="sequence-line">
         <div className="sequence-line-annotation">
           <div role="button" className={className} onClick={this.onClick} tabIndex={0} />
-          {this.state.annotation && (
+          {annotation && (
             <TextareaAutosize
               type="text"
               className="sequence-annotation-text"

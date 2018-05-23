@@ -21,10 +21,23 @@ class WorkList extends React.Component {
 
   onClick(key) {
     const { history } = this.props;
-    this.props.history.push({
-      pathname: routes.TABLE,
-      state: { key },
-    });
+    const { type } = this.props.works[key];
+    if (type === 'table') {
+      this.props.history.push({
+        pathname: routes.TABLE,
+        state: { key },
+      });
+    } else if (type === 'math') {
+      this.props.history.push({
+        pathname: routes.MATH,
+        state: { key },
+      });
+    } else if (type === 'taylor') {
+      this.props.history.push({
+        pathname: routes.TAYLOR,
+        state: { key },
+      });
+    }
   }
 
   render() {

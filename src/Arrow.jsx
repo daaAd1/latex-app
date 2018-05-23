@@ -47,7 +47,7 @@ class Arrow extends React.PureComponent {
       column: props.column,
       modalIsOpen: false,
       arrowDirection: props.arrowDirection,
-      arrowActivated: this.getInitialArrowActivated(),
+      arrowActive: this.getInitialArrowActive(),
       arrowText: this.getInitialArrowText(),
       arrowText2: this.getInitialArrowTextTwo(),
       arrowType: this.getIntialArrowType(),
@@ -59,11 +59,29 @@ class Arrow extends React.PureComponent {
     this.deleteArrow = this.deleteArrow.bind(this);
     this.arrowTextChanged = this.arrowTextChanged.bind(this);
     this.arrowTextTwoChanged = this.arrowTextTwoChanged.bind(this);
-    this.getInitialArrowActivated = this.getInitialArrowActivated.bind(this);
+    this.getInitialArrowActive = this.getInitialArrowActive.bind(this);
     this.getInitialArrowText = this.getInitialArrowText.bind(this);
     this.getInitialArrowTextTwo = this.getInitialArrowTextTwo.bind(this);
     this.getIntialArrowType = this.getIntialArrowType.bind(this);
     this.onArrowTypeChange = this.onArrowTypeChange.bind(this);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.arrowActive !== this.state.arrowActive) {
+      this.setState({
+        arrowActive: nextProps.arrowActive,
+      });
+    }
+    if (nextProps.arrowText !== this.state.arrowText) {
+      this.setState({
+        arrowText: nextProps.arrowText,
+      });
+    }
+    if (nextProps.arrowText2 !== this.state.arrowText2) {
+      this.setState({
+        arrowText2: nextProps.arrowText2,
+      });
+    }
   }
 
   onArrowTypeChange(event) {
@@ -79,7 +97,7 @@ class Arrow extends React.PureComponent {
     );
   }
 
-  getInitialArrowActivated() {
+  getInitialArrowActive() {
     let active =
       localStorage.getItem(
         `taylor-arrow-activated-${this.props.arrowDirection}${this.props.row}${this.props.column}`,
@@ -117,14 +135,14 @@ class Arrow extends React.PureComponent {
   }
 
   openModal() {
-    if (this.state.arrowActivated) {
+    if (this.state.arrowActive) {
       this.setState({
         modalIsOpen: true,
       });
     } else {
       this.setState(
         {
-          arrowActivated: true,
+          arrowActive: true,
         },
         () => this.passNewStateToProps(),
       );
@@ -178,7 +196,7 @@ class Arrow extends React.PureComponent {
   deleteArrow() {
     this.setState(
       {
-        arrowActivated: false,
+        arrowActive: false,
         modalIsOpen: false,
       },
       () => this.props.arrowDeleted(this.state.arrowDirection),
@@ -191,7 +209,7 @@ class Arrow extends React.PureComponent {
 
   render() {
     let className = '';
-    if (this.state.arrowActivated) {
+    if (this.state.arrowActive) {
       className = 'arrow-activated';
     }
     return (
