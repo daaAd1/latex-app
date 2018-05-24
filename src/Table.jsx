@@ -41,7 +41,12 @@ komponentu LatexCode.
 
 class Table extends React.Component {
   static resetApplicationState() {
-    window.localStorage.clear();
+    for (let key = 0; key < localStorage.length; key += 1) {
+      if (localStorage.key(key).includes('table') || localStorage.key(key).includes('Table')) {
+        localStorage.removeItem(localStorage.key(key));
+        return Table.resetApplicationState();
+      }
+    }
     window.location.reload();
   }
 
@@ -93,6 +98,7 @@ class Table extends React.Component {
       projectName: Table.getInitialProjectName(),
       isSignedIn: false,
       userUid: '',
+      workSaved: true,
     };
 
     this.generateLatexCode = this.generateLatexCode.bind(this);
@@ -114,6 +120,7 @@ class Table extends React.Component {
       const { key } = this.props.location.state;
       db.onceGetWorks(this.state.userUid).then((snapshot) => {
         const data = snapshot.val()[this.state.userUid][key];
+        localStorage.setItem('table-work-id', key);
         localStorage.setItem('table-rows', Number(data.rows));
         localStorage.setItem('table-columns', Number(data.columns));
         localStorage.setItem('table-caption', data.caption);
@@ -136,6 +143,7 @@ class Table extends React.Component {
             textInTable: JSON.parse(data.textInTable),
             borderInTable: JSON.parse(data.borderInTable),
             alignmentInTable: JSON.parse(data.alignmentInTable),
+            workId: key,
           },
           () => {
             this.setState({
@@ -344,23 +352,32 @@ class Table extends React.Component {
   }
 
   writeToFirebase(workId) {
-    db.writeTableToDatabase(
-      this.state.userUid,
-      workId,
-      this.state.projectName,
-      'table',
-      this.state.rows,
-      this.state.columns,
-      this.state.textInTable,
-      this.state.borderInTable,
-      this.state.alignmentInTable,
-      this.state.caption,
-      this.state.label,
-    );
+    db
+      .writeTableToDatabase(
+        this.state.userUid,
+        workId,
+        this.state.projectName,
+        'table',
+        this.state.rows,
+        this.state.columns,
+        this.state.textInTable,
+        this.state.borderInTable,
+        this.state.alignmentInTable,
+        this.state.caption,
+        this.state.label,
+      )
+      .then(() => {
+        this.setState({
+          workSaved: true,
+        });
+      });
   }
 
   saveTable() {
     if (this.state.isSignedIn) {
+      this.setState({
+        workSaved: false,
+      });
       if (this.state.workId === 0) {
         this.updateWorkCount();
       } else {
@@ -905,6 +922,8 @@ class Table extends React.Component {
               Reset table
             </button>
             <Symbols />
+            {!this.state.workSaved && <div className="loader">Saving...</div>}
+            {this.state.workSaved && <p>Work saved</p>}
           </div>
         </div>
         <hr className="table-separating-line" />

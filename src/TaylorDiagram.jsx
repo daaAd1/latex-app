@@ -32,13 +32,18 @@ LatexCode, ktorý ho zobrazí.
 
 class TaylorDiagram extends React.PureComponent {
   static resetApplicationState() {
-    window.localStorage.clear();
+    for (let key = 0; key < localStorage.length; key += 1) {
+      if (localStorage.key(key).includes('taylor') || localStorage.key(key).includes('Taylor')) {
+        localStorage.removeItem(localStorage.key(key));
+        return TaylorDiagram.resetApplicationState();
+      }
+    }
     window.location.reload();
   }
 
   static getInitialRows() {
     const rows = localStorage.getItem('taylor-rows') || 2;
-    return rows;
+    return Number(rows);
   }
 
   static initializeAdditionalArrowsObject() {
@@ -73,6 +78,7 @@ class TaylorDiagram extends React.PureComponent {
       projectName: TaylorDiagram.getInitialProjectName(),
       isSignedIn: false,
       userUid: '',
+      workSaved: true,
     };
 
     this.generateLatexCode = this.generateLatexCode.bind(this);
@@ -94,8 +100,10 @@ class TaylorDiagram extends React.PureComponent {
       const { key } = this.props.location.state;
       db.onceGetWorks(this.state.userUid).then((snapshot) => {
         const data = snapshot.val()[this.state.userUid][key];
+        localStorage.setItem('taylor-work-id', key);
         localStorage.setItem('taylor-rows', data.rows);
         localStorage.setItem('Taylor-project-name', data.projectName);
+        localStorage.setItem('taylor-columns', JSON.stringify(JSON.parse(data.columnsObject)));
         localStorage.setItem('taylor-text-object', JSON.stringify(JSON.parse(data.textObject)));
         localStorage.setItem('taylor-arrow-object', JSON.stringify(JSON.parse(data.arrowsObject)));
         //localStorage.setItem(
@@ -110,6 +118,7 @@ class TaylorDiagram extends React.PureComponent {
             textObject: JSON.parse(data.textObject),
             columnsObject: JSON.parse(data.columnsObject),
             arrowsObject: JSON.parse(data.arrowsObject),
+            workId: key,
             //additionalArrowsObject: JSON.parse(data.additionalArrowsObject),
           },
           () => {
@@ -139,6 +148,7 @@ class TaylorDiagram extends React.PureComponent {
 
     this.setState(
       {
+        columnsObject: this.initializeColumnsObject(this.state.rows),
         textObject: this.initializeTextObject(this.state.rows, 10),
         arrowsObject: this.initializeArrowObject(this.state.rows, 10),
         additionalArrowsObject: TaylorDiagram.initializeAdditionalArrowsObject(),
@@ -204,7 +214,6 @@ class TaylorDiagram extends React.PureComponent {
     const key = row.toString();
     const obj = this.state.columnsObject;
     obj[key] = Number(columnsNewValue);
-    console.log(columnsNewValue);
     this.setState(
       {
         columnsObject: obj,
@@ -246,7 +255,7 @@ class TaylorDiagram extends React.PureComponent {
   initializeColumnsObject(rows) {
     let columnsObject;
     if (this.state !== undefined && this.state.columnsObject !== undefined) {
-      columnsObject = this.state;
+      columnsObject = this.state.columnsObject;
     } else {
       columnsObject = {};
     }
@@ -292,7 +301,7 @@ class TaylorDiagram extends React.PureComponent {
   initializeArrowObject(rows, maxColumns) {
     let arrowObject;
     if (this.state !== undefined && this.state.arrowObject !== undefined) {
-      arrowObject = this.state;
+      arrowObject = this.state.arrowObject;
     } else {
       arrowObject = {};
     }
@@ -374,7 +383,6 @@ class TaylorDiagram extends React.PureComponent {
   addArrowToObject(row, column, direction, text, text2, type) {
     const key = row.toString() + column.toString();
     const obj = this.state.arrowsObject;
-    console.log(key, obj);
     obj[key][direction].active = true;
     obj[key][direction].text = text;
     obj[key][direction].text2 = text2;
@@ -428,21 +436,30 @@ class TaylorDiagram extends React.PureComponent {
   }
 
   writeToFirebase(workId) {
-    db.writeDiagramToDatabase(
-      this.state.userUid,
-      workId,
-      this.state.projectName,
-      'taylor',
-      this.state.rows,
-      this.state.textObject,
-      this.state.columnsObject,
-      this.state.arrowsObject,
-      this.state.additionalArrowsObject,
-    );
+    db
+      .writeDiagramToDatabase(
+        this.state.userUid,
+        workId,
+        this.state.projectName,
+        'taylor',
+        this.state.rows,
+        this.state.textObject,
+        this.state.columnsObject,
+        this.state.arrowsObject,
+        this.state.additionalArrowsObject,
+      )
+      .then(() => {
+        this.setState({
+          workSaved: true,
+        });
+      });
   }
 
   saveTaylor() {
     if (this.state.isSignedIn) {
+      this.setState({
+        workSaved: false,
+      });
       if (this.state.workId === 0) {
         this.updateWorkCount();
       } else {
@@ -702,6 +719,7 @@ class TaylorDiagram extends React.PureComponent {
     const latexCode = <LatexCode code={this.state.latexCode} />;
     const rows = [];
     const { projectName } = this.state;
+
     rows.push(
       <div className="taylor-diagram-size-container" key="first-row-key">
         <div className="taylor-rows-count">
@@ -725,6 +743,8 @@ class TaylorDiagram extends React.PureComponent {
               }}
             />
           </div>
+          {!this.state.workSaved && <div className="loader">Saving...</div>}
+          {this.state.workSaved && <p>Work saved</p>}
           <Symbols />
           <button
             className="basic-button"
@@ -738,12 +758,14 @@ class TaylorDiagram extends React.PureComponent {
       </div>,
     );
     for (let row = 1; row <= this.state.rows; row += 1) {
+      const columns = this.state.columnsObject[row];
       rows.push(
         <TaylorRow
           rowText={JSON.stringify(this.state.textObject)}
           cellTextChanged={this.cellTextChanged}
           key={row}
           row={row}
+          columns={columns}
           arrowObject={JSON.stringify(this.state.arrowsObject)}
           arrowDeleted={(column, direction) => this.arrowDeleted(row, column, direction)}
           arrowStateChanged={(column, direction, text, text2, type) =>

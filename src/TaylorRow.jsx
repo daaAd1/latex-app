@@ -49,6 +49,11 @@ class TaylorRow extends React.PureComponent {
         arrowObject: JSON.parse(nextProps.arrowObject),
       });
     }
+    if (nextProps.columns !== this.state.columns) {
+      this.setState({
+        columns: nextProps.columns,
+      });
+    }
   }
 
   onColumnsChange(event) {

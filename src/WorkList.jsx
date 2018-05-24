@@ -14,13 +14,13 @@ class WorkList extends React.Component {
 
   deleteWork(key) {
     const newState = this.state;
+    const type = this.state.works[key].type;
     newState.works.splice(key, 1);
     this.setState(newState);
-    this.props.deleteWork(key);
+    this.props.deleteWork(key, type);
   }
 
   onClick(key) {
-    const { history } = this.props;
     const { type } = this.props.works[key];
     if (type === 'table') {
       this.props.history.push({
@@ -47,24 +47,22 @@ class WorkList extends React.Component {
         {Object.keys(works).map((key) => (
           <div key={key}>
             {' '}
-            <div onClick={() => this.onClick(key)}>
-              <Card>
-                <CardHeader>
-                  <h2>{works[key].name}</h2>
-                </CardHeader>
-                <CardBody>{works[key].type}</CardBody>
-                <CardFooter>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      this.deleteWork(key);
-                    }}
-                  >
-                    Delete
-                  </button>
-                </CardFooter>
-              </Card>
-            </div>
+            <Card>
+              <CardHeader onClick={() => this.onClick(key)}>
+                <h2>{works[key].projectName}</h2>
+              </CardHeader>
+              <CardBody onClick={() => this.onClick(key)}>{works[key].type}</CardBody>
+              <CardFooter>
+                <button
+                  type="button"
+                  onClick={() => {
+                    this.deleteWork(key);
+                  }}
+                >
+                  Delete
+                </button>
+              </CardFooter>
+            </Card>
           </div>
         ))}
       </div>

@@ -3,7 +3,23 @@ import * as firebase from 'firebase';
 import WorkList from './WorkList';
 import { db } from './firebase';
 
+/*  global localStorage: false, console: false */
+
 class SavedWorks extends React.Component {
+  static setWorkId(key, type) {
+    const storage = localStorage;
+    for (let k = 0; k < storage.length; k += 1) {
+      if (storage.key(k).includes('work-id')) {
+        if (Number(storage.getItem(storage.key(k))) === Number(key)) {
+          localStorage.removeItem(storage.key(k));
+        }
+        if (storage.getItem(storage.key(k)) > key) {
+          localStorage.setItem(storage.key(k), storage.getItem(storage.key(k)) - 1);
+        }
+      }
+    }
+  }
+
   constructor(props) {
     super(props);
 
@@ -32,13 +48,26 @@ class SavedWorks extends React.Component {
     });
   }
 
-  deleteWork(key) {
+  deleteWork(key, type) {
     if (this.state.isSignedIn) {
       db.deleteWork(this.state.userUid, key, this.getWorks).then(() => {
         this.getWorks();
         this.updateOtherWorkIds(key);
+        this.updateWorkCount();
+        SavedWorks.setWorkId(key, type);
       });
     }
+  }
+
+  updateWorkCount() {
+    db.onceGetWorkCount(this.state.userUid).then((snapshot) => {
+      const workCount = snapshot.val().newWorkCount;
+      if (workCount === 1) {
+        db.writeToWorkCount(this.state.userUid, null);
+      } else {
+        db.writeToWorkCount(this.state.userUid, workCount - 1);
+      }
+    });
   }
 
   updateOtherWorkIds(key) {
@@ -69,8 +98,8 @@ class SavedWorks extends React.Component {
         <h2> List of your saved works </h2>
         {!!works && (
           <WorkList
-            deleteWork={(key) => {
-              this.deleteWork(key);
+            deleteWork={(key, type) => {
+              this.deleteWork(key, type);
             }}
             works={works}
           />

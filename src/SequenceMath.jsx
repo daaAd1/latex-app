@@ -32,7 +32,12 @@ Potom vygeneruje funkcia generateLatexCode nový LaTeX kód a tento kód odošle
 
 class SequenceMath extends React.Component {
   static resetApplicationState() {
-    window.localStorage.clear();
+    for (let key = 0; key < localStorage.length; key += 1) {
+      if (localStorage.key(key).includes('math') || localStorage.key(key).includes('Math')) {
+        localStorage.removeItem(localStorage.key(key));
+        return SequenceMath.resetApplicationState();
+      }
+    }
     window.location.reload();
   }
 
@@ -57,6 +62,7 @@ class SequenceMath extends React.Component {
       workId: SequenceMath.getInitialWorkId(),
       isSignedIn: false,
       userUid: '',
+      workSaved: true,
     };
 
     this.lineClick = this.lineClick.bind(this);
@@ -75,6 +81,7 @@ class SequenceMath extends React.Component {
       const { key } = this.props.location.state;
       db.onceGetWorks(this.state.userUid).then((snapshot) => {
         const data = snapshot.val()[this.state.userUid][key];
+        localStorage.setItem('math-work-id', key);
         localStorage.setItem('Math-project-name', data.projectName);
         localStorage.setItem('math-line-object', JSON.stringify(JSON.parse(data.lines)));
         localStorage.setItem('math-text-object', JSON.stringify(JSON.parse(data.linesText)));
@@ -89,6 +96,7 @@ class SequenceMath extends React.Component {
             lines: JSON.parse(data.lines),
             linesText: JSON.parse(data.linesText),
             annotationObject: JSON.parse(data.annotationObject),
+            workId: key,
           },
           () => {
             this.setState({
@@ -258,19 +266,28 @@ class SequenceMath extends React.Component {
   }
 
   writeToFirebase(workId) {
-    db.writeMathToDatabase(
-      this.state.userUid,
-      workId,
-      this.state.projectName,
-      'math',
-      this.state.lines,
-      this.state.linesText,
-      this.state.annotationObject,
-    );
+    db
+      .writeMathToDatabase(
+        this.state.userUid,
+        workId,
+        this.state.projectName,
+        'math',
+        this.state.lines,
+        this.state.linesText,
+        this.state.annotationObject,
+      )
+      .then(() => {
+        this.setState({
+          workSaved: true,
+        });
+      });
   }
 
   saveSequence() {
     if (this.state.isSignedIn) {
+      this.setState({
+        workSaved: false,
+      });
       if (this.state.workId === 0) {
         this.updateWorkCount();
       } else {
@@ -663,7 +680,6 @@ class SequenceMath extends React.Component {
     let annotation = false;
     if (this.state.lines[position] > 0) {
       annotation = true;
-      console.log('true');
     }
 
     if (!levelNotHighEnough && this.state !== null && this.state.lines[position] > 0) {
@@ -802,6 +818,8 @@ class SequenceMath extends React.Component {
       <div className="sequence-container">
         <div className="sequence-button-symbols-container">
           <Symbols />
+          {!this.state.workSaved && <div className="loader">Saving...</div>}
+          {this.state.workSaved && <p>Work saved</p>}
           <button
             className="basic-button sequence-reset-button"
             type="text"

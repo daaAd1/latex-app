@@ -1,5 +1,6 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, withRouter } from 'react-router-dom';
+import * as firebase from 'firebase';
 import tableIcon from './table.svg';
 import tableActiveIcon from './table-active.svg';
 import taylorIcon from './chart-pie.svg';
@@ -9,7 +10,6 @@ import mathActiveIcon from './sequence-active.svg';
 import SignOutButton from './SignOut';
 import * as routes from './constants/routes';
 import { auth } from './firebase';
-import * as firebase from 'firebase';
 
 /*
 **
@@ -48,6 +48,19 @@ class Nav extends React.Component {
         });
       }
     });
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.location !== undefined) {
+      const { pathname } = nextProps.location;
+      if (pathname === '/table') {
+        this.tableClicked();
+      } else if (pathname === '/math') {
+        this.sequenceClicked();
+      } else if (pathname === '/taylor') {
+        this.taylorClicked();
+      }
+    }
   }
 
   tableClicked() {
@@ -137,4 +150,4 @@ class Nav extends React.Component {
   }
 }
 
-export default Nav;
+export default withRouter(Nav);
