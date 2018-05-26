@@ -751,7 +751,7 @@ class TaylorDiagram extends React.PureComponent {
             type="text"
             onClick={TaylorDiagram.resetApplicationState}
           >
-            Reset taylor
+            Start new diagram
           </button>
         </div>
         <hr className="taylor-separating-line" />

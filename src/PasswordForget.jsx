@@ -1,11 +1,10 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import PasswordChangeForm from './PasswordChange';
 import { auth } from './firebase';
 
 const PasswordForgetPage = () => (
   <div>
-    <h1>Password Forget</h1>
+    <h1 className="password-reset-h1">Reset your password</h1>
     <PasswordForgetForm />
   </div>
 );
@@ -19,6 +18,8 @@ const INITIAL_STATE = {
   error: null,
 };
 
+const emailRegularExpresion = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
 class PasswordForgetForm extends React.Component {
   constructor(props) {
     super(props);
@@ -26,7 +27,7 @@ class PasswordForgetForm extends React.Component {
     this.state = { ...INITIAL_STATE };
   }
 
-  onSubmit = event => {
+  onSubmit = (event) => {
     const { email } = this.state;
 
     auth
@@ -34,7 +35,7 @@ class PasswordForgetForm extends React.Component {
       .then(() => {
         this.setState(() => ({ ...INITIAL_STATE }));
       })
-      .catch(error => {
+      .catch((error) => {
         this.setState(byPropKey('error', error));
       });
 
@@ -43,35 +44,55 @@ class PasswordForgetForm extends React.Component {
 
   render() {
     const { email, error } = this.state;
-
     const isInvalid = email === '';
+    let emailState = '';
+    if (emailRegularExpresion.test(this.state.email)) {
+      emailState = 'password-reset-email-good';
+    }
+    if (
+      (error && error.message.includes('email')) ||
+      (!emailRegularExpresion.test(this.state.email) && this.state.email.length > 0)
+    ) {
+      emailState = 'password-reset-email-not-good';
+    }
 
     return (
       <div>
-        <form onSubmit={this.onSubmit}>
-          <input
-            value={this.state.email}
-            onChange={event => this.setState(byPropKey('email', event.target.value))}
-            type="text"
-            placeholder="Email Address"
-          />
-          <button disabled={isInvalid} type="submit">
+        {error && <p className="password-reset-error-message">{error.message}</p>}
+        <form className="password-reset-form" onSubmit={this.onSubmit}>
+          <label htmlFor="password-reset-email">
+            <p className="password-reset-p">Email</p>
+            <input
+              id="password-reset-email"
+              value={email}
+              onChange={(event) => this.setState(byPropKey('email', event.target.value))}
+              type="text"
+              className={emailState}
+              placeholder="Email Address"
+            />
+            {!emailRegularExpresion.test(this.state.email) &&
+              this.state.email !== '' && (
+                <p className="password-reset-email-invalid">this email is invalid</p>
+              )}
+          </label>
+          <button className="basic-button" disabled={isInvalid} type="submit">
             Reset My Password
           </button>
-
-          {error && <p>{error.message}</p>}
         </form>
-        <PasswordChangeForm />
       </div>
     );
   }
 }
 
-const PasswordForgetLink = () => (
-  <p>
-    <NavLink to="/pw-forget">Forgot Password?</NavLink>
-  </p>
-);
+class PasswordForgetLink extends React.Component {
+  render() {
+    return (
+      <p className="password-forget">
+        <NavLink to="/pw-forget">Forgot Password?</NavLink>
+      </p>
+    );
+  }
+}
 
 export default PasswordForgetPage;
 

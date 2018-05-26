@@ -825,7 +825,7 @@ class SequenceMath extends React.Component {
             type="text"
             onClick={SequenceMath.resetApplicationState}
           >
-            Reset sequence{' '}
+            Start new sequence
           </button>
           <ProjectName
             name={projectName}

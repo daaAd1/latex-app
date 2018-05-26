@@ -919,7 +919,7 @@ class Table extends React.Component {
           </div>
           <div className="table-button-symbols-container">
             <button className="basic-button " type="text" onClick={Table.resetApplicationState}>
-              Reset table
+              Start new table
             </button>
             <Symbols />
             {!this.state.workSaved && <div className="loader">Saving...</div>}

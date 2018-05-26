@@ -21,6 +21,7 @@ class WorkList extends React.Component {
   }
 
   onClick(key) {
+    console.log('hello?');
     const { type } = this.props.works[key];
     if (type === 'table') {
       this.props.history.push({
@@ -48,10 +49,12 @@ class WorkList extends React.Component {
           <div key={key}>
             {' '}
             <Card>
-              <CardHeader onClick={() => this.onClick(key)}>
-                <h2>{works[key].projectName}</h2>
-              </CardHeader>
-              <CardBody onClick={() => this.onClick(key)}>{works[key].type}</CardBody>
+              <div onClick={() => this.onClick(key)}>
+                <CardHeader>
+                  <h2>{works[key].projectName}</h2>
+                </CardHeader>
+                <CardBody>{works[key].type}</CardBody>
+              </div>
               <CardFooter>
                 <button
                   type="button"

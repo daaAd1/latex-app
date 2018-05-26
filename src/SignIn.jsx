@@ -8,7 +8,7 @@ import * as routes from './constants/routes';
 
 const SignInPage = ({ history }) => (
   <div>
-    <h1>SignIn</h1>
+    <h1 className="sign-in-h1">Sign in to your account</h1>
     <SignInForm history={history} />
     <PasswordForgetLink />
     <SignUpLink />
@@ -32,7 +32,7 @@ class SignInForm extends React.Component {
     this.state = { ...INITIAL_STATE };
   }
 
-  onSubmit = event => {
+  onSubmit = (event) => {
     const { email, password } = this.state;
 
     const { history } = this.props;
@@ -43,7 +43,7 @@ class SignInForm extends React.Component {
         this.setState(() => ({ ...INITIAL_STATE }));
         history.push(routes.TABLE);
       })
-      .catch(error => {
+      .catch((error) => {
         this.setState(byPropKey('error', error));
       });
 
@@ -56,24 +56,32 @@ class SignInForm extends React.Component {
     const isInvalid = password === '' || email === '';
 
     return (
-      <form onSubmit={this.onSubmit}>
-        <input
-          value={email}
-          onChange={event => this.setState(byPropKey('email', event.target.value))}
-          type="text"
-          placeholder="Email Address"
-        />
-        <input
-          value={password}
-          onChange={event => this.setState(byPropKey('password', event.target.value))}
-          type="password"
-          placeholder="Password"
-        />
-        <button disabled={isInvalid} type="submit">
+      <form className="sign-in-form" onSubmit={this.onSubmit}>
+        {error && <p className=".sign-in-error-message">{error.message}</p>}
+        <label htmlFor="sign-in-email-label">
+          <p className="sign-in-p">Email</p>
+          <input
+            id="sign-in-email-label"
+            value={email}
+            onChange={(event) => this.setState(byPropKey('email', event.target.value))}
+            type="text"
+            placeholder="johnsmith@email.com"
+          />
+        </label>
+        <label htmlFor="sign-in-password-label">
+          <p className="sign-in-p">Password</p>
+          <input
+            id="sign-in-password-label"
+            value={password}
+            onChange={(event) => this.setState(byPropKey('password', event.target.value))}
+            type="password"
+            placeholder="password"
+          />
+        </label>
+
+        <button className="basic-button" disabled={isInvalid} type="submit">
           Sign In
         </button>
-
-        {error && <p>{error.message}</p>}
       </form>
     );
   }
