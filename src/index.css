@@ -213,6 +213,10 @@ Header part
 **
 */
 
+header {
+  background-color: #3f51b5;
+}
+
 .header,
 .header:visited,
 .header:active,
@@ -225,12 +229,12 @@ Header part
   color: white;
 }
 
-.docs-link,
-.docs-link:visited,
-.docs-link:active,
-.docs-link:link {
+.header-link,
+.header-link:visited,
+.header-link:active,
+.header-link:link {
   padding-top: 35px;
-  padding-bottom: 20px;
+  padding-bottom: 10px;
   font-size: 20px;
   text-align: right;
   text-decoration: none;
@@ -238,15 +242,12 @@ Header part
 }
 
 .header-container {
-  background-color: #3f51b5;
   color: white;
-}
-
-.header-docs-container {
   display: flex;
   flex-flow: row wrap;
-  justify-content: space-around;
-  width: 100%;
+  justify-content: space-between;
+  width: 90%;
+  margin: 0 auto;
 }
 
 .header-nav-labels {
@@ -294,6 +295,56 @@ Header part
 
 .header-nav-labels > .page-active > a {
   color: coral;
+}
+
+.header-ul {
+  display: flex;
+  flex-flow: row wrap;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.header-div-bigger {
+  padding: 25px 0px 30px 0px;
+}
+
+.header-div {
+  padding-top: 30px;
+}
+
+.header-div-sign-out {
+  padding-top: 15px;
+}
+
+.header-main-nav {
+  padding-top: 10px;
+}
+
+.sign-out-button {
+  background-color: coral;
+  color: white;
+  border: 0;
+  width: 80px;
+  height: 50px;
+  cursor: pointer;
+}
+
+.sign-out-button:hover {
+  -webkit-transition-duration: 0.4s; /* Safari */
+  transition-duration: 0.4s;
+  box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24), 0 17px 50px 0 rgba(0, 0, 0, 0.19);
+  color: white;
+  background-color: coral;
+  box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24), 0 17px 50px 0 rgba(0, 0, 0, 0.19);
+  border: 0px;
+}
+
+.header-div > a:hover,
+.header-nav-labels a:hover {
+  border-bottom: 2px solid coral;
+  text-decoration: none;
 }
 
 /** 
@@ -425,6 +476,10 @@ Table part
   padding-bottom: 1px;
   font-family: 'Roboto', sans-serif;
   font-size: 18px;
+}
+
+.table-form-container input {
+  padding: 3px;
 }
 
 .table-form-container {
@@ -801,22 +856,65 @@ Code container
   height: 70px;
 }
 
-/**
+/*
+**
+Work saved part
+**
+*/
+.work-saved-container {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 20px;
+  color: green;
+  padding-left: 20px;
+  padding-top: 10px;
+}
+
+/*
+**
+Project name part
+**
+*/
+
+.project-name-container {
+  padding-bottom: 10px;
+  padding-right: 10px;
+}
+
+.project-name-container label {
+  display: inline-block;
+  width: 200px;
+  text-align: left;
+  padding-left: 10px;
+  padding-bottom: 1px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 18px;
+  display: flex;
+  flex-flow: column wrap;
+}
+
+.project-name-container input {
+  padding: 3px;
+  border: 1px solid black;
+}
+
+/*
 **
 Symbol container
 **
 */
 
 .symbol-container {
-  padding: 10px 10px 0px 0px;
   font-family: 'Roboto Mono', monospace;
   font-size: 20px;
   text-align: left;
-  padding: 10px 20px;
+  padding: 20px 20px;
   overflow-x: auto;
   white-space: nowrap;
   border: 1px solid #3f51b5;
   width: 105px;
+  height: 65px;
+  margin-top: 15px;
+  margin-bottom: 10px;
 }
 
 .symbol-container > pre {
@@ -1312,7 +1410,7 @@ input[type='range']::-ms-fill-lower {
   border-radius: 6px;
 }
 
-@media only screen and (max-width: 1920px) {
+@media only screen and (min-width: 1920px) {
   .code-container {
     font-size: 14px;
   }
@@ -1324,7 +1422,7 @@ input[type='range']::-ms-fill-lower {
   }
 }
 
-@media only screen and (max-width: 1020px) {
+@media all and (max-width: 1020px) {
   .code-container {
     font-size: 12px;
   }
@@ -1341,9 +1439,17 @@ input[type='range']::-ms-fill-lower {
   .table-align-button {
     padding-left: 2px;
   }
+  .header-container {
+    color: white;
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    width: 90%;
+    margin: 0 auto;
+  }
 }
 
-@media only screen and (max-width: 620px) {
+@media all and (max-width: 620px) {
   .code-container {
     font-size: 10px;
   }
@@ -1368,7 +1474,7 @@ input[type='range']::-ms-fill-lower {
     margin-top: 10px;
   }
   .sequence-reset-button {
-    margin-left: 10px;
+    margin-left: 15px;
     margin-top: 15px;
   }
   .taylor-row-container {
@@ -1385,5 +1491,13 @@ input[type='range']::-ms-fill-lower {
   }
   .table-align-button {
     padding-left: 2px;
+  }
+  .header-container {
+    color: white;
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    width: 90%;
+    margin: 0 auto;
   }
 }

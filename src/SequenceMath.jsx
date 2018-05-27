@@ -817,9 +817,12 @@ class SequenceMath extends React.Component {
     return (
       <div className="sequence-container">
         <div className="sequence-button-symbols-container">
+          <ProjectName
+            name={projectName}
+            type="Math"
+            projectNameChanged={this.projectNameChanged}
+          />
           <Symbols />
-          {!this.state.workSaved && <div className="loader">Saving...</div>}
-          {this.state.workSaved && <p>Work saved</p>}
           <button
             className="basic-button sequence-reset-button"
             type="text"
@@ -827,11 +830,10 @@ class SequenceMath extends React.Component {
           >
             Start new sequence
           </button>
-          <ProjectName
-            name={projectName}
-            type="Math"
-            projectNameChanged={this.projectNameChanged}
-          />
+          <div className="work-saved-container">
+            {!this.state.workSaved && <div className="loader">Saving...</div>}
+            {this.state.workSaved && <p>Work saved</p>}
+          </div>
         </div>
         <hr className="sequence-separating-line" />
         {lines}

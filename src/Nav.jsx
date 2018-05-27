@@ -89,63 +89,99 @@ class Nav extends React.Component {
 
   render() {
     return (
-      <div className="header-container">
-        <div className="header-docs-container">
-          <NavLink onClick={this.tableClicked.bind(this)} className="header" exact to="/">
-            LaTeX generator
-          </NavLink>
-          <NavLink className="docs-link" exact to="/docs">
-            Documentation
-          </NavLink>
-          {!this.state.userLoggedIn && <NavLink to={routes.SIGN_IN}>Sign In</NavLink>}
-          {this.state.userLoggedIn && <SignOutButton />}
-          {this.state.userLoggedIn && <NavLink to={routes.SAVED_WORKS}>Saved works </NavLink>}
+      <header>
+        <div className="header-container">
+          <div className="header-div-bigger">
+            <NavLink onClick={this.tableClicked.bind(this)} className="header" exact to="/">
+              LaTeX generator
+            </NavLink>
+          </div>
+          <div className="header-main-nav">
+            <ul className="header-nav">
+              <li>
+                <NavLink onClick={this.tableClicked.bind(this)} exact to="/table">
+                  {!this.state.tableActive && <img src={tableIcon} alt="table-icon" />}
+                  {this.state.tableActive && <img src={tableActiveIcon} alt="table-active-icon" />}
+                </NavLink>
+              </li>
+              <li>
+                <NavLink onClick={this.sequenceClicked.bind(this)} to="/math">
+                  {!this.state.sequenceActive && <img src={mathIcon} alt="math-icon" />}
+                  {this.state.sequenceActive && <img src={mathActiveIcon} alt="math-active-icon" />}
+                </NavLink>
+              </li>
+              <li>
+                <NavLink onClick={this.taylorClicked.bind(this)} to="/taylor">
+                  {!this.state.taylorActive && <img src={taylorIcon} alt="taylor-icon" />}
+                  {this.state.taylorActive && (
+                    <img src={taylorActiveIcon} alt="taylor-active-icon" />
+                  )}
+                </NavLink>
+              </li>
+            </ul>
+            <ul className="header-nav-labels">
+              <li
+                onClick={this.tableClicked.bind(this)}
+                className={this.state.tableActive ? 'table-label page-active' : ' table-label '}
+              >
+                {' '}
+                <NavLink exact to={routes.TABLE}>
+                  Table
+                </NavLink>{' '}
+              </li>
+              <li
+                onClick={this.sequenceClicked.bind(this)}
+                className={this.state.sequenceActive ? 'math-label page-active' : ' math-label '}
+              >
+                {' '}
+                <NavLink to={routes.MATH}>Math</NavLink>{' '}
+              </li>
+              <li
+                onClick={this.taylorClicked.bind(this)}
+                className={this.state.taylorActive ? 'taylor-label page-active' : ' taylor-label '}
+              >
+                <NavLink to={routes.TAYLOR}>Taylor</NavLink>
+              </li>
+            </ul>
+          </div>
+
+          <ul className="header-ul">
+            <li>
+              <div className="header-div">
+                <NavLink className="header-link" exact to="/docs">
+                  Docs
+                </NavLink>
+              </div>
+            </li>
+            {!this.state.userLoggedIn && (
+              <li>
+                <div className="header-div">
+                  <NavLink className="header-link" to={routes.SIGN_IN}>
+                    Sign In
+                  </NavLink>
+                </div>
+              </li>
+            )}
+
+            {this.state.userLoggedIn && (
+              <li>
+                <div className="header-div">
+                  <NavLink className="header-link" to={routes.SAVED_WORKS}>
+                    Saved works{' '}
+                  </NavLink>
+                </div>
+              </li>
+            )}
+            {this.state.userLoggedIn && (
+              <li>
+                <div className="header-div-sign-out">
+                  <SignOutButton />
+                </div>
+              </li>
+            )}
+          </ul>
         </div>
-        <ul className="header-nav">
-          <li>
-            <NavLink onClick={this.tableClicked.bind(this)} exact to="/table">
-              {!this.state.tableActive && <img src={tableIcon} alt="table-icon" />}
-              {this.state.tableActive && <img src={tableActiveIcon} alt="table-active-icon" />}
-            </NavLink>
-          </li>
-          <li>
-            <NavLink onClick={this.sequenceClicked.bind(this)} to="/math">
-              {!this.state.sequenceActive && <img src={mathIcon} alt="math-icon" />}
-              {this.state.sequenceActive && <img src={mathActiveIcon} alt="math-active-icon" />}
-            </NavLink>
-          </li>
-          <li>
-            <NavLink onClick={this.taylorClicked.bind(this)} to="/taylor">
-              {!this.state.taylorActive && <img src={taylorIcon} alt="taylor-icon" />}
-              {this.state.taylorActive && <img src={taylorActiveIcon} alt="taylor-active-icon" />}
-            </NavLink>
-          </li>
-        </ul>
-        <ul className="header-nav-labels">
-          <li
-            onClick={this.tableClicked.bind(this)}
-            className={this.state.tableActive ? 'table-label page-active' : ' table-label '}
-          >
-            {' '}
-            <NavLink exact to={routes.TABLE}>
-              Table
-            </NavLink>{' '}
-          </li>
-          <li
-            onClick={this.sequenceClicked.bind(this)}
-            className={this.state.sequenceActive ? 'math-label page-active' : ' math-label '}
-          >
-            {' '}
-            <NavLink to={routes.MATH}>Math</NavLink>{' '}
-          </li>
-          <li
-            onClick={this.taylorClicked.bind(this)}
-            className={this.state.taylorActive ? 'taylor-label page-active' : ' taylor-label '}
-          >
-            <NavLink to={routes.TAYLOR}>Taylor</NavLink>
-          </li>
-        </ul>
-      </div>
+      </header>
     );
   }
 }

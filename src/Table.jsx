@@ -922,6 +922,8 @@ class Table extends React.Component {
               Start new table
             </button>
             <Symbols />
+          </div>
+          <div className="work-saved-container">
             {!this.state.workSaved && <div className="loader">Saving...</div>}
             {this.state.workSaved && <p>Work saved</p>}
           </div>

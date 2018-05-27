@@ -724,6 +724,13 @@ class TaylorDiagram extends React.PureComponent {
       <div className="taylor-diagram-size-container" key="first-row-key">
         <div className="taylor-rows-count">
           <div className="taylor-size-container">
+            <ProjectName
+              type="Taylor"
+              name={projectName}
+              projectNameChanged={(newValue) => {
+                this.projectNameChanged(newValue);
+              }}
+            />
             <label htmlFor="taylor-rows">Rows: {this.state.rows}</label>
             <div>
               <input
@@ -735,16 +742,7 @@ class TaylorDiagram extends React.PureComponent {
                 onChange={this.onRowsChange}
               />
             </div>
-            <ProjectName
-              type="Taylor"
-              name={projectName}
-              projectNameChanged={(newValue) => {
-                this.projectNameChanged(newValue);
-              }}
-            />
           </div>
-          {!this.state.workSaved && <div className="loader">Saving...</div>}
-          {this.state.workSaved && <p>Work saved</p>}
           <Symbols />
           <button
             className="basic-button"
@@ -753,6 +751,10 @@ class TaylorDiagram extends React.PureComponent {
           >
             Start new diagram
           </button>
+          <div className="work-saved-container">
+            {!this.state.workSaved && <div className="loader">Saving...</div>}
+            {this.state.workSaved && <p>Work saved</p>}
+          </div>
         </div>
         <hr className="taylor-separating-line" />
       </div>,
