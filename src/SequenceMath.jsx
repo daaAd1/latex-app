@@ -42,37 +42,55 @@ class SequenceMath extends React.Component {
   }
 
   static getInitialWorkId() {
-    const workId = localStorage.getItem('math-work-id') || 0;
-    return workId;
+    return localStorage.getItem('math-work-id') || 0;
   }
 
   static getInitialProjectName() {
-    const projectName = localStorage.getItem('Math-project-name') || 'Math project';
-    return projectName;
+    return localStorage.getItem('Math-project-name') || 'Math project';
+  }
+
+  static getInitialWorkSaved() {
+    let workSaved = localStorage.getItem('table-work-saved') || true;
+    if (workSaved === 'false') {
+      workSaved = false;
+    } else {
+      workSaved = true;
+    }
+    return workSaved;
+  }
+
+  static getInitialWorkSavedLimitOvereached() {
+    let limitOvereached = localStorage.getItem('table-work-saved-limit-overeached') || false;
+    if (limitOvereached === 'false') {
+      limitOvereached = false;
+    } else {
+      limitOvereached = true;
+    }
+    return limitOvereached;
   }
 
   constructor(props) {
     super(props);
     this.state = {
-      lines: this.getInitialLinesObject(),
+      linesLength: this.getInitialLinesObject(),
       linesText: this.getInitialTextObject(),
-      latexCode: '',
-      annotationObject: this.getInitialAnnotationObject(),
+      annotations: this.getInitialAnnotations(),
       projectName: SequenceMath.getInitialProjectName(),
-      workId: SequenceMath.getInitialWorkId(),
+      latexCode: '',
       isSignedIn: false,
       userUid: '',
-      workSaved: true,
+      workId: SequenceMath.getInitialWorkId(),
+      workSaved: SequenceMath.getInitialWorkSaved(),
+      workSavedLimitOvereached: SequenceMath.getInitialWorkSavedLimitOvereached(),
     };
 
-    this.lineClick = this.lineClick.bind(this);
-    this.generateLinesObject = this.generateLinesObject.bind(this);
-    this.addTextToObject = this.addTextToObject.bind(this);
     this.generateLatexCode = this.generateLatexCode.bind(this);
-    this.annotationChanged = this.annotationChanged.bind(this);
-    this.addLineToObject = this.addLineToObject.bind(this);
+    this.lineClicked = this.lineClicked.bind(this);
+    this.changeAnnotation = this.changeAnnotation.bind(this);
+    this.changeProjectName = this.changeProjectName.bind(this);
+    this.addTextToObject = this.addTextToObject.bind(this);
+    this.addLineLengthToObject = this.addLineLengthToObject.bind(this);
     this.writeToFirebase = this.writeToFirebase.bind(this);
-    this.projectNameChanged = this.projectNameChanged.bind(this);
     this.saveSequence = this.saveSequence.bind(this);
   }
 
@@ -83,19 +101,19 @@ class SequenceMath extends React.Component {
         const data = snapshot.val()[this.state.userUid][key];
         localStorage.setItem('math-work-id', key);
         localStorage.setItem('Math-project-name', data.projectName);
-        localStorage.setItem('math-line-object', JSON.stringify(JSON.parse(data.lines)));
+        localStorage.setItem('math-line-object', JSON.stringify(JSON.parse(data.linesLength)));
         localStorage.setItem('math-text-object', JSON.stringify(JSON.parse(data.linesText)));
         localStorage.setItem(
           'math-annotation-object',
-          JSON.stringify(JSON.parse(data.annotationObject)),
+          JSON.stringify(JSON.parse(data.annotations)),
         );
 
         this.setState(
           {
             projectName: data.projectName,
-            lines: JSON.parse(data.lines),
+            linesLength: JSON.parse(data.linesLength),
             linesText: JSON.parse(data.linesText),
-            annotationObject: JSON.parse(data.annotationObject),
+            annotations: JSON.parse(data.annotations),
             workId: key,
           },
           () => {
@@ -118,7 +136,7 @@ class SequenceMath extends React.Component {
     this.setState(
       {
         linesText: this.generateTextObject(),
-        annotationObject: this.generateAnnotationObject(),
+        annotations: this.generateAnnotations(),
       },
       () => {
         this.setState({
@@ -129,21 +147,15 @@ class SequenceMath extends React.Component {
   }
 
   getInitialLinesObject() {
-    const linesObject =
-      JSON.parse(localStorage.getItem('math-line-object')) || this.generateLinesObject();
-    return linesObject;
+    return JSON.parse(localStorage.getItem('math-line-object')) || this.createLinesLengthObject();
   }
 
   getInitialTextObject() {
-    const textObject =
-      JSON.parse(localStorage.getItem('math-text-object')) || this.generateTextObject();
-    return textObject;
+    return JSON.parse(localStorage.getItem('math-text-object')) || this.generateTextObject();
   }
 
-  getInitialAnnotationObject() {
-    const annotObject =
-      JSON.parse(localStorage.getItem('math-annotation-object')) || this.generateAnnotationObject();
-    return annotObject;
+  getInitialAnnotations() {
+    return JSON.parse(localStorage.getItem('math-annotation-object')) || this.generateAnnotations();
   }
 
   generateTextObject() {
@@ -214,13 +226,13 @@ class SequenceMath extends React.Component {
     return initialObject;
   }
 
-  addLineToObject(level, levelCell, length) {
+  addLineLengthToObject(level, levelCell, length) {
     const key = level.toString() + levelCell.toString();
-    const obj = this.state.lines;
+    const obj = this.state.linesLength;
     obj[key] = length;
     this.setState(
       {
-        lines: obj,
+        linesLength: obj,
       },
       () => {
         this.setState({
@@ -251,17 +263,28 @@ class SequenceMath extends React.Component {
   updateWorkCount() {
     let workCount = 0;
     db.onceGetWorkCount(this.state.userUid).then((snapshot) => {
-      if (snapshot.val() === null) {
-        workCount = 1;
+      if (snapshot.val() !== null && Number(snapshot.val().newWorkCount) > 14) {
+        localStorage.setItem('table-work-saved-limit-overeached', true);
+        this.setState({
+          workSavedLimitOvereached: true,
+        });
       } else {
-        workCount = Number(snapshot.val().newWorkCount) + 1;
+        localStorage.setItem('table-work-saved-limit-overeached', false);
+        this.setState({
+          workSavedLimitOvereached: false,
+        });
+        if (snapshot.val() === null) {
+          workCount = 1;
+        } else {
+          workCount = Number(snapshot.val().newWorkCount) + 1;
+        }
+        db.writeToWorkCount(this.state.userUid, workCount);
+        this.setState({
+          workId: workCount,
+        });
+        localStorage.setItem('math-work-id', Number(workCount));
+        this.writeToFirebase(workCount);
       }
-      db.writeToWorkCount(this.state.userUid, workCount);
-      this.setState({
-        workId: workCount,
-      });
-      localStorage.setItem('math-work-id', Number(workCount));
-      this.writeToFirebase(workCount);
     });
   }
 
@@ -272,11 +295,12 @@ class SequenceMath extends React.Component {
         workId,
         this.state.projectName,
         'math',
-        this.state.lines,
+        this.state.linesLength,
         this.state.linesText,
-        this.state.annotationObject,
+        this.state.annotations,
       )
       .then(() => {
+        localStorage.setItem('table-work-saved', true);
         this.setState({
           workSaved: true,
         });
@@ -285,6 +309,7 @@ class SequenceMath extends React.Component {
 
   saveSequence() {
     if (this.state.isSignedIn) {
+      localStorage.setItem('table-work-saved', false);
       this.setState({
         workSaved: false,
       });
@@ -315,11 +340,11 @@ class SequenceMath extends React.Component {
         if (
           levelCell <= Math.pow(3, level) / 3 &&
           this.state !== undefined &&
-          this.state.annotationObject[position] !== '' &&
-          this.state.annotationObject[position] !== undefined
+          this.state.annotations[position] !== '' &&
+          this.state.annotations[position] !== undefined
         ) {
           if (
-            this.state.lines[position] > 0 &&
+            this.state.linesLength[position] > 0 &&
             this.state.linesText[positionOfText] === '' &&
             this.state.linesText[positionOfTextTwo] === '' &&
             this.state.linesText[positionOfTextThree] === ''
@@ -327,7 +352,7 @@ class SequenceMath extends React.Component {
             row = '     &#92;AxiomC{}';
             middleCode.push(row);
           }
-          row = `     &#92;RightLabel{&#92;scriptsize(${this.state.annotationObject[position]})}`;
+          row = `     &#92;RightLabel{&#92;scriptsize(${this.state.annotations[position]})}`;
           middleCode.push(row);
           row = '';
         }
@@ -341,7 +366,7 @@ class SequenceMath extends React.Component {
           if (level === 4) {
             row = `      &#92;AxiomC{${this.state.linesText[position]}}`;
           } else {
-            let numberOfNodes = this.state.lines[position];
+            let numberOfNodes = this.state.linesLength[position];
             if (numberOfNodes < 1) {
               row = `     &#92;AxiomC{${this.state.linesText[position]}}`;
             } else if (numberOfNodes === 1) {
@@ -373,11 +398,11 @@ class SequenceMath extends React.Component {
           levelCell > Math.pow(3, level) / 3 &&
           levelCell <= Math.pow(3, level) * 2 / 3 &&
           this.state !== undefined &&
-          this.state.annotationObject[position] !== '' &&
-          this.state.annotationObject[position] !== undefined
+          this.state.annotations[position] !== '' &&
+          this.state.annotations[position] !== undefined
         ) {
           if (
-            this.state.lines[position] > 0 &&
+            this.state.linesLength[position] > 0 &&
             this.state.linesText[positionOfText] === '' &&
             this.state.linesText[positionOfTextTwo] === '' &&
             this.state.linesText[positionOfTextThree] === ''
@@ -385,7 +410,7 @@ class SequenceMath extends React.Component {
             row = '     &#92;AxiomC{}';
             middleCode.push(row);
           }
-          row = `     &#92;RightLabel{&#92;scriptsize(${this.state.annotationObject[position]}}`;
+          row = `     &#92;RightLabel{&#92;scriptsize(${this.state.annotations[position]}}`;
           middleCode.push(row);
           row = '';
         }
@@ -400,7 +425,7 @@ class SequenceMath extends React.Component {
           if (level === 4) {
             row = `      &#92;AxiomC{${this.state.linesText[position]}}`;
           } else {
-            let numberOfNodes = this.state.lines[position];
+            let numberOfNodes = this.state.linesLength[position];
             if (numberOfNodes < 1) {
               row = `     &#92;AxiomC{${this.state.linesText[position]}}`;
             } else if (numberOfNodes === 1) {
@@ -430,11 +455,11 @@ class SequenceMath extends React.Component {
         if (
           levelCell > Math.pow(3, level) * 2 / 3 &&
           this.state !== undefined &&
-          this.state.annotationObject[position] !== '' &&
-          this.state.annotationObject[position] !== undefined
+          this.state.annotations[position] !== '' &&
+          this.state.annotations[position] !== undefined
         ) {
           if (
-            this.state.lines[position] > 0 &&
+            this.state.linesLength[position] > 0 &&
             this.state.linesText[positionOfText] === '' &&
             this.state.linesText[positionOfTextTwo] === '' &&
             this.state.linesText[positionOfTextThree] === ''
@@ -442,7 +467,7 @@ class SequenceMath extends React.Component {
             row = '     &#92;AxiomC{}';
             middleCode.push(row);
           }
-          row = `     &#92;RightLabel{&#92;scriptsize(${this.state.annotationObject[position]})}`;
+          row = `     &#92;RightLabel{&#92;scriptsize(${this.state.annotations[position]})}`;
           middleCode.push(row);
           row = '';
         }
@@ -455,7 +480,7 @@ class SequenceMath extends React.Component {
           if (level === 4) {
             row = `      &#92;AxiomC{${this.state.linesText[position]}}`;
           } else {
-            let numberOfNodes = this.state.lines[position];
+            let numberOfNodes = this.state.linesLength[position];
             if (numberOfNodes < 1) {
               row = `     &#92;AxiomC{${this.state.linesText[position]}}`;
             } else if (numberOfNodes === 1) {
@@ -476,10 +501,10 @@ class SequenceMath extends React.Component {
     return [beginCode, middleCode.join('\n'), endCode].join('\n');
   }
 
-  generateLinesObject() {
+  createLinesLengthObject() {
     let initialObject;
     if (this.state !== undefined && this.state.linesObject !== undefined) {
-      initialObject = this.state.lines;
+      initialObject = this.state.linesLength;
     } else {
       initialObject = {};
     }
@@ -491,50 +516,50 @@ class SequenceMath extends React.Component {
         if (level === 0 && levelCell < 2) {
           if (
             this.state !== undefined &&
-            this.state.lines !== undefined &&
+            this.state.linesLength !== undefined &&
             this.state.lines[position] !== undefined
           ) {
-            initialObject[position] = this.state.lines[position];
+            initialObject[position] = this.state.linesLength[position];
           } else {
             initialObject[position] = '';
           }
         } else if (level === 1 && levelCell < 4) {
           if (
             this.state !== undefined &&
-            this.state.lines !== undefined &&
+            this.state.linesLength !== undefined &&
             this.state.lines[position] !== undefined
           ) {
-            initialObject[position] = this.state.lines[position];
+            initialObject[position] = this.state.linesLength[position];
           } else {
             initialObject[position] = '';
           }
         } else if (level === 2 && levelCell < 10) {
           if (
             this.state !== undefined &&
-            this.state.lines !== undefined &&
-            this.state.lines[position] !== undefined
+            this.state.linesLength !== undefined &&
+            this.state.linesLength[position] !== undefined
           ) {
-            initialObject[position] = this.state.lines[position];
+            initialObject[position] = this.state.linesLength[position];
           } else {
             initialObject[position] = '';
           }
         } else if (level === 3 && levelCell < 28) {
           if (
             this.state !== undefined &&
-            this.state.lines !== undefined &&
-            this.state.lines[position] !== undefined
+            this.state.linesLength !== undefined &&
+            this.state.linesLength[position] !== undefined
           ) {
-            initialObject[position] = this.state.lines[position];
+            initialObject[position] = this.state.linesLength[position];
           } else {
             initialObject[position] = '';
           }
         } else if (level === 4) {
           if (
             this.state !== undefined &&
-            this.state.lines !== undefined &&
-            this.state.lines[position] !== undefined
+            this.state.linesLength !== undefined &&
+            this.state.linesLength[position] !== undefined
           ) {
-            initialObject[position] = this.state.lines[position];
+            initialObject[position] = this.state.linesLength[position];
           } else {
             initialObject[position] = '';
           }
@@ -544,10 +569,10 @@ class SequenceMath extends React.Component {
     return initialObject;
   }
 
-  generateAnnotationObject() {
+  generateAnnotations() {
     let initialObject;
-    if (this.state !== undefined && this.state.annotationObject !== undefined) {
-      initialObject = this.state.annotationObject;
+    if (this.state !== undefined && this.state.annotations !== undefined) {
+      initialObject = this.state.annotations;
     } else {
       initialObject = {};
     }
@@ -559,50 +584,50 @@ class SequenceMath extends React.Component {
         if (level === 0 && levelCell < 2) {
           if (
             this.state !== undefined &&
-            this.state.annotationObject !== undefined &&
-            this.state.annotationObject[position] !== undefined
+            this.state.annotations !== undefined &&
+            this.state.annotations[position] !== undefined
           ) {
-            initialObject[position] = this.state.annotationObject[position];
+            initialObject[position] = this.state.annotations[position];
           } else {
             initialObject[position] = '';
           }
         } else if (level === 1 && levelCell < 4) {
           if (
             this.state !== undefined &&
-            this.state.annotationObject !== undefined &&
-            this.state.annotationObject[position] !== undefined
+            this.state.annotations !== undefined &&
+            this.state.annotations[position] !== undefined
           ) {
-            initialObject[position] = this.state.annotationObject[position];
+            initialObject[position] = this.state.annotations[position];
           } else {
             initialObject[position] = '';
           }
         } else if (level === 2 && levelCell < 10) {
           if (
             this.state !== undefined &&
-            this.state.annotationObject !== undefined &&
-            this.state.annotationObject[position] !== undefined
+            this.state.annotations !== undefined &&
+            this.state.annotations[position] !== undefined
           ) {
-            initialObject[position] = this.state.annotationObject[position];
+            initialObject[position] = this.state.annotations[position];
           } else {
             initialObject[position] = '';
           }
         } else if (level === 3 && levelCell < 28) {
           if (
             this.state !== undefined &&
-            this.state.annotationObject !== undefined &&
-            this.state.annotationObject[position] !== undefined
+            this.state.annotations !== undefined &&
+            this.state.annotations[position] !== undefined
           ) {
-            initialObject[position] = this.state.annotationObject[position];
+            initialObject[position] = this.state.annotations[position];
           } else {
             initialObject[position] = '';
           }
         } else if (level === 4) {
           if (
             this.state !== undefined &&
-            this.state.annotationObject !== undefined &&
-            this.state.annotationObject[position] !== undefined
+            this.state.annotations !== undefined &&
+            this.state.annotations[position] !== undefined
           ) {
-            initialObject[position] = this.state.annotationObject[position];
+            initialObject[position] = this.state.annotations[position];
           } else {
             initialObject[position] = '';
           }
@@ -612,13 +637,13 @@ class SequenceMath extends React.Component {
     return initialObject;
   }
 
-  annotationChanged(level, cell, annotText) {
+  changeAnnotation(level, cell, newAnnotationText) {
     const key = level.toString() + cell.toString();
-    const obj = this.state.annotationObject;
-    obj[key] = annotText;
+    const obj = this.state.annotations;
+    obj[key] = newAnnotationText;
     this.setState(
       {
-        annotationObject: obj,
+        annotations: obj,
       },
       () => {
         this.setState({
@@ -629,15 +654,8 @@ class SequenceMath extends React.Component {
     localStorage.setItem('math-annotation-object', JSON.stringify(obj));
   }
 
-  lineClick(level, cell, length) {
-    if (
-      this.state.lines[level.toString() + cell.toString()] === 'false' ||
-      this.state.lines[level.toString() + cell.toString()] === ''
-    ) {
-      this.addLineToObject(level, cell, length);
-    } else {
-      this.addLineToObject(level, cell, length);
-    }
+  lineClicked(level, cell, length) {
+    this.addLineLengthToObject(level, cell, length);
   }
 
   pushCell(level, cell) {
@@ -649,17 +667,17 @@ class SequenceMath extends React.Component {
 
     if ((cell + 2) % 3 === 0) {
       positionOneLevelDown = (level - 1).toString() + ((cell + 2) / 3).toString();
-      if (this.state.lines[positionOneLevelDown] < 1) {
+      if (this.state.linesLength[positionOneLevelDown] < 1) {
         levelNotHighEnough = true;
       }
     } else if ((cell + 1) % 3 === 0) {
       positionOneLevelDown = (level - 1).toString() + ((cell + 1) / 3).toString();
-      if (this.state.lines[positionOneLevelDown] < 2) {
+      if (this.state.linesLength[positionOneLevelDown] < 2) {
         levelNotHighEnough = true;
       }
     } else if (cell % 3 === 0) {
       positionOneLevelDown = (level - 1).toString() + (cell / 3).toString();
-      if (this.state.lines[positionOneLevelDown] < 3) {
+      if (this.state.linesLength[positionOneLevelDown] < 3) {
         levelNotHighEnough = true;
       }
     }
@@ -672,17 +690,17 @@ class SequenceMath extends React.Component {
     const positionChildrenThree = (level + 1).toString() + (cell * 3 - 2).toString();
 
     let annotationText = '';
-    if (this.state !== undefined && this.state.annotationObject !== undefined) {
-      annotationText = this.state.annotationObject[position];
+    if (this.state !== undefined && this.state.annotations !== undefined) {
+      annotationText = this.state.annotations[position];
     }
     const inputText = this.state.linesText[position];
-    const length = this.state.lines[position];
+    const length = this.state.linesLength[position];
     let annotation = false;
-    if (this.state.lines[position] > 0) {
+    if (this.state.linesLength[position] > 0) {
       annotation = true;
     }
 
-    if (!levelNotHighEnough && this.state !== null && this.state.lines[position] > 0) {
+    if (!levelNotHighEnough && this.state !== null && this.state.linesLength[position] > 0) {
       return (
         <div key={position} className="sequence-level-cells">
           <SequenceMathLine
@@ -692,8 +710,8 @@ class SequenceMath extends React.Component {
             length={length}
             level={level}
             cell={cell}
-            onClick={(length) => this.lineClick(level, cell, length)}
-            annotationChanged={this.annotationChanged}
+            onClick={(length) => this.lineClicked(level, cell, length)}
+            annotationChanged={this.changeAnnotation}
             annotationText={annotationText}
             annotation={annotation}
             clicked
@@ -704,7 +722,7 @@ class SequenceMath extends React.Component {
     } else if (
       !levelNotHighEnough &&
       this.state !== null &&
-      this.state.lines[positionOneLevelDown] > 0
+      this.state.linesLength[positionOneLevelDown] > 0
     ) {
       return (
         <div key={position} className="sequence-level-cells">
@@ -716,8 +734,8 @@ class SequenceMath extends React.Component {
             inputText={inputText}
             length={length}
             annotation={annotation}
-            onClick={(length) => this.lineClick(level, cell, length)}
-            annotationChanged={this.annotationChanged}
+            onClick={(length) => this.lineClicked(level, cell, length)}
+            annotationChanged={this.changeAnnotation}
             annotationText={annotationText}
             clicked={false}
             readonlyText={readonlyText}
@@ -735,8 +753,8 @@ class SequenceMath extends React.Component {
             inputText={inputText}
             length={length}
             annotation={annotation}
-            onClick={(length) => this.lineClick(level, cell, length)}
-            annotationChanged={this.annotationChanged}
+            onClick={(length) => this.lineClicked(level, cell, length)}
+            annotationChanged={this.changeAnnotation}
             annotationText={annotationText}
             clicked={false}
             readonlyText={readonlyText}
@@ -757,7 +775,7 @@ class SequenceMath extends React.Component {
     );
   }
 
-  projectNameChanged(changedName) {
+  changeProjectName(changedName) {
     this.setState(
       {
         projectName: changedName,
@@ -813,15 +831,25 @@ class SequenceMath extends React.Component {
       );
     }
     const { projectName } = this.state;
-
+    let workSavedElement;
+    if (this.state.workSavedLimitOvereached) {
+      workSavedElement = <p className="work-saved-limit">You have already saved 15 works</p>;
+    } else if (this.state.workSaved) {
+      workSavedElement = <p>Work saved</p>;
+    } else {
+      workSavedElement = <div className="loader">Saving...</div>;
+    }
     return (
       <div className="sequence-container">
         <div className="sequence-button-symbols-container">
-          <ProjectName
-            name={projectName}
-            type="Math"
-            projectNameChanged={this.projectNameChanged}
-          />
+          <div className="sequence-name-work-container">
+            <ProjectName
+              name={projectName}
+              type="Math"
+              projectNameChanged={this.changeProjectName}
+            />
+            <div className="work-saved-container">{workSavedElement}</div>
+          </div>
           <Symbols />
           <button
             className="basic-button sequence-reset-button"
@@ -830,10 +858,6 @@ class SequenceMath extends React.Component {
           >
             Start new sequence
           </button>
-          <div className="work-saved-container">
-            {!this.state.workSaved && <div className="loader">Saving...</div>}
-            {this.state.workSaved && <p>Work saved</p>}
-          </div>
         </div>
         <hr className="sequence-separating-line" />
         {lines}

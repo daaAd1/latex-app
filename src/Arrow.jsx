@@ -1,7 +1,7 @@
 import React from 'react';
 import Modal from 'react-modal';
 import closeIcon from './window-close.svg';
-import deleteIcon from './delete.svg';
+import deleteIcon from './delete-red.svg';
 
 /*
 **

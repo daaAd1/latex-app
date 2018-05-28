@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardHeader, CardBody, CardFooter } from 'react-simple-card';
 import { withRouter } from 'react-router-dom';
 import * as routes from './constants/routes';
+import deleteIcon from './delete-coral.svg';
 
 class WorkList extends React.Component {
   constructor(props) {
@@ -12,7 +13,8 @@ class WorkList extends React.Component {
     };
   }
 
-  deleteWork(key) {
+  deleteWork(event, key) {
+    event.stopPropagation();
     const newState = this.state;
     const type = this.state.works[key].type;
     newState.works.splice(key, 1);
@@ -51,20 +53,25 @@ class WorkList extends React.Component {
             <Card>
               <div onClick={() => this.onClick(key)}>
                 <CardHeader>
-                  <h2>{works[key].projectName}</h2>
+                  <div>
+                    <h2>
+                      {key}.
+                      {works[key].projectName} - {works[key].type}
+                    </h2>
+                  </div>
+                  <div>
+                    <button
+                      className="delete-work-button"
+                      type="button"
+                      onClick={(event) => {
+                        this.deleteWork(event, key);
+                      }}
+                    >
+                      <img src={deleteIcon} alt="delete-arrow" />
+                    </button>
+                  </div>
                 </CardHeader>
-                <CardBody>{works[key].type}</CardBody>
               </div>
-              <CardFooter>
-                <button
-                  type="button"
-                  onClick={() => {
-                    this.deleteWork(key);
-                  }}
-                >
-                  Delete
-                </button>
-              </CardFooter>
             </Card>
           </div>
         ))}

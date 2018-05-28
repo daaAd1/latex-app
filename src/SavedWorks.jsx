@@ -95,7 +95,7 @@ class SavedWorks extends React.Component {
     const { works } = this.state;
     return (
       <div>
-        <h2> List of your saved works </h2>
+        <h2 className="saved-works-header"> List of your saved works </h2>
         {!!works && (
           <WorkList
             deleteWork={(key, type) => {

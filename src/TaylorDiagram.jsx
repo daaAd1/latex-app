@@ -42,8 +42,7 @@ class TaylorDiagram extends React.PureComponent {
   }
 
   static getInitialRows() {
-    const rows = localStorage.getItem('taylor-rows') || 2;
-    return Number(rows);
+    return Number(localStorage.getItem('taylor-rows') || 2);
   }
 
   static initializeAdditionalArrowsObject() {
@@ -56,43 +55,60 @@ class TaylorDiagram extends React.PureComponent {
   }
 
   static getInitialWorkId() {
-    const workId = localStorage.getItem('taylor-work-id') || 0;
-    return workId;
+    return localStorage.getItem('taylor-work-id') || 0;
   }
 
   static getInitialProjectName() {
-    const projectName = localStorage.getItem('Taylor-project-name') || 'Taylor project';
-    return projectName;
+    return localStorage.getItem('Taylor-project-name') || 'Taylor project';
+  }
+
+  static getInitialWorkSaved() {
+    let workSaved = localStorage.getItem('table-work-saved') || true;
+    if (workSaved === 'false') {
+      workSaved = false;
+    } else {
+      workSaved = true;
+    }
+    return workSaved;
+  }
+
+  static getInitialWorkSavedLimitOvereached() {
+    let limitOvereached = localStorage.getItem('table-work-saved-limit-overeached') || false;
+    if (limitOvereached === 'false') {
+      limitOvereached = false;
+    } else {
+      limitOvereached = true;
+    }
+    return limitOvereached;
   }
 
   constructor(props) {
     super(props);
     this.state = {
       rows: TaylorDiagram.getInitialRows(),
-      columnsObject: this.getInitialColumns(),
-      latexCode: '',
-      textObject: this.getInitialTextObject(),
-      arrowsObject: this.getInitialArrowObject(),
-      additionalArrowsObject: this.getInitialAdditionalArrowsObject(),
-      workId: TaylorDiagram.getInitialWorkId(),
       projectName: TaylorDiagram.getInitialProjectName(),
+      columnsObject: this.getInitialColumnsObject(),
+      textsObject: this.getInitialTextsObject(),
+      arrowsObject: this.getInitialArrowsObject(),
+      additionalArrowsObject: this.getInitialAdditionalArrowsObject(),
+      latexCode: '',
       isSignedIn: false,
       userUid: '',
-      workSaved: true,
+      workId: TaylorDiagram.getInitialWorkId(),
+      workSaved: TaylorDiagram.getInitialWorkSaved(),
+      workSavedLimitOvereached: TaylorDiagram.getInitialWorkSavedLimitOvereached(),
     };
 
     this.generateLatexCode = this.generateLatexCode.bind(this);
-    this.initializeTextObject = this.initializeTextObject.bind(this);
+    this.changeRows = this.changeRows.bind(this);
+    this.changeColumns = this.changeColumns.bind(this);
+    this.changeCellText = this.changeCellText.bind(this);
+    this.changeProjectName = this.changeProjectName.bind(this);
+    this.checkForArrow = this.checkForArrow.bind(this);
+    this.checkArrowObjectForArrows = this.checkArrowObjectForArrows.bind(this);
     this.addTextToObject = this.addTextToObject.bind(this);
     this.addArrowToObject = this.addArrowToObject.bind(this);
     this.deleteArrowFromObject = this.deleteArrowFromObject.bind(this);
-    this.checkForArrow = this.checkForArrow.bind(this);
-    this.checkArrowObjectForArrows = this.checkArrowObjectForArrows.bind(this);
-    this.onRowsChange = this.onRowsChange.bind(this);
-    this.onColumnsChange = this.onColumnsChange.bind(this);
-    this.cellTextChanged = this.cellTextChanged.bind(this);
-    this.getInitialAdditionalArrowsObject = this.getInitialAdditionalArrowsObject.bind(this);
-    this.projectNameChanged = this.projectNameChanged.bind(this);
   }
 
   componentWillMount() {
@@ -104,7 +120,7 @@ class TaylorDiagram extends React.PureComponent {
         localStorage.setItem('taylor-rows', data.rows);
         localStorage.setItem('Taylor-project-name', data.projectName);
         localStorage.setItem('taylor-columns', JSON.stringify(JSON.parse(data.columnsObject)));
-        localStorage.setItem('taylor-text-object', JSON.stringify(JSON.parse(data.textObject)));
+        localStorage.setItem('taylor-text-object', JSON.stringify(JSON.parse(data.textsObject)));
         localStorage.setItem('taylor-arrow-object', JSON.stringify(JSON.parse(data.arrowsObject)));
         //localStorage.setItem(
         //  'taylor-additional-arrow-object',
@@ -115,7 +131,7 @@ class TaylorDiagram extends React.PureComponent {
           {
             rows: Number(data.rows),
             projectName: data.projectName,
-            textObject: JSON.parse(data.textObject),
+            textsObject: JSON.parse(data.textsObject),
             columnsObject: JSON.parse(data.columnsObject),
             arrowsObject: JSON.parse(data.arrowsObject),
             workId: key,
@@ -124,7 +140,7 @@ class TaylorDiagram extends React.PureComponent {
           () => {
             this.setState(
               {
-                textObject: this.initializeTextObject(this.state.rows, 10),
+                textsObject: this.initializeTextsObject(this.state.rows, 10),
                 arrowsObject: this.initializeArrowObject(this.state.rows, 10),
               },
               () => {
@@ -149,7 +165,7 @@ class TaylorDiagram extends React.PureComponent {
     this.setState(
       {
         columnsObject: this.initializeColumnsObject(this.state.rows),
-        textObject: this.initializeTextObject(this.state.rows, 10),
+        textsObject: this.initializeTextsObject(this.state.rows, 10),
         arrowsObject: this.initializeArrowObject(this.state.rows, 10),
         additionalArrowsObject: TaylorDiagram.initializeAdditionalArrowsObject(),
       },
@@ -161,12 +177,12 @@ class TaylorDiagram extends React.PureComponent {
     );
   }
 
-  onRowsChange(event) {
+  changeRows(event) {
     if (event.target.value < 1) {
       this.setState(
         {
           rows: 1,
-          textObject: this.initializeTextObject(1, 10),
+          textsObject: this.initializeTextsObject(1, 10),
           columnsObject: this.initializeColumnsObject(1),
           arrowsObject: this.initializeArrowObject(1, 10),
         },
@@ -181,7 +197,7 @@ class TaylorDiagram extends React.PureComponent {
       this.setState(
         {
           rows: 15,
-          textObject: this.initializeTextObject(15, 10),
+          textsObject: this.initializeTextsObject(15, 10),
           columnsObject: this.initializeColumnsObject(15),
           arrowsObject: this.initializeArrowObject(15, 10),
         },
@@ -196,7 +212,7 @@ class TaylorDiagram extends React.PureComponent {
       this.setState(
         {
           rows: event.target.value,
-          textObject: this.initializeTextObject(event.target.value, 10),
+          textsObject: this.initializeTextsObject(event.target.value, 10),
           columnsObject: this.initializeColumnsObject(event.target.value),
           arrowsObject: this.initializeArrowObject(event.target.value, 10),
         },
@@ -210,7 +226,7 @@ class TaylorDiagram extends React.PureComponent {
     }
   }
 
-  onColumnsChange(row, columnsNewValue) {
+  changeColumns(row, columnsNewValue) {
     const key = row.toString();
     const obj = this.state.columnsObject;
     obj[key] = Number(columnsNewValue);
@@ -227,29 +243,27 @@ class TaylorDiagram extends React.PureComponent {
     localStorage.setItem('taylor-columns', JSON.stringify(obj));
   }
 
-  getInitialColumns() {
-    const columns =
-      JSON.parse(localStorage.getItem('taylor-columns')) || this.initializeColumnsObject(2);
-    return columns;
+  getInitialColumnsObject() {
+    return JSON.parse(localStorage.getItem('taylor-columns')) || this.initializeColumnsObject(2);
   }
 
-  getInitialTextObject() {
-    const textObject =
-      JSON.parse(localStorage.getItem('taylor-text-object')) || this.initializeTextObject(2, 10);
-    return textObject;
+  getInitialTextsObject() {
+    return (
+      JSON.parse(localStorage.getItem('taylor-text-object')) || this.initializeTextsObject(2, 10)
+    );
   }
 
-  getInitialArrowObject() {
-    const arrowObject =
-      JSON.parse(localStorage.getItem('taylor-arrow-object')) || this.initializeArrowObject(2, 10);
-    return arrowObject;
+  getInitialArrowsObject() {
+    return (
+      JSON.parse(localStorage.getItem('taylor-arrow-object')) || this.initializeArrowObject(2, 10)
+    );
   }
 
   getInitialAdditionalArrowsObject() {
-    const additionalArrowsObject =
+    return (
       JSON.parse(localStorage.getItem('taylor-additional-arrow-object')) ||
-      TaylorDiagram.initializeAdditionalArrowsObject();
-    return additionalArrowsObject;
+      TaylorDiagram.initializeAdditionalArrowsObject()
+    );
   }
 
   initializeColumnsObject(rows) {
@@ -274,28 +288,28 @@ class TaylorDiagram extends React.PureComponent {
     return columnsObject;
   }
 
-  initializeTextObject(rows, maxColumns) {
-    let textObject;
-    if (this.state !== undefined && this.state.textObject !== undefined) {
-      textObject = this.state.textObject;
+  initializeTextsObject(rows, maxColumns) {
+    let textsObject;
+    if (this.state !== undefined && this.state.textsObject !== undefined) {
+      textsObject = this.state.textsObject;
     } else {
-      textObject = {};
+      textsObject = {};
     }
     for (let row = 1; row <= rows; row += 1) {
       for (let column = 1; column <= maxColumns; column += 1) {
         const position = row.toString() + column.toString();
         if (
           this.state !== undefined &&
-          this.state.textObject !== undefined &&
-          this.state.textObject[position] !== undefined
+          this.state.textsObject !== undefined &&
+          this.state.textsObject[position] !== undefined
         ) {
-          textObject[position] = this.state.textObject[position];
+          textsObject[position] = this.state.textsObject[position];
         } else {
-          textObject[position] = '';
+          textsObject[position] = '';
         }
       }
     }
-    return textObject;
+    return textsObject;
   }
 
   initializeArrowObject(rows, maxColumns) {
@@ -372,10 +386,10 @@ class TaylorDiagram extends React.PureComponent {
 
   addTextToObject(text, row, column) {
     const key = row.toString() + column.toString();
-    const obj = this.state.textObject;
+    const obj = this.state.textsObject;
     obj[key] = text;
     this.setState({
-      textObject: obj,
+      textsObject: obj,
     });
     localStorage.setItem('taylor-text-object', JSON.stringify(obj));
   }
@@ -421,17 +435,28 @@ class TaylorDiagram extends React.PureComponent {
   updateWorkCount() {
     let workCount = 0;
     db.onceGetWorkCount(this.state.userUid).then((snapshot) => {
-      if (snapshot.val() === null) {
-        workCount = 1;
+      if (snapshot.val() !== null && Number(snapshot.val().newWorkCount) > 14) {
+        localStorage.setItem('table-work-saved-limit-overeached', true);
+        this.setState({
+          workSavedLimitOvereached: true,
+        });
       } else {
-        workCount = Number(snapshot.val().newWorkCount) + 1;
+        localStorage.setItem('table-work-saved-limit-overeached', false);
+        this.setState({
+          workSavedLimitOvereached: false,
+        });
+        if (snapshot.val() === null) {
+          workCount = 1;
+        } else {
+          workCount = Number(snapshot.val().newWorkCount) + 1;
+        }
+        db.writeToWorkCount(this.state.userUid, workCount);
+        this.setState({
+          workId: workCount,
+        });
+        localStorage.setItem('taylor-work-id', Number(workCount));
+        this.writeToFirebase(workCount);
       }
-      db.writeToWorkCount(this.state.userUid, workCount);
-      this.setState({
-        workId: workCount,
-      });
-      localStorage.setItem('taylor-work-id', Number(workCount));
-      this.writeToFirebase(workCount);
     });
   }
 
@@ -443,12 +468,13 @@ class TaylorDiagram extends React.PureComponent {
         this.state.projectName,
         'taylor',
         this.state.rows,
-        this.state.textObject,
+        this.state.textsObject,
         this.state.columnsObject,
         this.state.arrowsObject,
         this.state.additionalArrowsObject,
       )
       .then(() => {
+        localStorage.setItem('table-work-saved', true);
         this.setState({
           workSaved: true,
         });
@@ -457,6 +483,7 @@ class TaylorDiagram extends React.PureComponent {
 
   saveTaylor() {
     if (this.state.isSignedIn) {
+      localStorage.setItem('table-work-saved', false);
       this.setState({
         workSaved: false,
       });
@@ -488,7 +515,7 @@ class TaylorDiagram extends React.PureComponent {
       }
       for (let column = 1; column <= numOfColumns; column += 1) {
         const position = row.toString() + column.toString();
-        if (this.state !== undefined && this.state.textObject !== undefined) {
+        if (this.state !== undefined && this.state.textsObject !== undefined) {
           if (
             this.state.arrowsObject !== undefined &&
             this.state.arrowsObject[position] !== undefined &&
@@ -506,9 +533,9 @@ class TaylorDiagram extends React.PureComponent {
             }
           }
           if (column === 1) {
-            rowText += `   ${this.state.textObject[position]}`;
+            rowText += `   ${this.state.textsObject[position]}`;
           } else {
-            rowText += ` & ${this.state.textObject[position]}`;
+            rowText += ` & ${this.state.textsObject[position]}`;
           }
           // let positionR = (row - 1).toString() + column.toString();
           const positionNextOne = row.toString() + (column + 1).toString();
@@ -683,7 +710,7 @@ class TaylorDiagram extends React.PureComponent {
     }
   }
 
-  cellTextChanged(text, row, column) {
+  changeCellText(text, row, column) {
     this.addTextToObject(text, row, column);
     this.setState({
       latexCode: this.generateLatexCode(),
@@ -704,7 +731,7 @@ class TaylorDiagram extends React.PureComponent {
     });
   }
 
-  projectNameChanged(changedName) {
+  changeProjectName(changedName) {
     this.setState(
       {
         projectName: changedName,
@@ -719,7 +746,14 @@ class TaylorDiagram extends React.PureComponent {
     const latexCode = <LatexCode code={this.state.latexCode} />;
     const rows = [];
     const { projectName } = this.state;
-
+    let workSavedElement;
+    if (this.state.workSavedLimitOvereached) {
+      workSavedElement = <p className="work-saved-limit">You have already saved 15 works</p>;
+    } else if (this.state.workSaved) {
+      workSavedElement = <p>Work saved</p>;
+    } else {
+      workSavedElement = <div className="loader">Saving...</div>;
+    }
     rows.push(
       <div className="taylor-diagram-size-container" key="first-row-key">
         <div className="taylor-rows-count">
@@ -728,7 +762,7 @@ class TaylorDiagram extends React.PureComponent {
               type="Taylor"
               name={projectName}
               projectNameChanged={(newValue) => {
-                this.projectNameChanged(newValue);
+                this.changeProjectName(newValue);
               }}
             />
             <label htmlFor="taylor-rows">Rows: {this.state.rows}</label>
@@ -739,21 +773,20 @@ class TaylorDiagram extends React.PureComponent {
                 min="1"
                 max="15"
                 value={this.state.rows}
-                onChange={this.onRowsChange}
+                onChange={this.changeRows}
               />
             </div>
           </div>
           <Symbols />
-          <button
-            className="basic-button"
-            type="text"
-            onClick={TaylorDiagram.resetApplicationState}
-          >
-            Start new diagram
-          </button>
-          <div className="work-saved-container">
-            {!this.state.workSaved && <div className="loader">Saving...</div>}
-            {this.state.workSaved && <p>Work saved</p>}
+          <div>
+            <button
+              className="basic-button"
+              type="text"
+              onClick={TaylorDiagram.resetApplicationState}
+            >
+              Start new diagram
+            </button>
+            <div className="work-saved-container">{workSavedElement}</div>
           </div>
         </div>
         <hr className="taylor-separating-line" />
@@ -763,8 +796,8 @@ class TaylorDiagram extends React.PureComponent {
       const columns = this.state.columnsObject[row];
       rows.push(
         <TaylorRow
-          rowText={JSON.stringify(this.state.textObject)}
-          cellTextChanged={this.cellTextChanged}
+          rowText={JSON.stringify(this.state.textsObject)}
+          cellTextChanged={this.changeCellText}
           key={row}
           row={row}
           columns={columns}
@@ -773,12 +806,13 @@ class TaylorDiagram extends React.PureComponent {
           arrowStateChanged={(column, direction, text, text2, type) =>
             this.arrowStateChanged(row, column, direction, text, text2, type)
           }
-          onColumnsChange={(columnsNewValue) => this.onColumnsChange(row, columnsNewValue)}
+          onColumnsChange={(columnsNewValue) => this.changeColumns(row, columnsNewValue)}
         >
           {' '}
         </TaylorRow>,
       );
     }
+
     return (
       <div className="taylor-container">
         {rows}
