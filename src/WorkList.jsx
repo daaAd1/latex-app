@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardHeader, CardBody, CardFooter } from 'react-simple-card';
+import { Card, CardHeader } from 'react-simple-card';
 import { withRouter } from 'react-router-dom';
 import * as routes from './constants/routes';
 import deleteIcon from './delete-coral.svg';

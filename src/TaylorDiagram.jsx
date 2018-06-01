@@ -533,7 +533,7 @@ class TaylorDiagram extends React.PureComponent {
             }
           }
           if (column === 1) {
-            rowText += `   ${this.state.textsObject[position]}`;
+            rowText += `${this.state.textsObject[position]}`;
           } else {
             rowText += ` & ${this.state.textsObject[position]}`;
           }
@@ -753,6 +753,9 @@ class TaylorDiagram extends React.PureComponent {
       workSavedElement = <p>Work saved</p>;
     } else {
       workSavedElement = <div className="loader">Saving...</div>;
+    }
+    if (!this.state.isSignedIn) {
+      workSavedElement = '';
     }
     rows.push(
       <div className="taylor-diagram-size-container" key="first-row-key">

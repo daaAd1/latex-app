@@ -146,6 +146,11 @@ class Nav extends React.Component {
           </div>
 
           <ul className="header-ul">
+            {!this.state.userLoggedIn && (
+              <li>
+                <div className="nav-helper-div" />
+              </li>
+            )}
             <li>
               <div className="header-div">
                 <NavLink className="header-link" exact to="/docs">
@@ -153,6 +158,7 @@ class Nav extends React.Component {
                 </NavLink>
               </div>
             </li>
+
             {!this.state.userLoggedIn && (
               <li>
                 <div className="header-div">

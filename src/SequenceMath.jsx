@@ -839,6 +839,9 @@ class SequenceMath extends React.Component {
     } else {
       workSavedElement = <div className="loader">Saving...</div>;
     }
+    if (!this.state.isSignedIn) {
+      workSavedElement = '';
+    }
     return (
       <div className="sequence-container">
         <div className="sequence-button-symbols-container">

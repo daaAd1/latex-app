@@ -928,6 +928,9 @@ class Table extends React.Component {
     } else {
       workSavedElement = <div className="loader">Saving...</div>;
     }
+    if (!this.state.isSignedIn) {
+      workSavedElement = '';
+    }
     return (
       <div className="table-container">
         <div className="table-size-container">

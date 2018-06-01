@@ -30,6 +30,7 @@ class Symbols extends React.PureComponent {
   }
 
   render() {
+    // top, bot, lor, land, rightarrow, leftarrow, \char"1D205, 0x22a2, 0x22a3
     return (
       <div className="symbol-container">
         <pre>
