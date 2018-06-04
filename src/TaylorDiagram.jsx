@@ -1,5 +1,5 @@
 import React from 'react';
-import * as firebase from 'firebase';
+import firebase from 'firebase/app';
 import { withRouter } from 'react-router-dom';
 import LatexCode from './LatexCode';
 import Symbols from './Symbols';
@@ -63,7 +63,7 @@ class TaylorDiagram extends React.PureComponent {
   }
 
   static getInitialWorkSaved() {
-    let workSaved = localStorage.getItem('table-work-saved') || true;
+    let workSaved = localStorage.getItem('taylor-work-saved') || true;
     if (workSaved === 'false') {
       workSaved = false;
     } else {
@@ -73,7 +73,7 @@ class TaylorDiagram extends React.PureComponent {
   }
 
   static getInitialWorkSavedLimitOvereached() {
-    let limitOvereached = localStorage.getItem('table-work-saved-limit-overeached') || false;
+    let limitOvereached = localStorage.getItem('taylor-work-saved-limit-overeached') || false;
     if (limitOvereached === 'false') {
       limitOvereached = false;
     } else {
@@ -102,7 +102,7 @@ class TaylorDiagram extends React.PureComponent {
     this.generateLatexCode = this.generateLatexCode.bind(this);
     this.changeRows = this.changeRows.bind(this);
     this.changeColumns = this.changeColumns.bind(this);
-    this.changeCellText = this.changeCellText.bind(this);
+    this.handleCellTextChange = this.handleCellTextChange.bind(this);
     this.changeProjectName = this.changeProjectName.bind(this);
     this.checkForArrow = this.checkForArrow.bind(this);
     this.checkArrowObjectForArrows = this.checkArrowObjectForArrows.bind(this);
@@ -257,6 +257,13 @@ class TaylorDiagram extends React.PureComponent {
     return (
       JSON.parse(localStorage.getItem('taylor-arrow-object')) || this.initializeArrowObject(2, 10)
     );
+  }
+
+  handleCellTextChange(text, row, column) {
+    this.addTextToObject(text, row, column);
+    this.setState({
+      latexCode: this.generateLatexCode(),
+    });
   }
 
   getInitialAdditionalArrowsObject() {
@@ -436,12 +443,12 @@ class TaylorDiagram extends React.PureComponent {
     let workCount = 0;
     db.onceGetWorkCount(this.state.userUid).then((snapshot) => {
       if (snapshot.val() !== null && Number(snapshot.val().newWorkCount) > 14) {
-        localStorage.setItem('table-work-saved-limit-overeached', true);
+        localStorage.setItem('taylor-work-saved-limit-overeached', true);
         this.setState({
           workSavedLimitOvereached: true,
         });
       } else {
-        localStorage.setItem('table-work-saved-limit-overeached', false);
+        localStorage.setItem('taylor-work-saved-limit-overeached', false);
         this.setState({
           workSavedLimitOvereached: false,
         });
@@ -461,29 +468,27 @@ class TaylorDiagram extends React.PureComponent {
   }
 
   writeToFirebase(workId) {
-    db
-      .writeDiagramToDatabase(
-        this.state.userUid,
-        workId,
-        this.state.projectName,
-        'taylor',
-        this.state.rows,
-        this.state.textsObject,
-        this.state.columnsObject,
-        this.state.arrowsObject,
-        this.state.additionalArrowsObject,
-      )
-      .then(() => {
-        localStorage.setItem('table-work-saved', true);
-        this.setState({
-          workSaved: true,
-        });
+    db.writeDiagramToDatabase(
+      this.state.userUid,
+      workId,
+      this.state.projectName,
+      'taylor',
+      this.state.rows,
+      this.state.textsObject,
+      this.state.columnsObject,
+      this.state.arrowsObject,
+      this.state.additionalArrowsObject,
+    ).then(() => {
+      localStorage.setItem('taylor-work-saved', true);
+      this.setState({
+        workSaved: true,
       });
+    });
   }
 
   saveTaylor() {
     if (this.state.isSignedIn) {
-      localStorage.setItem('table-work-saved', false);
+      localStorage.setItem('taylor-work-saved', false);
       this.setState({
         workSaved: false,
       });
@@ -710,21 +715,14 @@ class TaylorDiagram extends React.PureComponent {
     }
   }
 
-  changeCellText(text, row, column) {
-    this.addTextToObject(text, row, column);
-    this.setState({
-      latexCode: this.generateLatexCode(),
-    });
-  }
-
-  arrowStateChanged(row, column, direction, text, text2, type) {
+  handleArrowChange(row, column, direction, text, text2, type) {
     this.addArrowToObject(row, column, direction, text, text2, type);
     this.setState({
       latexCode: this.generateLatexCode(),
     });
   }
 
-  arrowDeleted(row, column, direction) {
+  handleArrowDelete(row, column, direction) {
     this.deleteArrowFromObject(row, column, direction);
     this.setState({
       latexCode: this.generateLatexCode(),
@@ -754,7 +752,11 @@ class TaylorDiagram extends React.PureComponent {
     } else {
       workSavedElement = <div className="loader">Saving...</div>;
     }
-    if (!this.state.isSignedIn) {
+    if (
+      !this.state.isSignedIn ||
+      (localStorage.getItem('taylor-work-saved') === null &&
+        localStorage.getItem('taylor-saved-limit-overeached') == null)
+    ) {
       workSavedElement = '';
     }
     rows.push(
@@ -800,14 +802,14 @@ class TaylorDiagram extends React.PureComponent {
       rows.push(
         <TaylorRow
           rowText={JSON.stringify(this.state.textsObject)}
-          cellTextChanged={this.changeCellText}
+          onCellTextChange={this.handleCellTextChange}
           key={row}
           row={row}
           columns={columns}
-          arrowObject={JSON.stringify(this.state.arrowsObject)}
-          arrowDeleted={(column, direction) => this.arrowDeleted(row, column, direction)}
-          arrowStateChanged={(column, direction, text, text2, type) =>
-            this.arrowStateChanged(row, column, direction, text, text2, type)
+          arrowPropertiesObject={JSON.stringify(this.state.arrowsObject)}
+          onArrowDelete={(column, direction) => this.handleArrowDelete(row, column, direction)}
+          onArrowChange={(column, direction, text, text2, type) =>
+            this.handleArrowChange(row, column, direction, text, text2, type)
           }
           onColumnsChange={(columnsNewValue) => this.changeColumns(row, columnsNewValue)}
         >

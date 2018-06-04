@@ -1,6 +1,6 @@
 import React from 'react';
 import { withRouter } from 'react-router-dom';
-import * as firebase from 'firebase';
+import firebase from 'firebase/app';
 import LatexCode from './LatexCode';
 import Symbols from './Symbols';
 import TableRows from './TableRows';
@@ -928,7 +928,11 @@ class Table extends React.Component {
     } else {
       workSavedElement = <div className="loader">Saving...</div>;
     }
-    if (!this.state.isSignedIn) {
+    if (
+      !this.state.isSignedIn ||
+      (localStorage.getItem('table-work-saved') === null &&
+        localStorage.getItem('table-work-saved-limit-overeached') == null)
+    ) {
       workSavedElement = '';
     }
     return (

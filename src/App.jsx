@@ -12,6 +12,7 @@ import PasswordForgetPage from './PasswordForget';
 import * as routes from './constants/routes';
 import { firebase } from './firebase';
 import SavedWorksContainer from './SavedWorks';
+import HomePage from './Home';
 
 /*
 **
@@ -49,6 +50,7 @@ class App extends React.Component {
         <div>
           <Nav />
           <div className="content">
+            <Route exact path={routes.HOME} component={() => <HomePage />} />
             <Route exact path={routes.TABLE} component={() => <Table />} />
             <Route exact path={routes.MATH} component={() => <SequenceMath />} />
             <Route exact path={routes.TAYLOR} component={() => <TaylorDiagram />} />

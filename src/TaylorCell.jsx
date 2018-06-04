@@ -28,134 +28,146 @@ class TaylorCell extends React.PureComponent {
     this.state = {
       row: props.row,
       column: props.column,
-      cellText: props.cellText,
-      arrowObject: JSON.parse(props.arrowObject),
+      text: props.text,
+      arrowPropertiesObject: JSON.parse(props.arrowPropertiesObject),
     };
 
-    this.cellTextChanged = this.cellTextChanged.bind(this);
-    this.arrowStateChanged = this.arrowStateChanged.bind(this);
-    this.arrowDeleted = this.arrowDeleted.bind(this);
+    this.handleTextChange = this.handleTextChange.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.cellText !== this.state.cellText) {
-      this.setState({
-        cellText: nextProps.cellText,
-      });
-    }
-    if (nextProps.arrowObject !== JSON.stringify(this.state.arrowObject)) {
-      this.setState({
-        arrowObject: JSON.parse(nextProps.arrowObject),
-      });
+    if (
+      nextProps.text !== this.state.text ||
+      nextProps.arrowPropertiesObject !== JSON.stringify(this.state.arrowPropertiesObject)
+    ) {
+      this.setReceivedProps(nextProps.text, JSON.parse(nextProps.arrowPropertiesObject));
     }
   }
 
-  cellTextChanged(event) {
+  setReceivedProps(text, arrowPropertiesObject) {
     this.setState({
-      cellText: event.target.value,
+      text,
     });
-    this.props.cellTextChanged(event.target.value, this.state.row, this.state.column);
+    this.setState({
+      arrowPropertiesObject,
+    });
   }
 
-  arrowStateChanged(direction, text, text2, type) {
-    this.props.arrowStateChanged(direction, text, text2, type);
-  }
-
-  arrowDeleted(direction) {
-    this.props.arrowDeleted(direction);
+  handleTextChange(event) {
+    const text = event.target.value;
+    this.setState({
+      text,
+    });
+    this.props.onTextChange(text, this.state.row, this.state.column);
   }
 
   render() {
-    const { lu, u, ru, l, r, ld, d, rd } = this.state.arrowObject;
+    const { lu, u, ru, l, r, ld, d, rd } = this.state.arrowPropertiesObject;
     return (
       <div className="taylor-cell-container">
         <div className="taylor-arrow-container">
           <Arrow
-            arrowActive={lu.active}
-            arrowText={lu.text}
-            arrowText2={lu.text2}
-            arrowDirection="lu"
-            arrowDeleted={this.arrowDeleted}
-            arrowActivated={this.arrowStateChanged}
+            isActive={lu.active}
+            text={lu.text}
+            text2={lu.text2}
+            direction="lu"
+            onArrowDelete={(direction) => this.props.onArrowDelete(direction)}
+            onArrowChange={(direction, text, text2, type) =>
+              this.props.onArrowChange(direction, text, text2, type)
+            }
             row={this.state.row}
             column={this.state.column}
           />
           <Arrow
-            arrowActive={u.active}
-            arrowText={u.text}
-            arrowText2={u.text2}
-            arrowDirection="u"
-            arrowDeleted={this.arrowDeleted}
-            arrowActivated={this.arrowStateChanged}
+            isActive={u.active}
+            text={u.text}
+            text2={u.text2}
+            direction="u"
+            onArrowDelete={(direction) => this.props.onArrowDelete(direction)}
+            onArrowChange={(direction, text, text2, type) =>
+              this.props.onArrowChange(direction, text, text2, type)
+            }
             row={this.state.row}
             column={this.state.column}
           />
           <Arrow
-            arrowActive={ru.active}
-            arrowText={ru.text}
-            arrowText2={ru.text2}
-            arrowDirection="ru"
-            arrowDeleted={this.arrowDeleted}
-            arrowActivated={this.arrowStateChanged}
+            isActive={ru.active}
+            text={ru.text}
+            text2={ru.text2}
+            direction="ru"
+            onArrowDelete={(direction) => this.props.onArrowDelete(direction)}
+            onArrowChange={(direction, text, text2, type) =>
+              this.props.onArrowChange(direction, text, text2, type)
+            }
             row={this.state.row}
             column={this.state.column}
           />
           <Arrow
-            arrowActive={l.active}
-            arrowText={l.text}
-            arrowText2={l.text2}
-            arrowDirection="l"
-            arrowDeleted={this.arrowDeleted}
-            arrowActivated={this.arrowStateChanged}
+            isActive={l.active}
+            text={l.text}
+            text2={l.text2}
+            direction="l"
+            onArrowDelete={(direction) => this.props.onArrowDelete(direction)}
+            onArrowChange={(direction, text, text2, type) =>
+              this.props.onArrowChange(direction, text, text2, type)
+            }
             row={this.state.row}
             column={this.state.column}
           />
           <Arrow
-            arrowActive={r.active}
-            arrowText={r.text}
-            arrowText2={r.text2}
-            arrowDirection="r"
-            arrowDeleted={this.arrowDeleted}
-            arrowActivated={this.arrowStateChanged}
+            isActive={r.active}
+            text={r.text}
+            text2={r.text2}
+            direction="r"
+            onArrowDelete={(direction) => this.props.onArrowDelete(direction)}
+            onArrowChange={(direction, text, text2, type) =>
+              this.props.onArrowChange(direction, text, text2, type)
+            }
             row={this.state.row}
             column={this.state.column}
           />
           <Arrow
-            arrowActive={ld.active}
-            arrowText={ld.text}
-            arrowText2={ld.text2}
-            arrowDirection="ld"
-            arrowDeleted={this.arrowDeleted}
-            arrowActivated={this.arrowStateChanged}
+            isActive={ld.active}
+            text={ld.text}
+            text2={ld.text2}
+            direction="ld"
+            onArrowDelete={(direction) => this.props.onArrowDelete(direction)}
+            onArrowChange={(direction, text, text2, type) =>
+              this.props.onArrowChange(direction, text, text2, type)
+            }
             row={this.state.row}
             column={this.state.column}
           />
           <Arrow
-            arrowActive={d.active}
-            arrowText={d.text}
-            arrowText2={d.text2}
-            arrowDirection="d"
-            arrowDeleted={this.arrowDeleted}
-            arrowActivated={this.arrowStateChanged}
+            isActive={d.active}
+            text={d.text}
+            text2={d.text2}
+            direction="d"
+            onArrowDelete={(direction) => this.props.onArrowDelete(direction)}
+            onArrowChange={(direction, text, text2, type) =>
+              this.props.onArrowChange(direction, text, text2, type)
+            }
             row={this.state.row}
             column={this.state.column}
           />
           <Arrow
-            arrowActive={rd.active}
-            arrowText={rd.text}
-            arrowText2={rd.text2}
-            arrowDirection="rd"
-            arrowDeleted={this.arrowDeleted}
-            arrowActivated={this.arrowStateChanged}
+            isActive={rd.active}
+            text={rd.text}
+            text2={rd.text2}
+            direction="rd"
+            onArrowDelete={(direction) => this.props.onArrowDelete(direction)}
+            onArrowChange={(direction, text, text2, type) =>
+              this.props.onArrowChange(direction, text, text2, type)
+            }
             row={this.state.row}
             column={this.state.column}
           />
         </div>
         <TextareaAutosize
           type="text"
-          value={this.state.cellText}
+          value={this.state.text}
           className="taylor-cell-input"
-          onChange={this.cellTextChanged}
+          onChange={this.handleTextChange}
         />
       </div>
     );

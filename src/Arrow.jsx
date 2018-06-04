@@ -45,62 +45,45 @@ class Arrow extends React.PureComponent {
     this.state = {
       row: props.row,
       column: props.column,
-      modalIsOpen: false,
-      arrowDirection: props.arrowDirection,
-      arrowActive: this.getInitialArrowActive(),
-      arrowText: this.getInitialArrowText(),
-      arrowText2: this.getInitialArrowTextTwo(),
-      arrowType: this.getIntialArrowType(),
+      isActive: this.getInitialIsActive(),
+      isModalOpen: false,
+      direction: props.direction,
+      text: this.getInitialText(),
+      text2: this.getInitialTextTwo(),
+      type: this.getIntialType(),
     };
 
-    this.openModal = this.openModal.bind(this);
+    this.handleArrowClick = this.handleArrowClick.bind(this);
     this.closeModal = this.closeModal.bind(this);
-    this.passNewStateToProps = this.passNewStateToProps.bind(this);
     this.deleteArrow = this.deleteArrow.bind(this);
-    this.arrowTextChanged = this.arrowTextChanged.bind(this);
-    this.arrowTextTwoChanged = this.arrowTextTwoChanged.bind(this);
-    this.getInitialArrowActive = this.getInitialArrowActive.bind(this);
-    this.getInitialArrowText = this.getInitialArrowText.bind(this);
-    this.getInitialArrowTextTwo = this.getInitialArrowTextTwo.bind(this);
-    this.getIntialArrowType = this.getIntialArrowType.bind(this);
-    this.onArrowTypeChange = this.onArrowTypeChange.bind(this);
+    this.handleTextChange = this.handleTextChange.bind(this);
+    this.handleTextTwoChange = this.handleTextTwoChange.bind(this);
+    this.handleTypeChange = this.handleTypeChange.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.arrowActive !== this.state.arrowActive) {
-      this.setState({
-        arrowActive: nextProps.arrowActive,
-      });
-    }
-    if (nextProps.arrowText !== this.state.arrowText) {
-      this.setState({
-        arrowText: nextProps.arrowText,
-      });
-    }
-    if (nextProps.arrowText2 !== this.state.arrowText2) {
-      this.setState({
-        arrowText2: nextProps.arrowText2,
-      });
+    const { isActive, text, text2 } = nextProps;
+    if (
+      isActive !== this.state.isActive ||
+      text !== this.state.text ||
+      text2 !== this.state.text2
+    ) {
+      this.setReceivedProps(isActive, text, text2);
     }
   }
 
-  onArrowTypeChange(event) {
-    this.setState(
-      {
-        arrowType: event.target.value,
-      },
-      () => this.passNewStateToProps(),
-    );
-    localStorage.setItem(
-      `taylor-arrow-type-${this.props.arrowDirection}${this.state.row}${this.state.column}`,
-      event.target.value,
-    );
+  setReceivedProps(isActive, text, text2) {
+    this.setState({
+      isActive,
+      text,
+      text2,
+    });
   }
 
-  getInitialArrowActive() {
+  getInitialIsActive() {
     let active =
       localStorage.getItem(
-        `taylor-arrow-activated-${this.props.arrowDirection}${this.props.row}${this.props.column}`,
+        `taylor-arrow-active-${this.props.direction}${this.props.row}${this.props.column}`,
       ) || false;
     if (active === 'true') {
       active = true;
@@ -110,117 +93,154 @@ class Arrow extends React.PureComponent {
     return active;
   }
 
-  getInitialArrowText() {
-    const text =
+  getInitialText() {
+    return (
       localStorage.getItem(
-        `taylor-arrow-text-${this.props.arrowDirection}${this.props.row}${this.props.column}`,
-      ) || '';
-    return text;
+        `taylor-arrow-text-${this.props.direction}${this.props.row}${this.props.column}`,
+      ) || ''
+    );
   }
 
-  getInitialArrowTextTwo() {
-    const text =
+  getInitialTextTwo() {
+    return (
       localStorage.getItem(
-        `taylor-arrow-text-two-${this.props.arrowDirection}${this.props.row}${this.props.column}`,
-      ) || '';
-    return text;
+        `taylor-arrow-text-two-${this.props.direction}${this.props.row}${this.props.column}`,
+      ) || ''
+    );
   }
 
-  getIntialArrowType() {
-    const type =
+  getIntialType() {
+    return (
       localStorage.getItem(
-        `taylor-arrow-type-${this.props.arrowDirection}${this.props.row}${this.props.column}`,
-      ) || 'To';
-    return type;
+        `taylor-arrow-type-${this.props.direction}${this.props.row}${this.props.column}`,
+      ) || 'To'
+    );
   }
 
-  openModal() {
-    if (this.state.arrowActive) {
-      this.setState({
-        modalIsOpen: true,
-      });
+  handleArrowClick() {
+    if (this.state.isActive) {
+      this.openModal();
     } else {
-      this.setState(
-        {
-          arrowActive: true,
-        },
-        () => this.passNewStateToProps(),
-      );
-      localStorage.setItem(
-        `taylor-arrow-activated-${this.props.arrowDirection}${this.state.row}${this.state.column}`,
-        true,
-      );
+      this.activateArrow();
     }
   }
 
-  passNewStateToProps() {
-    const direction = this.state.arrowDirection;
-    const text = this.state.arrowText;
-    const text2 = this.state.arrowText2;
-    const type = this.state.arrowType;
-    this.props.arrowActivated(direction, text, text2, type);
+  openModal() {
+    this.setState({
+      isModalOpen: true,
+    });
   }
 
   closeModal() {
     this.setState({
-      modalIsOpen: false,
+      isModalOpen: false,
     });
   }
 
-  arrowTextChanged(event) {
+  activateArrow() {
     this.setState(
       {
-        arrowText: event.target.value,
+        isActive: true,
       },
-      () => this.passNewStateToProps(),
+      () => this.updateStateInParent(),
     );
+    this.setLocalStorageActive(true);
+  }
+
+  updateStateInParent() {
+    const { direction, text, text2, type } = this.state;
+    this.props.onArrowChange(direction, text, text2, type);
+  }
+
+  setLocalStorageActive(value) {
     localStorage.setItem(
-      `taylor-arrow-text-${this.props.arrowDirection}${this.state.row}${this.state.column}`,
-      event.target.value,
+      `taylor-arrow-active-${this.props.direction}${this.state.row}${this.state.column}`,
+      value,
     );
   }
 
-  arrowTextTwoChanged(event) {
+  deactivateArrow() {
     this.setState(
       {
-        arrowText2: event.target.value,
+        isActive: false,
       },
-      () => this.passNewStateToProps(),
+      () => this.props.onArrowDelete(this.state.direction),
     );
+    this.setLocalStorageActive(false);
+  }
+
+  handleTextChange(event) {
+    const text = event.target.value;
+    this.setState(
+      {
+        text,
+      },
+      () => this.updateStateInParent(),
+    );
+    this.setLocalStorageText(text);
+  }
+
+  setLocalStorageText(value) {
     localStorage.setItem(
-      `taylor-arrow-text-two-${this.props.arrowDirection}${this.state.row}${this.state.column}`,
-      event.target.value,
+      `taylor-arrow-text-${this.props.direction}${this.state.row}${this.state.column}`,
+      value,
+    );
+  }
+
+  handleTextTwoChange(event) {
+    const text2 = event.target.value;
+    this.setState(
+      {
+        text2: event.target.value,
+      },
+      () => this.updateStateInParent(),
+    );
+    this.setLocalStorageTextTwo(text2);
+  }
+
+  setLocalStorageTextTwo(value) {
+    localStorage.setItem(
+      `taylor-arrow-text-two-${this.props.direction}${this.state.row}${this.state.column}`,
+      value,
+    );
+  }
+
+  handleTypeChange(event) {
+    const type = event.target.value;
+    this.setState(
+      {
+        type,
+      },
+      () => this.updateStateInParent(),
+    );
+    this.setLocalStorageType(type);
+  }
+
+  setLocalStorageType(value) {
+    localStorage.setItem(
+      `taylor-arrow-type-${this.props.direction}${this.state.row}${this.state.column}`,
+      value,
     );
   }
 
   deleteArrow() {
-    this.setState(
-      {
-        arrowActive: false,
-        modalIsOpen: false,
-      },
-      () => this.props.arrowDeleted(this.state.arrowDirection),
-    );
-    localStorage.setItem(
-      `taylor-arrow-activated-${this.props.arrowDirection}${this.state.row}${this.state.column}`,
-      false,
-    );
+    this.closeModal();
+    this.deactivateArrow();
   }
 
   render() {
     let className = '';
-    if (this.state.arrowActive) {
-      className = 'arrow-activated';
+    if (this.state.isActive) {
+      className = 'arrow-active';
     }
     return (
       <div>
-        <button onClick={this.openModal} className={className}>
-          {this.state.arrowDirection}
+        <button onClick={this.handleArrowClick} className={className}>
+          {this.state.direction}
         </button>
         <Modal
           ariaHideApp={false}
-          isOpen={this.state.modalIsOpen}
-          onAfterOpen={this.afterOpenModal}
+          isOpen={this.state.isModalOpen}
           onRequestClose={this.closeModal}
           style={customStyles}
           contentLabel="Arrow modal"
@@ -252,104 +272,104 @@ class Arrow extends React.PureComponent {
               <input
                 type="text"
                 id="arrow-text"
-                value={this.state.arrowText}
-                onChange={this.arrowTextChanged}
+                value={this.state.text}
+                onChange={this.handleTextChange}
               />
               <label htmlFor="arrow-text2"> Arrow text 2: </label>
               <input
                 type="text"
                 id="arrow-text2"
-                value={this.state.arrowText2}
-                onChange={this.arrowTextTwoChanged}
+                value={this.state.text2}
+                onChange={this.handleTextTwoChange}
               />
             </div>
             <div className="modal-types">
               <label>Arrow types: </label>
               <div>
                 <input
-                  onChange={this.onArrowTypeChange}
+                  onChange={this.handleTypeChange}
                   type="radio"
                   name="arrow-type"
                   value="To"
                   id="To"
-                  checked={this.state.arrowType === 'To'}
+                  checked={this.state.type === 'To'}
                 />
                 <label htmlFor="To">To</label>
               </div>
               <div>
                 <input
-                  onChange={this.onArrowTypeChange}
+                  onChange={this.handleTypeChange}
                   type="radio"
                   name="arrow-type"
                   value="Mapsto"
                   id="Mapsto"
-                  checked={this.state.arrowType === 'Mapsto'}
+                  checked={this.state.type === 'Mapsto'}
                 />
                 <label htmlFor="Mapsto">Mapsto</label>
               </div>
               <div>
                 <input
-                  onChange={this.onArrowTypeChange}
+                  onChange={this.handleTypeChange}
                   type="radio"
                   name="arrow-type"
                   value="Line"
                   id="Line"
-                  checked={this.state.arrowType === 'Line'}
+                  checked={this.state.type === 'Line'}
                 />
                 <label htmlFor="Line">Line</label>
               </div>
               <div>
                 <input
-                  onChange={this.onArrowTypeChange}
+                  onChange={this.handleTypeChange}
                   type="radio"
                   name="arrow-type"
                   value="Into"
                   id="Into"
-                  checked={this.state.arrowType === 'Into'}
+                  checked={this.state.type === 'Into'}
                 />
                 <label htmlFor="Into">Into</label>
               </div>
               <div>
                 <input
-                  onChange={this.onArrowTypeChange}
+                  onChange={this.handleTypeChange}
                   type="radio"
                   name="arrow-type"
                   value="Onto"
                   id="Onto"
-                  checked={this.state.arrowType === 'Onto'}
+                  checked={this.state.type === 'Onto'}
                 />
                 <label htmlFor="Onto">Onto</label>
               </div>
               <div>
                 <input
-                  onChange={this.onArrowTypeChange}
+                  onChange={this.handleTypeChange}
                   type="radio"
                   name="arrow-type"
                   value="Dotsto"
                   id="Dotsto"
-                  checked={this.state.arrowType === 'Dotsto'}
+                  checked={this.state.type === 'Dotsto'}
                 />
                 <label htmlFor="Dotsto">Dotsto</label>
               </div>
               <div>
                 <input
-                  onChange={this.onArrowTypeChange}
+                  onChange={this.handleTypeChange}
                   type="radio"
                   name="arrow-type"
                   value="Dashto"
                   id="Dashto"
-                  checked={this.state.arrowType === 'Dashto'}
+                  checked={this.state.type === 'Dashto'}
                 />
                 <label htmlFor="Dashto">Dashto</label>
               </div>
               <div>
                 <input
-                  onChange={this.onArrowTypeChange}
+                  onChange={this.handleTypeChange}
                   type="radio"
                   name="arrow-type"
                   value="Implies"
                   id="Implies"
-                  checked={this.state.arrowType === 'Implies'}
+                  checked={this.state.type === 'Implies'}
                 />
                 <label htmlFor="Implies">Implies</label>
               </div>

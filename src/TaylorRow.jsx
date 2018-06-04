@@ -26,7 +26,7 @@ class TaylorRow extends React.PureComponent {
       row: props.row,
       columns: this.getInitialColumns(),
       rowText: this.getInitialRowText(),
-      arrowObject: JSON.parse(props.arrowObject),
+      arrowPropertiesObject: JSON.parse(props.arrowPropertiesObject),
     };
 
     this.onColumnsChange = this.onColumnsChange.bind(this);
@@ -44,9 +44,9 @@ class TaylorRow extends React.PureComponent {
         rowText: JSON.parse(nextProps.rowText),
       });
     }
-    if (nextProps.arrowObject !== JSON.stringify(this.state.arrowObject)) {
+    if (nextProps.arrowPropertiesObject !== JSON.stringify(this.state.arrowPropertiesObject)) {
       this.setState({
-        arrowObject: JSON.parse(nextProps.arrowObject),
+        arrowPropertiesObject: JSON.parse(nextProps.arrowPropertiesObject),
       });
     }
     if (nextProps.columns !== this.state.columns) {
@@ -89,12 +89,12 @@ class TaylorRow extends React.PureComponent {
     return columns;
   }
 
-  arrowStateChanged(column, direction, text, text2, type) {
-    this.props.arrowStateChanged(column, direction, text, text2, type);
+  handleArrowChange(column, direction, text, text2, type) {
+    this.props.onArrowChange(column, direction, text, text2, type);
   }
 
-  arrowDeleted(column, direction) {
-    this.props.arrowDeleted(column, direction);
+  handleArrowDelete(column, direction) {
+    this.props.onArrowDelete(column, direction);
   }
 
   render() {
@@ -105,20 +105,21 @@ class TaylorRow extends React.PureComponent {
       if (this.state !== undefined && this.state.rowText !== undefined) {
         cellText = this.state.rowText[this.state.row.toString() + column.toString()];
       }
-      const arrowObject = this.state.arrowObject[this.state.row.toString() + column.toString()];
-      //console.log(arrowObject);
+      const arrowPropertiesObject = this.state.arrowPropertiesObject[
+        this.state.row.toString() + column.toString()
+      ];
       cells.push(
         <div key={column} className="taylor-cell-container">
           <TaylorCell
-            arrowStateChanged={(direction, text, text2, type) =>
-              this.arrowStateChanged(column, direction, text, text2, type)
+            onArrowChange={(direction, text, text2, type) =>
+              this.handleArrowChange(column, direction, text, text2, type)
             }
-            arrowDeleted={(direction) => this.arrowDeleted(column, direction)}
+            onArrowDelete={(direction) => this.handleArrowDelete(column, direction)}
             row={this.state.row}
             column={column}
-            cellText={cellText}
-            arrowObject={JSON.stringify(arrowObject)}
-            cellTextChanged={this.props.cellTextChanged}
+            text={cellText}
+            arrowPropertiesObject={JSON.stringify(arrowPropertiesObject)}
+            onTextChange={this.props.onCellTextChange}
           />
         </div>,
       );

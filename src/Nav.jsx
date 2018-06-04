@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, withRouter } from 'react-router-dom';
-import * as firebase from 'firebase';
+import firebase from 'firebase/app';
 import tableIcon from './table.svg';
 import tableActiveIcon from './table-active.svg';
 import taylorIcon from './chart-pie.svg';
@@ -41,6 +41,8 @@ class Nav extends React.Component {
   }
 
   componentDidMount() {
+    console.log(auth);
+    console.log(firebase.auth());
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
         this.setState({

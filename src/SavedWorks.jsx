@@ -1,5 +1,5 @@
 import React from 'react';
-import * as firebase from 'firebase';
+import firebase from 'firebase/app';
 import WorkList from './WorkList';
 import { db } from './firebase';
 
@@ -96,6 +96,7 @@ class SavedWorks extends React.Component {
     return (
       <div>
         <h2 className="saved-works-header"> List of your saved works </h2>
+        {works === null && <div className="no-works-saved-container">No works saved</div>}
         {!!works && (
           <WorkList
             deleteWork={(key, type) => {

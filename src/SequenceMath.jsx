@@ -1,5 +1,5 @@
 import React from 'react';
-import * as firebase from 'firebase';
+import firebase from 'firebase/app';
 import { withRouter } from 'react-router-dom';
 import LatexCode from './LatexCode';
 import Symbols from './Symbols';
@@ -50,7 +50,7 @@ class SequenceMath extends React.Component {
   }
 
   static getInitialWorkSaved() {
-    let workSaved = localStorage.getItem('table-work-saved') || true;
+    let workSaved = localStorage.getItem('math-work-saved') || true;
     if (workSaved === 'false') {
       workSaved = false;
     } else {
@@ -60,7 +60,7 @@ class SequenceMath extends React.Component {
   }
 
   static getInitialWorkSavedLimitOvereached() {
-    let limitOvereached = localStorage.getItem('table-work-saved-limit-overeached') || false;
+    let limitOvereached = localStorage.getItem('math-work-saved-limit-overeached') || false;
     if (limitOvereached === 'false') {
       limitOvereached = false;
     } else {
@@ -264,12 +264,12 @@ class SequenceMath extends React.Component {
     let workCount = 0;
     db.onceGetWorkCount(this.state.userUid).then((snapshot) => {
       if (snapshot.val() !== null && Number(snapshot.val().newWorkCount) > 14) {
-        localStorage.setItem('table-work-saved-limit-overeached', true);
+        localStorage.setItem('math-work-saved-limit-overeached', true);
         this.setState({
           workSavedLimitOvereached: true,
         });
       } else {
-        localStorage.setItem('table-work-saved-limit-overeached', false);
+        localStorage.setItem('math-work-saved-limit-overeached', false);
         this.setState({
           workSavedLimitOvereached: false,
         });
@@ -300,7 +300,7 @@ class SequenceMath extends React.Component {
         this.state.annotations,
       )
       .then(() => {
-        localStorage.setItem('table-work-saved', true);
+        localStorage.setItem('math-work-saved', true);
         this.setState({
           workSaved: true,
         });
@@ -309,7 +309,7 @@ class SequenceMath extends React.Component {
 
   saveSequence() {
     if (this.state.isSignedIn) {
-      localStorage.setItem('table-work-saved', false);
+      localStorage.setItem('math-work-saved', false);
       this.setState({
         workSaved: false,
       });
@@ -334,9 +334,9 @@ class SequenceMath extends React.Component {
         const positionOfText = (level + 1).toString() + (levelCell * 3).toString();
         const positionOfTextTwo = (level + 1).toString() + (levelCell * 3 - 1).toString();
         const positionOfTextThree = (level + 1).toString() + (levelCell * 3 - 2).toString();
-        const positionOfTextBefore = (level - 1).toString() + (levelCell / 3).toString();
-        const positionOfTextTwoBefore = (level - 1).toString() + ((levelCell + 1) / 3).toString();
-        const positionOfTextThreeBefore = (level - 1).toString() + ((levelCell + 2) / 3).toString();
+        //const positionOfTextBefore = (level - 1).toString() + (levelCell / 3).toString();
+        //const positionOfTextTwoBefore = (level - 1).toString() + ((levelCell + 1) / 3).toString();
+        //const positionOfTextThreeBefore = (level - 1).toString() + ((levelCell + 2) / 3).toString();
         if (
           levelCell <= Math.pow(3, level) / 3 &&
           this.state !== undefined &&
@@ -391,9 +391,9 @@ class SequenceMath extends React.Component {
         const positionOfText = (level + 1).toString() + (levelCell * 3).toString();
         const positionOfTextTwo = (level + 1).toString() + (levelCell * 3 - 1).toString();
         const positionOfTextThree = (level + 1).toString() + (levelCell * 3 - 2).toString();
-        const positionOfTextBefore = (level - 1).toString() + (levelCell / 3).toString();
-        const positionOfTextTwoBefore = (level - 1).toString() + ((levelCell + 1) / 3).toString();
-        const positionOfTextThreeBefore = (level - 1).toString() + ((levelCell + 2) / 3).toString();
+        //const positionOfTextBefore = (level - 1).toString() + (levelCell / 3).toString();
+        //const positionOfTextTwoBefore = (level - 1).toString() + ((levelCell + 1) / 3).toString();
+        //const positionOfTextThreeBefore = (level - 1).toString() + ((levelCell + 2) / 3).toString();
         if (
           levelCell > Math.pow(3, level) / 3 &&
           levelCell <= Math.pow(3, level) * 2 / 3 &&
@@ -449,9 +449,9 @@ class SequenceMath extends React.Component {
         const positionOfText = (level + 1).toString() + (levelCell * 3).toString();
         const positionOfTextTwo = (level + 1).toString() + (levelCell * 3 - 1).toString();
         const positionOfTextThree = (level + 1).toString() + (levelCell * 3 - 2).toString();
-        const positionOfTextBefore = (level - 1).toString() + (levelCell / 3).toString();
-        const positionOfTextTwoBefore = (level - 1).toString() + ((levelCell + 1) / 3).toString();
-        const positionOfTextThreeBefore = (level - 1).toString() + ((levelCell + 2) / 3).toString();
+        //const positionOfTextBefore = (level - 1).toString() + (levelCell / 3).toString();
+        //const positionOfTextTwoBefore = (level - 1).toString() + ((levelCell + 1) / 3).toString();
+        //const positionOfTextThreeBefore = (level - 1).toString() + ((levelCell + 2) / 3).toString();
         if (
           levelCell > Math.pow(3, level) * 2 / 3 &&
           this.state !== undefined &&
@@ -685,9 +685,9 @@ class SequenceMath extends React.Component {
     if (this.state.linesText[positionOneLevelDown] !== '') {
       readonlyText = false;
     }
-    const positionChildrenOne = (level + 1).toString() + (cell * 3).toString();
-    const positionChildrenTwo = (level + 1).toString() + (cell * 3 - 1).toString();
-    const positionChildrenThree = (level + 1).toString() + (cell * 3 - 2).toString();
+    //const positionChildrenOne = (level + 1).toString() + (cell * 3).toString();
+    //const positionChildrenTwo = (level + 1).toString() + (cell * 3 - 1).toString();
+    //const positionChildrenThree = (level + 1).toString() + (cell * 3 - 2).toString();
 
     let annotationText = '';
     if (this.state !== undefined && this.state.annotations !== undefined) {
@@ -839,7 +839,11 @@ class SequenceMath extends React.Component {
     } else {
       workSavedElement = <div className="loader">Saving...</div>;
     }
-    if (!this.state.isSignedIn) {
+    if (
+      !this.state.isSignedIn ||
+      (localStorage.getItem('math-work-saved') === null &&
+        localStorage.getItem('math-work-saved-limit-overeached') == null)
+    ) {
       workSavedElement = '';
     }
     return (

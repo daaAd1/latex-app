@@ -23,7 +23,6 @@ class WorkList extends React.Component {
   }
 
   onClick(key) {
-    console.log('hello?');
     const { type } = this.props.works[key];
     if (type === 'table') {
       this.props.history.push({
