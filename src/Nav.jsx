@@ -9,7 +9,6 @@ import mathIcon from './sequence.svg';
 import mathActiveIcon from './sequence-active.svg';
 import SignOutButton from './SignOut';
 import * as routes from './constants/routes';
-import { auth } from './firebase';
 
 /*
 **
@@ -41,8 +40,6 @@ class Nav extends React.Component {
   }
 
   componentDidMount() {
-    console.log(auth);
-    console.log(firebase.auth());
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
         this.setState({

@@ -34,11 +34,13 @@ class SavedWorks extends React.Component {
 
   componentDidMount() {
     this.unregisterAuthObserver = firebase.auth().onAuthStateChanged((user) => {
-      this.setState({ isSignedIn: !!user, userUid: user.uid }, () => {
-        db.onceGetWorks(this.state.userUid).then((snapshot) => {
-          this.setState(() => ({ works: snapshot.val() }), () => this.forceUpdate());
+      if (user) {
+        this.setState({ isSignedIn: !!user, userUid: user.uid }, () => {
+          db.onceGetWorks(this.state.userUid).then((snapshot) => {
+            this.setState(() => ({ works: snapshot.val() }), () => this.forceUpdate());
+          });
         });
-      });
+      }
     });
   }
 

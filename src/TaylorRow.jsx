@@ -20,101 +20,91 @@ Taktiež mu posiela dáta pri zmene textu vo vstupnom poli, alebo pri zmene vlas
 /*  global localStorage: false, console: false, */
 
 class TaylorRow extends React.PureComponent {
+  static checkColumnsValue(columns) {
+    if (columns < 1) {
+      return 1;
+    } else if (columns > 10) {
+      return 10;
+    }
+    return columns;
+  }
+
   constructor(props) {
     super(props);
     this.state = {
       row: props.row,
       columns: this.getInitialColumns(),
-      rowText: this.getInitialRowText(),
+      rowTextObject: this.getInitialRowTextObject(),
       arrowPropertiesObject: JSON.parse(props.arrowPropertiesObject),
     };
 
-    this.onColumnsChange = this.onColumnsChange.bind(this);
-  }
-
-  componentDidMount() {
-    this.setState({
-      rowText: this.getInitialRowText(),
-    });
+    this.handleColumnsChange = this.handleColumnsChange.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.rowText !== JSON.stringify(this.state.rowText)) {
-      this.setState({
-        rowText: JSON.parse(nextProps.rowText),
-      });
-    }
-    if (nextProps.arrowPropertiesObject !== JSON.stringify(this.state.arrowPropertiesObject)) {
-      this.setState({
-        arrowPropertiesObject: JSON.parse(nextProps.arrowPropertiesObject),
-      });
-    }
-    if (nextProps.columns !== this.state.columns) {
-      this.setState({
-        columns: nextProps.columns,
-      });
+    const { columns, rowTextObject, arrowPropertiesObject } = nextProps;
+    if (
+      rowTextObject !== JSON.stringify(this.state.rowTextObject) ||
+      arrowPropertiesObject !== JSON.stringify(this.state.arrowPropertiesObject) ||
+      columns !== this.state.columns
+    ) {
+      this.setReceivedProps(columns, JSON.parse(rowTextObject), JSON.parse(arrowPropertiesObject));
     }
   }
 
-  onColumnsChange(event) {
-    if (event.target.value < 1) {
-      this.setState({
-        columns: 1,
-      });
-      this.props.onColumnsChange(1);
-      localStorage.setItem(`taylor-row-columns-${this.props.row}`, 1);
-    } else if (event.target.value > 10) {
-      this.setState({
-        columns: 10,
-      });
-      this.props.onColumnsChange(10);
-      localStorage.setItem(`taylor-row-columns-${this.props.row}`, 10);
-    } else {
-      this.setState({
-        columns: event.target.value,
-      });
-      this.props.onColumnsChange(event.target.value);
-      localStorage.setItem(`taylor-row-columns-${this.props.row}`, event.target.value);
-    }
+  setReceivedProps(columns, rowTextObject, arrowPropertiesObject) {
+    this.setState({
+      columns,
+      rowTextObject,
+      arrowPropertiesObject,
+    });
   }
 
-  getInitialRowText() {
-    const rowText =
-      localStorage.getItem(`taylor-row-text-${this.props.row}`) || JSON.parse(this.props.rowText);
-    return rowText;
+  getInitialRowTextObject() {
+    return (
+      localStorage.getItem(`taylor-row-text-${this.props.row}`) ||
+      JSON.parse(this.props.rowTextObject)
+    );
   }
 
   getInitialColumns() {
-    const columns = localStorage.getItem(`taylor-row-columns-${this.props.row}`) || 3;
-    return columns;
+    return localStorage.getItem(`taylor-row-columns-${this.props.row}`) || 3;
   }
 
-  handleArrowChange(column, direction, text, text2, type) {
-    this.props.onArrowChange(column, direction, text, text2, type);
+  handleColumnsChange(event) {
+    let columns = TaylorRow.checkColumnsValue(event.target.value);
+    this.setStateColumns(columns);
+    this.setLocalStorageColumns(columns);
+    this.props.onColumnsChange(columns);
   }
 
-  handleArrowDelete(column, direction) {
-    this.props.onArrowDelete(column, direction);
+  setStateColumns(columns) {
+    this.setState({
+      columns,
+    });
+  }
+
+  setLocalStorageColumns(columns) {
+    localStorage.setItem(`taylor-row-columns-${this.props.row}`, columns);
   }
 
   render() {
     const cells = [];
-
     for (let column = 1; column <= this.state.columns; column += 1) {
       let cellText = '';
-      if (this.state !== undefined && this.state.rowText !== undefined) {
-        cellText = this.state.rowText[this.state.row.toString() + column.toString()];
+      if (this.state !== undefined && this.state.rowTextObject !== undefined) {
+        cellText = this.state.rowTextObject[this.state.row.toString() + column.toString()];
       }
-      const arrowPropertiesObject = this.state.arrowPropertiesObject[
+      let arrowPropertiesObject = this.state.arrowPropertiesObject[
         this.state.row.toString() + column.toString()
       ];
       cells.push(
         <div key={column} className="taylor-cell-container">
           <TaylorCell
             onArrowChange={(direction, text, text2, type) =>
-              this.handleArrowChange(column, direction, text, text2, type)
+              this.props.onArrowChange(column, direction, text, text2, type)
             }
-            onArrowDelete={(direction) => this.handleArrowDelete(column, direction)}
+            onArrowDelete={(direction) => this.props.onArrowDelete(column, direction)}
             row={this.state.row}
             column={column}
             text={cellText}
@@ -124,6 +114,7 @@ class TaylorRow extends React.PureComponent {
         </div>,
       );
     }
+
     return (
       <div className="taylor-row-container">
         <div className="taylor-row-size">
@@ -135,7 +126,7 @@ class TaylorRow extends React.PureComponent {
               min="1"
               max="10"
               value={this.state.columns}
-              onChange={this.onColumnsChange}
+              onChange={this.handleColumnsChange}
             />
           </label>
         </div>

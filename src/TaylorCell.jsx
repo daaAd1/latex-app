@@ -29,7 +29,7 @@ class TaylorCell extends React.PureComponent {
       row: props.row,
       column: props.column,
       text: props.text,
-      arrowPropertiesObject: JSON.parse(props.arrowPropertiesObject),
+      arrowPropertiesObject: {},
     };
 
     this.handleTextChange = this.handleTextChange.bind(this);
@@ -38,7 +38,8 @@ class TaylorCell extends React.PureComponent {
   componentWillReceiveProps(nextProps) {
     if (
       nextProps.text !== this.state.text ||
-      nextProps.arrowPropertiesObject !== JSON.stringify(this.state.arrowPropertiesObject)
+      (nextProps.arrowPropertiesObject !== JSON.stringify(this.state.arrowPropertiesObject) &&
+        nextProps.arrowPropertiesObject !== undefined)
     ) {
       this.setReceivedProps(nextProps.text, JSON.parse(nextProps.arrowPropertiesObject));
     }
@@ -47,8 +48,6 @@ class TaylorCell extends React.PureComponent {
   setReceivedProps(text, arrowPropertiesObject) {
     this.setState({
       text,
-    });
-    this.setState({
       arrowPropertiesObject,
     });
   }
@@ -62,7 +61,63 @@ class TaylorCell extends React.PureComponent {
   }
 
   render() {
-    const { lu, u, ru, l, r, ld, d, rd } = this.state.arrowPropertiesObject;
+    let {
+      lu, u, ru, l, r, ld, d, rd,
+    } = this.state.arrowPropertiesObject;
+    if (l === undefined) {
+      const arrowsObject = {};
+      arrowsObject.lu = {
+        active: false,
+        text: '',
+        text2: '',
+        type: '',
+      };
+      arrowsObject.u = {
+        active: false,
+        text: '',
+        text2: '',
+        type: '',
+      };
+      arrowsObject.ru = {
+        active: false,
+        text: '',
+        text2: '',
+        type: '',
+      };
+      arrowsObject.l = {
+        active: false,
+        text: '',
+        text2: '',
+        type: '',
+      };
+      arrowsObject.r = {
+        active: false,
+        text: '',
+        text2: '',
+        type: '',
+      };
+      arrowsObject.ld = {
+        active: false,
+        text: '',
+        text2: '',
+        type: '',
+      };
+      arrowsObject.d = {
+        active: false,
+        text: '',
+        text2: '',
+        type: '',
+      };
+      arrowsObject.rd = {
+        active: false,
+        text: '',
+        text2: '',
+        type: '',
+      };
+      ({
+        lu, u, ru, l, r, ld, d, rd,
+      } = arrowsObject);
+    }
     return (
       <div className="taylor-cell-container">
         <div className="taylor-arrow-container">
@@ -71,7 +126,7 @@ class TaylorCell extends React.PureComponent {
             text={lu.text}
             text2={lu.text2}
             direction="lu"
-            onArrowDelete={(direction) => this.props.onArrowDelete(direction)}
+            onArrowDelete={direction => this.props.onArrowDelete(direction)}
             onArrowChange={(direction, text, text2, type) =>
               this.props.onArrowChange(direction, text, text2, type)
             }
@@ -83,7 +138,7 @@ class TaylorCell extends React.PureComponent {
             text={u.text}
             text2={u.text2}
             direction="u"
-            onArrowDelete={(direction) => this.props.onArrowDelete(direction)}
+            onArrowDelete={direction => this.props.onArrowDelete(direction)}
             onArrowChange={(direction, text, text2, type) =>
               this.props.onArrowChange(direction, text, text2, type)
             }
@@ -95,7 +150,7 @@ class TaylorCell extends React.PureComponent {
             text={ru.text}
             text2={ru.text2}
             direction="ru"
-            onArrowDelete={(direction) => this.props.onArrowDelete(direction)}
+            onArrowDelete={direction => this.props.onArrowDelete(direction)}
             onArrowChange={(direction, text, text2, type) =>
               this.props.onArrowChange(direction, text, text2, type)
             }
@@ -107,7 +162,7 @@ class TaylorCell extends React.PureComponent {
             text={l.text}
             text2={l.text2}
             direction="l"
-            onArrowDelete={(direction) => this.props.onArrowDelete(direction)}
+            onArrowDelete={direction => this.props.onArrowDelete(direction)}
             onArrowChange={(direction, text, text2, type) =>
               this.props.onArrowChange(direction, text, text2, type)
             }
@@ -119,7 +174,7 @@ class TaylorCell extends React.PureComponent {
             text={r.text}
             text2={r.text2}
             direction="r"
-            onArrowDelete={(direction) => this.props.onArrowDelete(direction)}
+            onArrowDelete={direction => this.props.onArrowDelete(direction)}
             onArrowChange={(direction, text, text2, type) =>
               this.props.onArrowChange(direction, text, text2, type)
             }
@@ -131,7 +186,7 @@ class TaylorCell extends React.PureComponent {
             text={ld.text}
             text2={ld.text2}
             direction="ld"
-            onArrowDelete={(direction) => this.props.onArrowDelete(direction)}
+            onArrowDelete={direction => this.props.onArrowDelete(direction)}
             onArrowChange={(direction, text, text2, type) =>
               this.props.onArrowChange(direction, text, text2, type)
             }
@@ -143,7 +198,7 @@ class TaylorCell extends React.PureComponent {
             text={d.text}
             text2={d.text2}
             direction="d"
-            onArrowDelete={(direction) => this.props.onArrowDelete(direction)}
+            onArrowDelete={direction => this.props.onArrowDelete(direction)}
             onArrowChange={(direction, text, text2, type) =>
               this.props.onArrowChange(direction, text, text2, type)
             }
@@ -155,7 +210,7 @@ class TaylorCell extends React.PureComponent {
             text={rd.text}
             text2={rd.text2}
             direction="rd"
-            onArrowDelete={(direction) => this.props.onArrowDelete(direction)}
+            onArrowDelete={direction => this.props.onArrowDelete(direction)}
             onArrowChange={(direction, text, text2, type) =>
               this.props.onArrowChange(direction, text, text2, type)
             }

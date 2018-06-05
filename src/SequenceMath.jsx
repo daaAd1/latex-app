@@ -61,10 +61,10 @@ class SequenceMath extends React.Component {
 
   static getInitialWorkSavedLimitOvereached() {
     let limitOvereached = localStorage.getItem('math-work-saved-limit-overeached') || false;
-    if (limitOvereached === 'false') {
-      limitOvereached = false;
-    } else {
+    if (limitOvereached === 'true') {
       limitOvereached = true;
+    } else {
+      limitOvereached = false;
     }
     return limitOvereached;
   }
@@ -94,11 +94,11 @@ class SequenceMath extends React.Component {
     this.saveSequence = this.saveSequence.bind(this);
   }
 
-  componentWillMount() {
+  openExistingDiagram() {
     if (this.props.location !== undefined && this.props.location.state !== undefined) {
       const { key } = this.props.location.state;
       db.onceGetWorks(this.state.userUid).then((snapshot) => {
-        const data = snapshot.val()[this.state.userUid][key];
+        const data = snapshot.val()[key];
         localStorage.setItem('math-work-id', key);
         localStorage.setItem('Math-project-name', data.projectName);
         localStorage.setItem('math-line-object', JSON.stringify(JSON.parse(data.linesLength)));
@@ -129,7 +129,7 @@ class SequenceMath extends React.Component {
   componentDidMount() {
     this.unregisterAuthObserver = firebase.auth().onAuthStateChanged((user) => {
       if (user) {
-        this.setState({ isSignedIn: !!user, userUid: user.uid });
+        this.setState({ isSignedIn: !!user, userUid: user.uid }, () => this.openExistingDiagram());
       }
     });
 
@@ -289,22 +289,20 @@ class SequenceMath extends React.Component {
   }
 
   writeToFirebase(workId) {
-    db
-      .writeMathToDatabase(
-        this.state.userUid,
-        workId,
-        this.state.projectName,
-        'math',
-        this.state.linesLength,
-        this.state.linesText,
-        this.state.annotations,
-      )
-      .then(() => {
-        localStorage.setItem('math-work-saved', true);
-        this.setState({
-          workSaved: true,
-        });
+    db.writeMathToDatabase(
+      this.state.userUid,
+      workId,
+      this.state.projectName,
+      'math',
+      this.state.linesLength,
+      this.state.linesText,
+      this.state.annotations,
+    ).then(() => {
+      localStorage.setItem('math-work-saved', true);
+      this.setState({
+        workSaved: true,
       });
+    });
   }
 
   saveSequence() {
@@ -396,7 +394,7 @@ class SequenceMath extends React.Component {
         //const positionOfTextThreeBefore = (level - 1).toString() + ((levelCell + 2) / 3).toString();
         if (
           levelCell > Math.pow(3, level) / 3 &&
-          levelCell <= Math.pow(3, level) * 2 / 3 &&
+          levelCell <= (Math.pow(3, level) * 2) / 3 &&
           this.state !== undefined &&
           this.state.annotations[position] !== '' &&
           this.state.annotations[position] !== undefined
@@ -417,7 +415,7 @@ class SequenceMath extends React.Component {
 
         if (
           levelCell > Math.pow(3, level) / 3 &&
-          levelCell <= Math.pow(3, level) * 2 / 3 &&
+          levelCell <= (Math.pow(3, level) * 2) / 3 &&
           this.state !== undefined &&
           this.state.linesText[position] !== '' &&
           this.state.linesText[position] !== undefined
@@ -453,7 +451,7 @@ class SequenceMath extends React.Component {
         //const positionOfTextTwoBefore = (level - 1).toString() + ((levelCell + 1) / 3).toString();
         //const positionOfTextThreeBefore = (level - 1).toString() + ((levelCell + 2) / 3).toString();
         if (
-          levelCell > Math.pow(3, level) * 2 / 3 &&
+          levelCell > (Math.pow(3, level) * 2) / 3 &&
           this.state !== undefined &&
           this.state.annotations[position] !== '' &&
           this.state.annotations[position] !== undefined
@@ -472,7 +470,7 @@ class SequenceMath extends React.Component {
           row = '';
         }
         if (
-          levelCell > Math.pow(3, level) * 2 / 3 &&
+          levelCell > (Math.pow(3, level) * 2) / 3 &&
           this.state !== undefined &&
           this.state.linesText[position] !== '' &&
           this.state.linesText[position] !== undefined

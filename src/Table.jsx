@@ -86,10 +86,10 @@ class Table extends React.Component {
 
   static getInitialWorkSavedLimitOvereached() {
     let limitOvereached = localStorage.getItem('table-work-saved-limit-overeached') || false;
-    if (limitOvereached === 'false') {
-      limitOvereached = false;
-    } else {
+    if (limitOvereached === 'true') {
       limitOvereached = true;
+    } else {
+      limitOvereached = false;
     }
     return limitOvereached;
   }
@@ -130,11 +130,11 @@ class Table extends React.Component {
     this.saveTable = this.saveTable.bind(this);
   }
 
-  componentWillMount() {
+  openExistingDiagram() {
     if (this.props.location !== undefined && this.props.location.state !== undefined) {
       const { key } = this.props.location.state;
       db.onceGetWorks(this.state.userUid).then((snapshot) => {
-        const data = snapshot.val()[this.state.userUid][key];
+        const data = snapshot.val()[key];
         localStorage.setItem('table-work-id', key);
         localStorage.setItem('table-rows', Number(data.rows));
         localStorage.setItem('table-columns', Number(data.columns));
@@ -173,7 +173,7 @@ class Table extends React.Component {
   componentDidMount() {
     this.unregisterAuthObserver = firebase.auth().onAuthStateChanged((user) => {
       if (user) {
-        this.setState({ isSignedIn: !!user, userUid: user.uid });
+        this.setState({ isSignedIn: !!user, userUid: user.uid }, () => this.openExistingDiagram());
       }
     });
 
@@ -372,26 +372,24 @@ class Table extends React.Component {
   }
 
   writeToFirebase(workId) {
-    db
-      .writeTableToDatabase(
-        this.state.userUid,
-        workId,
-        this.state.projectName,
-        'table',
-        this.state.rows,
-        this.state.columns,
-        this.state.textsObject,
-        this.state.bordersObject,
-        this.state.alignmentsObject,
-        this.state.caption,
-        this.state.label,
-      )
-      .then(() => {
-        localStorage.setItem('table-work-saved', true);
-        this.setState({
-          workSaved: true,
-        });
+    db.writeTableToDatabase(
+      this.state.userUid,
+      workId,
+      this.state.projectName,
+      'table',
+      this.state.rows,
+      this.state.columns,
+      this.state.textsObject,
+      this.state.bordersObject,
+      this.state.alignmentsObject,
+      this.state.caption,
+      this.state.label,
+    ).then(() => {
+      localStorage.setItem('table-work-saved', true);
+      this.setState({
+        workSaved: true,
       });
+    });
   }
 
   saveTable() {
