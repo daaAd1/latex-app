@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 /*
 **
@@ -58,5 +59,15 @@ class TableLabel extends React.PureComponent {
     );
   }
 }
+
+TableLabel.propTypes = {
+  label: PropTypes.string,
+
+  changeLabel: PropTypes.func.isRequired,
+};
+
+TableLabel.defaultProps = {
+  label: '',
+};
 
 export default TableLabel;

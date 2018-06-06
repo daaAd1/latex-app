@@ -1,6 +1,7 @@
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 import firebase from 'firebase/app';
+import PropTypes from 'prop-types';
 import LatexCode from './LatexCode';
 import Symbols from './Symbols';
 import TableRows from './TableRows';
@@ -162,7 +163,7 @@ class Table extends React.Component {
           },
           () => {
             this.setState({
-              latexCode: this.generateLatexCode(this.state.rows),
+              latexCode: this.generateLatexCode(this.state.rows, this.state.columns),
             });
           },
         );
@@ -972,5 +973,17 @@ class Table extends React.Component {
     );
   }
 }
+
+Table.propTypes = {
+  location: PropTypes.shape({
+    state: PropTypes.shape({
+      key: PropTypes.string,
+    }),
+  }),
+};
+
+Table.defaultProps = {
+  location: {},
+};
 
 export default withRouter(Table);

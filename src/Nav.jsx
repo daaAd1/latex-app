@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink, withRouter } from 'react-router-dom';
 import firebase from 'firebase/app';
+import PropTypes from 'prop-types';
 import tableIcon from './table.svg';
 import tableActiveIcon from './table-active.svg';
 import taylorIcon from './chart-pie.svg';
@@ -190,5 +191,15 @@ class Nav extends React.Component {
     );
   }
 }
+
+Nav.propTypes = {
+  location: PropTypes.shape({
+    pathname: PropTypes.string.isRequired,
+  }),
+};
+
+Nav.defaultProps = {
+  location: {},
+};
 
 export default withRouter(Nav);

@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import TextareaAutosize from 'react-autosize-textarea';
 import Arrow from './Arrow';
 
@@ -61,9 +62,7 @@ class TaylorCell extends React.PureComponent {
   }
 
   render() {
-    let {
-      lu, u, ru, l, r, ld, d, rd,
-    } = this.state.arrowPropertiesObject;
+    let { lu, u, ru, l, r, ld, d, rd } = this.state.arrowPropertiesObject;
     if (l === undefined) {
       const arrowsObject = {};
       arrowsObject.lu = {
@@ -114,9 +113,7 @@ class TaylorCell extends React.PureComponent {
         text2: '',
         type: '',
       };
-      ({
-        lu, u, ru, l, r, ld, d, rd,
-      } = arrowsObject);
+      ({ lu, u, ru, l, r, ld, d, rd } = arrowsObject);
     }
     return (
       <div className="taylor-cell-container">
@@ -126,7 +123,7 @@ class TaylorCell extends React.PureComponent {
             text={lu.text}
             text2={lu.text2}
             direction="lu"
-            onArrowDelete={direction => this.props.onArrowDelete(direction)}
+            onArrowDelete={(direction) => this.props.onArrowDelete(direction)}
             onArrowChange={(direction, text, text2, type) =>
               this.props.onArrowChange(direction, text, text2, type)
             }
@@ -138,7 +135,7 @@ class TaylorCell extends React.PureComponent {
             text={u.text}
             text2={u.text2}
             direction="u"
-            onArrowDelete={direction => this.props.onArrowDelete(direction)}
+            onArrowDelete={(direction) => this.props.onArrowDelete(direction)}
             onArrowChange={(direction, text, text2, type) =>
               this.props.onArrowChange(direction, text, text2, type)
             }
@@ -150,7 +147,7 @@ class TaylorCell extends React.PureComponent {
             text={ru.text}
             text2={ru.text2}
             direction="ru"
-            onArrowDelete={direction => this.props.onArrowDelete(direction)}
+            onArrowDelete={(direction) => this.props.onArrowDelete(direction)}
             onArrowChange={(direction, text, text2, type) =>
               this.props.onArrowChange(direction, text, text2, type)
             }
@@ -162,7 +159,7 @@ class TaylorCell extends React.PureComponent {
             text={l.text}
             text2={l.text2}
             direction="l"
-            onArrowDelete={direction => this.props.onArrowDelete(direction)}
+            onArrowDelete={(direction) => this.props.onArrowDelete(direction)}
             onArrowChange={(direction, text, text2, type) =>
               this.props.onArrowChange(direction, text, text2, type)
             }
@@ -174,7 +171,7 @@ class TaylorCell extends React.PureComponent {
             text={r.text}
             text2={r.text2}
             direction="r"
-            onArrowDelete={direction => this.props.onArrowDelete(direction)}
+            onArrowDelete={(direction) => this.props.onArrowDelete(direction)}
             onArrowChange={(direction, text, text2, type) =>
               this.props.onArrowChange(direction, text, text2, type)
             }
@@ -186,7 +183,7 @@ class TaylorCell extends React.PureComponent {
             text={ld.text}
             text2={ld.text2}
             direction="ld"
-            onArrowDelete={direction => this.props.onArrowDelete(direction)}
+            onArrowDelete={(direction) => this.props.onArrowDelete(direction)}
             onArrowChange={(direction, text, text2, type) =>
               this.props.onArrowChange(direction, text, text2, type)
             }
@@ -198,7 +195,7 @@ class TaylorCell extends React.PureComponent {
             text={d.text}
             text2={d.text2}
             direction="d"
-            onArrowDelete={direction => this.props.onArrowDelete(direction)}
+            onArrowDelete={(direction) => this.props.onArrowDelete(direction)}
             onArrowChange={(direction, text, text2, type) =>
               this.props.onArrowChange(direction, text, text2, type)
             }
@@ -210,7 +207,7 @@ class TaylorCell extends React.PureComponent {
             text={rd.text}
             text2={rd.text2}
             direction="rd"
-            onArrowDelete={direction => this.props.onArrowDelete(direction)}
+            onArrowDelete={(direction) => this.props.onArrowDelete(direction)}
             onArrowChange={(direction, text, text2, type) =>
               this.props.onArrowChange(direction, text, text2, type)
             }
@@ -228,5 +225,21 @@ class TaylorCell extends React.PureComponent {
     );
   }
 }
+
+TaylorCell.propTypes = {
+  text: PropTypes.string,
+  arrowPropertiesObject: PropTypes.string,
+
+  row: PropTypes.number.isRequired,
+  column: PropTypes.number.isRequired,
+  onTextChange: PropTypes.func.isRequired,
+  onArrowChange: PropTypes.func.isRequired,
+  onArrowDelete: PropTypes.func.isRequired,
+};
+
+TaylorCell.defaultProps = {
+  text: '',
+  arrowPropertiesObject: {},
+};
 
 export default TaylorCell;

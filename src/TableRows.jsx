@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 /*
 **
@@ -80,5 +81,15 @@ class TableRows extends React.PureComponent {
     );
   }
 }
+
+TableRows.propTypes = {
+  rows: PropTypes.number,
+
+  rowValue: PropTypes.func.isRequired,
+};
+
+TableRows.defaultProps = {
+  rows: 5,
+};
 
 export default TableRows;

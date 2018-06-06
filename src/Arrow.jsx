@@ -1,5 +1,6 @@
 import React from 'react';
 import Modal from 'react-modal';
+import PropTypes from 'prop-types';
 import closeIcon from './window-close.svg';
 import deleteIcon from './delete-red.svg';
 
@@ -380,5 +381,23 @@ class Arrow extends React.PureComponent {
     );
   }
 }
+
+Arrow.propTypes = {
+  isActive: PropTypes.bool,
+  text: PropTypes.string,
+  text2: PropTypes.string,
+
+  row: PropTypes.number.isRequired,
+  column: PropTypes.number.isRequired,
+  direction: PropTypes.string.isRequired,
+  onArrowChange: PropTypes.func.isRequired,
+  onArrowDelete: PropTypes.func.isRequired,
+};
+
+Arrow.defaultProps = {
+  isActive: false,
+  text: '',
+  text2: '',
+};
 
 export default Arrow;

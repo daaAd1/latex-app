@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 /*
 **
@@ -61,5 +62,15 @@ class TableCaption extends React.PureComponent {
     );
   }
 }
+
+TableCaption.propTypes = {
+  caption: PropTypes.string,
+
+  changeCaption: PropTypes.func.isRequired,
+};
+
+TableCaption.defaultProps = {
+  caption: '',
+};
 
 export default TableCaption;

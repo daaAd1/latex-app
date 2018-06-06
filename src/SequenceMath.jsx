@@ -1,6 +1,7 @@
 import React from 'react';
 import firebase from 'firebase/app';
 import { withRouter } from 'react-router-dom';
+import PropTypes from 'prop-types';
 import LatexCode from './LatexCode';
 import Symbols from './Symbols';
 import SequenceMathLine from './SequenceMathLine';
@@ -364,7 +365,7 @@ class SequenceMath extends React.Component {
           if (level === 4) {
             row = `      &#92;AxiomC{${this.state.linesText[position]}}`;
           } else {
-            let numberOfNodes = this.state.linesLength[position];
+            const numberOfNodes = this.state.linesLength[position];
             if (numberOfNodes < 1) {
               row = `     &#92;AxiomC{${this.state.linesText[position]}}`;
             } else if (numberOfNodes === 1) {
@@ -423,7 +424,7 @@ class SequenceMath extends React.Component {
           if (level === 4) {
             row = `      &#92;AxiomC{${this.state.linesText[position]}}`;
           } else {
-            let numberOfNodes = this.state.linesLength[position];
+            const numberOfNodes = this.state.linesLength[position];
             if (numberOfNodes < 1) {
               row = `     &#92;AxiomC{${this.state.linesText[position]}}`;
             } else if (numberOfNodes === 1) {
@@ -478,7 +479,7 @@ class SequenceMath extends React.Component {
           if (level === 4) {
             row = `      &#92;AxiomC{${this.state.linesText[position]}}`;
           } else {
-            let numberOfNodes = this.state.linesLength[position];
+            const numberOfNodes = this.state.linesLength[position];
             if (numberOfNodes < 1) {
               row = `     &#92;AxiomC{${this.state.linesText[position]}}`;
             } else if (numberOfNodes === 1) {
@@ -692,7 +693,7 @@ class SequenceMath extends React.Component {
       annotationText = this.state.annotations[position];
     }
     const inputText = this.state.linesText[position];
-    const length = this.state.linesLength[position];
+    const length = Number(this.state.linesLength[position]);
     let annotation = false;
     if (this.state.linesLength[position] > 0) {
       annotation = true;
@@ -871,5 +872,17 @@ class SequenceMath extends React.Component {
     );
   }
 }
+
+SequenceMath.propTypes = {
+  location: PropTypes.shape({
+    state: PropTypes.shape({
+      key: PropTypes.string,
+    }),
+  }),
+};
+
+SequenceMath.defaultProps = {
+  location: {},
+};
 
 export default withRouter(SequenceMath);

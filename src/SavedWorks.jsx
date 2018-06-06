@@ -6,7 +6,7 @@ import { db } from './firebase';
 /*  global localStorage: false, console: false */
 
 class SavedWorks extends React.Component {
-  static setWorkId(key, type) {
+  static setWorkId(key) {
     const storage = localStorage;
     for (let k = 0; k < storage.length; k += 1) {
       if (storage.key(k).includes('work-id')) {

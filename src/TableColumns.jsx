@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 /*
 **
@@ -80,5 +81,15 @@ class TableColumns extends React.PureComponent {
     );
   }
 }
+
+TableColumns.propTypes = {
+  columns: PropTypes.number,
+
+  columnValue: PropTypes.func.isRequired,
+};
+
+TableColumns.defaultProps = {
+  columns: 5,
+};
 
 export default TableColumns;

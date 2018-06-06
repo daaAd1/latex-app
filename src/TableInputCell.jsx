@@ -1,5 +1,6 @@
 import React from 'react';
 import TextareaAutosize from 'react-autosize-textarea';
+import PropTypes from 'prop-types';
 
 /*
 **
@@ -69,5 +70,18 @@ class TableInputCell extends React.Component {
     );
   }
 }
+
+TableInputCell.propTypes = {
+  alignment: PropTypes.string,
+
+  row: PropTypes.number.isRequired,
+  column: PropTypes.number.isRequired,
+  text: PropTypes.string.isRequired,
+  changedText: PropTypes.func.isRequired,
+};
+
+TableInputCell.defaultProps = {
+  alignment: 'left',
+};
 
 export default TableInputCell;

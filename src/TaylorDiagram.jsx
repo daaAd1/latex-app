@@ -1,6 +1,7 @@
 import React from 'react';
 import firebase from 'firebase/app';
 import { withRouter } from 'react-router-dom';
+import PropTypes from 'prop-types';
 import LatexCode from './LatexCode';
 import Symbols from './Symbols';
 import TaylorRow from './TaylorRow';
@@ -101,7 +102,7 @@ class TaylorDiagram extends React.PureComponent {
   }
 
   static setLocalStorageArrowObject(obj) {
-    localStorage.setItem('taylor-arrow-object', JSON.stringify(obj));
+    localStorage.setItem('taylor-arrow-object', obj);
   }
 
   static getInitialWorkSavedLimitOvereached() {
@@ -114,6 +115,48 @@ class TaylorDiagram extends React.PureComponent {
     return limitOvereached;
   }
 
+  static checkIfOnLastRow(currentRow, lastRow) {
+    if (currentRow !== lastRow) {
+      return ' &#92;&#92;';
+    }
+    return '';
+  }
+
+  static joinCodeParts(core) {
+    const beginning = '&#92;begin{diagram}';
+    const ending = '&#92;end{diagram}';
+    return [beginning, core.join('\n'), ending].join('\n');
+  }
+
+  static isStringEmpty(string) {
+    return string === '';
+  }
+
+  static isFirstColumn(column) {
+    return column === 1;
+  }
+
+  static isEqualDirection(direction, wantedDirection) {
+    return direction === wantedDirection;
+  }
+
+  static handleArrowOnFirstColumn(direction, type) {
+    if (TaylorDiagram.isEqualDirection(direction, 'd')) {
+      return ` &#92;${direction}${type}`;
+    } else if (TaylorDiagram.isEqualDirection(direction, 'l')) {
+      return '';
+    }
+    return TaylorDiagram.returnArrowWithAmpersand(direction, type);
+  }
+
+  static returnArrowWithAmpersand(direction, type) {
+    return ` & &#92;${direction}${type}`;
+  }
+
+  static isLastColumn(column, totalColumns) {
+    return column === totalColumns;
+  }
+
   constructor(props) {
     super(props);
     this.state = {
@@ -121,8 +164,8 @@ class TaylorDiagram extends React.PureComponent {
       projectName: TaylorDiagram.getInitialProjectName(),
       columnsObject: this.getInitialColumnsObject(),
       textsObject: this.getInitialTextsObject(),
-      arrowsObject: {},
-      additionalArrowsObject: this.getInitialAdditionalArrowsObject(),
+      arrowsObject: this.getInitialArrowsObject(),
+      additionalArrowsObject: TaylorDiagram.getInitialAdditionalArrowsObject(),
       latexCode: '',
       isSignedIn: false,
       userUid: '',
@@ -181,6 +224,20 @@ class TaylorDiagram extends React.PureComponent {
     return (
       JSON.parse(localStorage.getItem('taylor-arrow-object')) || this.initializeArrowObject(2, 10)
     );
+  }
+
+  getNumberOfRows(defaultRows) {
+    if (this.state !== undefined) {
+      return this.state.rows;
+    }
+    return defaultRows;
+  }
+
+  getNumberOfColumns(defaultColumns, row) {
+    if (this.state !== undefined && this.state.columnsObject !== undefined) {
+      return this.state.columnsObject[row];
+    }
+    return defaultColumns;
   }
 
   openExistingDiagram() {
@@ -294,7 +351,7 @@ class TaylorDiagram extends React.PureComponent {
 
   initializeTextsObject(rows, maxColumns) {
     let textsObject;
-    if (this.state !== undefined && this.state.textsObject !== undefined) {
+    if (!this.isStateUndefined() && !this.isTextsObjectUndefined()) {
       ({ textsObject } = this.state);
     } else {
       textsObject = {};
@@ -304,7 +361,7 @@ class TaylorDiagram extends React.PureComponent {
         const position = row.toString() + column.toString();
         if (
           this.state !== undefined &&
-          this.state.textsObject !== undefined &&
+          !this.isTextsObjectUndefined() &&
           this.state.textsObject[position] !== undefined
         ) {
           textsObject[position] = this.state.textsObject[position];
@@ -328,7 +385,7 @@ class TaylorDiagram extends React.PureComponent {
         const position = row.toString() + column.toString();
         if (
           this.state !== undefined &&
-          this.state.arrowsObject !== undefined &&
+          !this.isArrowsObjectUndefined() &&
           this.state.arrowsObject[position] !== undefined
         ) {
           arrowObject[position] = this.state.arrowsObject[position];
@@ -402,7 +459,7 @@ class TaylorDiagram extends React.PureComponent {
       },
       () => this.setLatexCodeString(),
     );
-    this.setLocalStorageArrowObject(JSON.stringify(obj));
+    TaylorDiagram.setLocalStorageArrowObject(JSON.stringify(obj));
   }
 
   deleteArrowFromObject(row, column, direction) {
@@ -419,7 +476,7 @@ class TaylorDiagram extends React.PureComponent {
         });
       },
     );
-    this.setLocalStorageArrowObject(JSON.stringify(obj));
+    TaylorDiagram.setLocalStorageArrowObject(JSON.stringify(obj));
   }
 
   updateWorkCount() {
@@ -469,7 +526,7 @@ class TaylorDiagram extends React.PureComponent {
     });
   }
 
-  saveTaylor() {
+  saveTaylorToDatabase() {
     if (this.state.isSignedIn) {
       localStorage.setItem('taylor-work-saved', false);
       this.setState({
@@ -485,153 +542,249 @@ class TaylorDiagram extends React.PureComponent {
 
   generateLatexCode(rows) {
     this.checkArrowObjectForArrows();
-    this.saveTaylor();
-    const beginDiagram = ['&#92;begin{diagram}'];
-    const endDiagram = ['&#92;end{diagram}'];
-    const coreDiagram = [];
-    let numOfRows;
-    if (this.state !== undefined) {
-      numOfRows = this.state.rows;
-    } else {
-      numOfRows = rows;
-    }
-    for (let row = 1; row <= numOfRows; row += 1) {
-      let rowText = '';
-      let numOfColumns = 3;
-      if (this.state !== undefined && this.state.columnsObject !== undefined) {
-        numOfColumns = this.state.columnsObject[row];
-      }
-      for (let column = 1; column <= numOfColumns; column += 1) {
-        const position = row.toString() + column.toString();
-        if (this.state !== undefined && this.state.textsObject !== undefined) {
-          if (
-            this.state.arrowsObject !== undefined &&
-            this.state.arrowsObject[position] !== undefined &&
-            this.state.arrowsObject[position].l.active
-          ) {
-            const arrowType = this.state.arrowsObject[position].l.type;
-            rowText += ` & &#92;l${arrowType}`;
-            const arrowText = this.state.arrowsObject[position].l.text;
-            if (arrowText !== '') {
-              rowText += `^{${arrowText}}`;
-            }
-            const arrowText2 = this.state.arrowsObject[position].l.text2;
-            if (arrowText2 !== '') {
-              rowText += `_{${arrowText2}}`;
-            }
-          }
-          if (column === 1) {
-            rowText += `${this.state.textsObject[position]}`;
-          } else {
-            rowText += ` & ${this.state.textsObject[position]}`;
-          }
-          // let positionR = (row - 1).toString() + column.toString();
-          const positionNextOne = row.toString() + (column + 1).toString();
-          if (
-            this.state.additionalArrowsObject !== undefined &&
-            this.state.arrowsObject !== undefined &&
-            this.state.arrowsObject[position] !== undefined &&
-            !this.state.arrowsObject[position].r.active &&
-            this.state.arrowsObject[positionNextOne] !== undefined &&
-            !this.state.arrowsObject[positionNextOne].l.active
-          ) {
-            if (this.state.additionalArrowsObject[column.toString()]) {
-              rowText += ' & ';
-            }
-          }
-          if (
-            this.state.arrowsObject !== undefined &&
-            this.state.arrowsObject[position] !== undefined &&
-            this.state.arrowsObject[position].r.active
-          ) {
-            const arrowType = this.state.arrowsObject[position].r.type;
-            rowText += ` & &#92;r${arrowType}`;
-            const arrowText = this.state.arrowsObject[position].r.text;
-            if (arrowText !== '') {
-              rowText += `^{${arrowText}}`;
-            }
-            const arrowText2 = this.state.arrowsObject[position].r.text2;
-            if (arrowText2 !== '') {
-              rowText += `_{${arrowText2}}`;
-            }
-          }
-        }
-        if (column === numOfColumns) {
-          rowText += ' &#92;&#92;\n';
-          let isAnyArrowActive = false;
-          for (let currentColumn = 1; currentColumn <= numOfColumns; currentColumn += 1) {
-            const newPosition = row.toString() + currentColumn.toString();
-            const positionOneLevelDown = (row + 1).toString() + currentColumn.toString();
-            const newPositionLeft = row.toString() + (currentColumn - 1).toString();
-            const newPositionRight = row.toString() + (currentColumn + 1).toString();
-            if (
-              this.state !== undefined &&
-              this.state.arrowsObject !== undefined &&
-              this.state.arrowsObject[newPosition] !== undefined
-            ) {
-              if (
-                this.state.arrowsObject[newPosition].ld.active ||
-                this.state.arrowsObject[newPosition].d.active ||
-                this.state.arrowsObject[newPosition].rd.active
-              ) {
-                rowText += this.checkForArrow('ld', newPosition);
-                rowText += this.checkForArrow('d', newPosition);
-                rowText += this.checkForArrow('rd', newPosition);
-                isAnyArrowActive = true;
-              }
-            }
-            if (
-              this.state !== undefined &&
-              this.state.arrowsObject !== undefined &&
-              this.state.arrowsObject[positionOneLevelDown] !== undefined
-            ) {
-              if (
-                this.state.arrowsObject[positionOneLevelDown].lu.active ||
-                this.state.arrowsObject[positionOneLevelDown].u.active ||
-                this.state.arrowsObject[positionOneLevelDown].ru.active
-              ) {
-                if (
-                  this.state !== undefined &&
-                  this.state.arrowsObject !== undefined &&
-                  this.state.arrowsObject[newPosition] !== undefined &&
-                  !this.state.arrowsObject[newPosition].d.active
-                ) {
-                  rowText += this.checkForArrow('u', positionOneLevelDown);
-                }
-                if (
-                  this.state !== undefined &&
-                  this.state.arrowsObject !== undefined &&
-                  this.state.arrowsObject[newPositionRight] !== undefined &&
-                  !this.state.arrowsObject[newPositionRight].ld.active
-                ) {
-                  rowText += this.checkForArrow('ru', positionOneLevelDown);
-                }
-                if (
-                  this.state !== undefined &&
-                  this.state.arrowsObject !== undefined &&
-                  this.state.arrowsObject[newPositionLeft] !== undefined &&
-                  !this.state.arrowsObject[newPositionLeft].ld.active
-                ) {
-                  rowText += this.checkForArrow('lu', positionOneLevelDown);
-                }
-                isAnyArrowActive = true;
-              }
-            }
-          }
-          if (!isAnyArrowActive) {
-            rowText = rowText.replace(/&#92;&#92;\n/g, ' ');
-          }
-        }
-      }
-      if (row !== numOfRows) {
-        rowText += ' &#92;&#92;';
-      }
-      coreDiagram.push(rowText);
-    }
-    return [beginDiagram, coreDiagram.join('\n'), endDiagram].join('\n');
+    this.saveTaylorToDatabase();
+
+    const numOfRows = this.getNumberOfRows(rows);
+    const corePart = this.generateCoreCode(numOfRows);
+
+    return TaylorDiagram.joinCodeParts(corePart);
   }
 
-  checkForArrow(direction, position) {
+  isStateUndefined() {
+    return this.state === undefined;
+  }
+
+  isArrowsObjectUndefined() {
+    return this.state.arrowsObject === undefined;
+  }
+
+  isTextsObjectUndefined() {
+    return this.state.textsObject === undefined;
+  }
+
+  isAdditionalArrowsObjectUndefined() {
+    return this.state.additionalArrowsObject === undefined;
+  }
+
+  isArrowObjectOnPositionUndefined(position) {
+    return this.state.arrowsObject[position] === undefined;
+  }
+
+  isArrowWithDirectionUndefined(position, direction) {
+    return this.state.arrowsObject[position][direction] === undefined;
+  }
+
+  isArrowActive(position, direction) {
+    return this.state.arrowsObject[position][direction].active;
+  }
+
+  isGeneratingCodeOnRowPossible(position) {
+    return (
+      !this.isStateUndefined() &&
+      !this.isArrowsObjectUndefined() &&
+      !this.isArrowObjectOnPositionUndefined(position) &&
+      !this.isTextsObjectUndefined()
+    );
+  }
+
+  checkForArrow(position, direction, column) {
+    if (this.isArrowDefinedAndActive(position, direction)) {
+      return this.createArrowString(position, direction, column);
+    }
+    return '';
+  }
+
+  isArrowDefinedAndActive(position, direction) {
+    return (
+      !this.isArrowObjectOnPositionUndefined(position) &&
+      !this.isArrowWithDirectionUndefined(position, direction) &&
+      this.isArrowActive(position, direction)
+    );
+  }
+
+  createArrowString(position, direction, column) {
+    let text = '';
+    text += this.writeArrowTypeString(position, direction, column);
+    text += this.writeArrowTextString(position, direction);
+    text += this.writeArrowTextTwoString(position, direction);
+    return text;
+  }
+
+  writeArrowTypeString(position, direction, column) {
+    const { type } = this.state.arrowsObject[position][direction];
+    if (TaylorDiagram.isFirstColumn(column)) {
+      return TaylorDiagram.handleArrowOnFirstColumn(direction, type);
+    }
+    return TaylorDiagram.returnArrowWithAmpersand(direction, type);
+  }
+
+  writeArrowTextString(position, direction) {
+    const { text } = this.state.arrowsObject[position][direction];
+    if (!TaylorDiagram.isStringEmpty(text)) {
+      return `^{${text}}`;
+    }
+    return '';
+  }
+
+  writeArrowTextTwoString(position, direction) {
+    const { text2 } = this.state.arrowsObject[position][direction];
+    if (!TaylorDiagram.isStringEmpty(text2)) {
+      return `^{${text2}}`;
+    }
+    return '';
+  }
+
+  addRowTextToString(position, column) {
+    if (column === 1) {
+      return ` ${this.state.textsObject[position]}`;
+    }
+    return ` & ${this.state.textsObject[position]}`;
+  }
+
+  addEmptyColumnIfNeccessaryInTextRow(position, positionOneColumnRight, column) {
+    if (
+      !this.isAdditionalArrowsObjectUndefined() &&
+      !this.isArrowWithDirectionUndefined(position, 'r') &&
+      !this.isArrowActive(position, 'r') &&
+      !this.isArrowObjectOnPositionUndefined(positionOneColumnRight) &&
+      !this.isArrowWithDirectionUndefined(positionOneColumnRight, 'l') &&
+      !this.isArrowActive(position, 'l') &&
+      this.state.additionalArrowsObject[column.toString()]
+    ) {
+      return ' & ';
+    }
+    return '';
+  }
+
+  addEmptyColumnIfNeccessaryInArrowRow(
+    positionDownLeftArrow,
+    positionDownRightArrow,
+    positionUpperLeftArrow,
+    positionUpperRightArrow,
+    column,
+  ) {
+    console.log(
+      'down left: ' + positionDownLeftArrow,
+      'down right: ' + positionDownRightArrow,
+      'upper left: ' + positionUpperLeftArrow,
+      'upper right: ' + positionUpperRightArrow,
+      'column: ' + column,
+    );
+    if (
+      !this.isAdditionalArrowsObjectUndefined() &&
+      this.state.additionalArrowsObject[column.toString()]
+    ) {
+      console.log(this.state.additionalArrowsObject[column.toString()]);
+    }
+    if (
+      !this.isAdditionalArrowsObjectUndefined() &&
+      this.state.additionalArrowsObject[column.toString()] &&
+      !this.isArrowObjectOnPositionUndefined(positionUpperLeftArrow) &&
+      !this.isArrowActive(positionUpperLeftArrow, 'rd') &&
+      !this.isArrowObjectOnPositionUndefined(positionUpperRightArrow) &&
+      !this.isArrowActive(positionUpperRightArrow, 'ld') &&
+      !this.isArrowObjectOnPositionUndefined(positionDownRightArrow) &&
+      !this.isArrowActive(positionDownRightArrow, 'lu') &&
+      !this.isArrowObjectOnPositionUndefined(positionDownLeftArrow) &&
+      !this.isArrowActive(positionDownLeftArrow, 'ru')
+    ) {
+      return ' & ';
+    }
+    return '';
+  }
+
+  checkIfArrowRowIsEmpty(downArrowPosition, upperArrowPosition) {
+    if (
+      this.isArrowDefinedAndActive(downArrowPosition, 'ld') ||
+      this.isArrowDefinedAndActive(downArrowPosition, 'd') ||
+      this.isArrowDefinedAndActive(downArrowPosition, 'rd') ||
+      this.isArrowDefinedAndActive(upperArrowPosition, 'lu') ||
+      this.isArrowDefinedAndActive(upperArrowPosition, 'u') ||
+      this.isArrowDefinedAndActive(upperArrowPosition, 'ru')
+    ) {
+      return false;
+    }
+    return true;
+  }
+
+  generateCoreCode(totalRows) {
+    const code = [];
+    for (let row = 1; row <= totalRows; row += 1) {
+      const defaultColumns = 3;
+      const totalColumns = this.getNumberOfColumns(defaultColumns, row);
+      let rowText = '';
+
+      for (let column = 1; column <= totalColumns; column += 1) {
+        const position = row.toString() + column.toString();
+        if (this.isGeneratingCodeOnRowPossible(position)) {
+          rowText += this.checkForArrow(position, 'l', column);
+          rowText += this.addRowTextToString(position, column);
+
+          const positionOneColumnRight = row.toString() + (column + 1).toString();
+          rowText += this.addEmptyColumnIfNeccessaryInTextRow(
+            position,
+            positionOneColumnRight,
+            column,
+          );
+
+          rowText += this.checkForArrow(position, 'r', column);
+
+          if (TaylorDiagram.isLastColumn(column, totalColumns)) {
+            rowText += ' &#92;&#92;\n';
+            let isArrowRowEmpty = true;
+            for (let currentColumn = 1; currentColumn <= totalColumns; currentColumn += 1) {
+              const currentPosition = row.toString() + currentColumn.toString();
+              const currentPositionOneRowDown = (row + 1).toString() + currentColumn.toString();
+              const currentPositionOneColumnLeft = row.toString() + (currentColumn - 1).toString();
+              const currentPositionOneColumnRight = row.toString() + (currentColumn + 1).toString();
+              const currentPositionOneRowDownLeft =
+                (row + 1).toString() + (currentColumn - 1).toString();
+              const currentPositionOneRowDownRight =
+                (row + 1).toString() + (currentColumn + 1).toString();
+
+              isArrowRowEmpty = this.checkIfArrowRowIsEmpty(
+                currentPosition,
+                currentPositionOneRowDown,
+              );
+
+              rowText += this.checkForArrow(currentPosition, 'ld', currentColumn);
+              if (
+                !this.isArrowObjectOnPositionUndefined(currentPositionOneColumnLeft) &&
+                !this.isArrowActive(currentPositionOneColumnLeft, 'rd')
+              ) {
+                rowText += this.checkForArrow(currentPositionOneRowDown, 'lu', currentColumn);
+              }
+              rowText += this.checkForArrow(currentPosition, 'd', currentColumn);
+              rowText += this.addEmptyColumnIfNeccessaryInArrowRow(
+                currentPositionOneRowDownLeft,
+                currentPositionOneRowDownRight,
+                currentPositionOneColumnLeft,
+                currentPositionOneColumnRight,
+                currentColumn,
+              );
+              rowText += this.checkForArrow(currentPosition, 'rd', currentColumn);
+
+              rowText += this.checkForArrow(currentPositionOneRowDown, 'u', currentColumn);
+              if (
+                !this.isArrowObjectOnPositionUndefined(currentPositionOneColumnRight) &&
+                !this.isArrowActive(currentPositionOneColumnRight, 'ld')
+              ) {
+                rowText += this.checkForArrow(currentPositionOneRowDown, 'ru', currentColumn);
+              }
+            }
+            if (isArrowRowEmpty) {
+              rowText = rowText.replace(/&#92;&#92;\n/g, ' ');
+            }
+          }
+        }
+      }
+      rowText += TaylorDiagram.checkIfOnLastRow(row, totalRows);
+      code.push(rowText);
+    }
+    return code;
+  }
+
+  /*checkForArrow(direction, position, column) {
     let rowText = '';
     if (
       this.state.arrowsObject[position] !== undefined &&
@@ -647,9 +800,10 @@ class TaylorDiagram extends React.PureComponent {
       if (arrowText2 !== '') {
         rowText += `_{${arrowText2}}`;
       }
+      rowText += this.addEmptyColumnIfNeccessaryInArrowRow(position, column);
     }
     return rowText;
-  }
+  }*/
 
   // checks any occurences of "r", "rd", "ru", "l", "ld", "lu" arrows
   checkArrowObjectForArrows() {
@@ -659,41 +813,56 @@ class TaylorDiagram extends React.PureComponent {
     }
     const numOfColumns = 10;
     for (let column = 1; column < numOfColumns; column += 1) {
+      let additionalArrowInColumn = false;
       for (let row = 1; row <= numOfRows; row += 1) {
         const position = row.toString() + column.toString();
         const positionOneColumnAway = row.toString() + (column + 1).toString();
-        if (
-          this.state !== undefined &&
-          this.state.arrowsObject !== undefined &&
-          this.state.arrowsObject[position] !== undefined
-        ) {
+
+        if (this.state !== undefined && this.state.arrowsObject[position] !== undefined) {
           if (
-            this.state.arrowsObject[position].r.active ||
-            this.state.arrowsObject[position].rd.active ||
-            this.state.arrowsObject[position].ru.active
+            (this.state.arrowsObject[position].r !== undefined &&
+              this.state.arrowsObject[position].r.active) ||
+            (this.state.arrowsObject[position].rd !== undefined &&
+              this.state.arrowsObject[position].rd.active) ||
+            (this.state.arrowsObject[position].ru !== undefined &&
+              this.state.arrowsObject[position].ru.active)
           ) {
             const key = column.toString();
             const obj = this.state.additionalArrowsObject;
             obj[key] = true;
+            additionalArrowInColumn = true;
             this.setState({
               additionalArrowsObject: obj,
             });
             localStorage.setItem('taylor-additional-arrow-object', JSON.stringify(obj));
           }
           if (
-            this.state.arrowsObject[positionOneColumnAway].l.active ||
-            this.state.arrowsObject[positionOneColumnAway].ld.active ||
-            this.state.arrowsObject[positionOneColumnAway].lu.active
+            (this.state.arrowsObject[positionOneColumnAway].l !== undefined &&
+              this.state.arrowsObject[positionOneColumnAway].l.active) ||
+            (this.state.arrowsObject[positionOneColumnAway].lr !== undefined &&
+              this.state.arrowsObject[positionOneColumnAway].lr.active) ||
+            (this.state.arrowsObject[positionOneColumnAway].ld !== undefined &&
+              this.state.arrowsObject[positionOneColumnAway].ld.active)
           ) {
             const key = column.toString();
             const obj = this.state.additionalArrowsObject;
             obj[key] = true;
+            additionalArrowInColumn = true;
             this.setState({
               additionalArrowsObject: obj,
             });
             localStorage.setItem('taylor-additional-arrow-object', JSON.stringify(obj));
           }
         }
+      }
+      if (!additionalArrowInColumn) {
+        const key = column.toString();
+        const obj = this.state.additionalArrowsObject;
+        obj[key] = false;
+        this.setState({
+          additionalArrowsObject: obj,
+        });
+        localStorage.setItem('taylor-additional-arrow-object', JSON.stringify(obj));
       }
     }
   }
@@ -707,9 +876,6 @@ class TaylorDiagram extends React.PureComponent {
 
   handleArrowDelete(row, column, direction) {
     this.deleteArrowFromObject(row, column, direction);
-    this.setState({
-      latexCode: this.generateLatexCode(),
-    });
   }
 
   changeProjectName(changedName) {
@@ -718,7 +884,7 @@ class TaylorDiagram extends React.PureComponent {
         projectName: changedName,
       },
       () => {
-        this.saveTaylor();
+        this.saveTaylorToDatabase();
       },
     );
   }
@@ -809,5 +975,17 @@ class TaylorDiagram extends React.PureComponent {
     );
   }
 }
+
+TaylorDiagram.propTypes = {
+  location: PropTypes.shape({
+    state: PropTypes.shape({
+      key: PropTypes.number,
+    }),
+  }),
+};
+
+TaylorDiagram.defaultProps = {
+  location: {},
+};
 
 export default withRouter(TaylorDiagram);

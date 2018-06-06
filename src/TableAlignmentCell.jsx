@@ -1,5 +1,5 @@
 import React from 'react';
-
+import PropTypes from 'prop-types';
 /*
 **
 Autor: Samuel Sepeši
@@ -96,5 +96,16 @@ class TableAlignmentCell extends React.Component {
     );
   }
 }
+
+TableAlignmentCell.propTypes = {
+  alignment: PropTypes.string,
+
+  column: PropTypes.number.isRequired,
+  onClick: PropTypes.func.isRequired,
+};
+
+TableAlignmentCell.defaultProps = {
+  alignment: '',
+};
 
 export default TableAlignmentCell;

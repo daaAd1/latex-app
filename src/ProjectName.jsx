@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 /*
 **
@@ -51,5 +52,15 @@ class ProjectName extends React.PureComponent {
     );
   }
 }
+
+ProjectName.propTypes = {
+  type: PropTypes.string.isRequired,
+  name: PropTypes.string,
+  projectNameChanged: PropTypes.func.isRequired,
+};
+
+ProjectName.defaultProps = {
+  name: '',
+};
 
 export default ProjectName;

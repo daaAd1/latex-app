@@ -1,5 +1,6 @@
 import React from 'react';
 import TextareaAutosize from 'react-autosize-textarea';
+import PropTypes from 'prop-types';
 
 /*
 **
@@ -45,11 +46,6 @@ class SequenceMathLine extends React.PureComponent {
   componentWillReceiveProps(nextProps) {
     if (nextProps.white !== this.state.white) {
       this.setState({ white: nextProps.white });
-    }
-    if (nextProps.readonlyAnnot !== this.state.readonlyAnnot) {
-      this.setState({
-        readonlyAnnot: nextProps.readonlyAnnot,
-      });
     }
     if (nextProps.readonlyText !== this.state.readonlyText) {
       this.setState({
@@ -209,5 +205,31 @@ class SequenceMathLine extends React.PureComponent {
     );
   }
 }
+
+SequenceMathLine.propTypes = {
+  annotation: PropTypes.bool,
+  inputText: PropTypes.string,
+  annotationText: PropTypes.string,
+  length: PropTypes.number,
+  readonlyText: PropTypes.bool,
+  annotationChanged: PropTypes.func,
+  onClick: PropTypes.func,
+  changedText: PropTypes.func,
+
+  level: PropTypes.number.isRequired,
+  cell: PropTypes.number.isRequired,
+  white: PropTypes.bool.isRequired,
+};
+
+SequenceMathLine.defaultProps = {
+  annotation: false,
+  inputText: '',
+  annotationText: '',
+  length: 0,
+  readonlyText: false,
+  annotationChanged: () => {},
+  onClick: () => {},
+  changedText: () => {},
+};
 
 export default SequenceMathLine;

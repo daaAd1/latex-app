@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import TaylorCell from './TaylorCell';
 
 /*
@@ -95,7 +96,7 @@ class TaylorRow extends React.PureComponent {
       if (this.state !== undefined && this.state.rowTextObject !== undefined) {
         cellText = this.state.rowTextObject[this.state.row.toString() + column.toString()];
       }
-      let arrowPropertiesObject = this.state.arrowPropertiesObject[
+      const arrowPropertiesObject = this.state.arrowPropertiesObject[
         this.state.row.toString() + column.toString()
       ];
       cells.push(
@@ -135,5 +136,21 @@ class TaylorRow extends React.PureComponent {
     );
   }
 }
+
+TaylorRow.propTypes = {
+  arrowPropertiesObject: PropTypes.string,
+  rowTextObject: PropTypes.string,
+  columns: PropTypes.number,
+
+  row: PropTypes.number.isRequired,
+  onArrowChange: PropTypes.func.isRequired,
+  onArrowDelete: PropTypes.func.isRequired,
+};
+
+TaylorRow.defaultProps = {
+  arrowPropertiesObject: {},
+  rowTextObject: {},
+  columns: 3,
+};
 
 export default TaylorRow;

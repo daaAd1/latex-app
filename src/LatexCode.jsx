@@ -1,5 +1,6 @@
 import React from 'react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
+import PropTypes from 'prop-types';
 import copyIcon from './content-copy.svg';
 
 /*
@@ -75,5 +76,14 @@ class LatexCode extends React.Component {
     );
   }
 }
+
+LatexCode.propTypes = {
+  code: PropTypes.string.isRequired,
+  copied: PropTypes.bool,
+};
+
+LatexCode.defaultProps = {
+  copied: false,
+};
 
 export default LatexCode;

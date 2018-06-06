@@ -4,7 +4,6 @@
   "private": true,
   "dependencies": {
     "firebase": "^5.0.2",
-    "prop-types": "^15.6.1",
     "react": "^16.4.0",
     "react-autosize-textarea": "^3.0.2",
     "react-copy-to-clipboard": "^5.0.1",
@@ -14,7 +13,8 @@
     "react-numeric-input": "^2.2.3",
     "react-router-dom": "^4.2.2",
     "react-scripts": "^1.1.4",
-    "react-simple-card": "^1.0.11"
+    "react-simple-card": "^1.0.11",
+    "prop-types": "^15.5.7"
   },
   "scripts": {
     "predeploy": "npm run build",
@@ -34,6 +34,7 @@
     "eslint-plugin-react": "^7.7.0",
     "gh-pages": "^1.1.0",
     "git-push": "^0.1.1",
-    "prettier-eslint": "^8.8.1"
+    "prettier-eslint": "^8.8.1",
+    "prop-types": "^15.6.1"
   }
 }

@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 /*
 **
@@ -19,7 +20,7 @@ Pri kliknutí na hranicu volá funkciu rodiča, ktorý si nový stav hranice ulo
 
 /*  global localStorage: false, console: false, */
 
-class BorderCell extends React.PureComponent {
+class TableBorderCell extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
@@ -80,4 +81,19 @@ class BorderCell extends React.PureComponent {
   }
 }
 
-export default BorderCell;
+TableBorderCell.propTypes = {
+  active: PropTypes.bool,
+
+  row: PropTypes.number.isRequired,
+  column: PropTypes.number.isRequired,
+  direction: PropTypes.string.isRequired,
+  onMouseEnter: PropTypes.func.isRequired,
+  onMouseLeave: PropTypes.func.isRequired,
+  onClick: PropTypes.func.isRequired,
+};
+
+TableBorderCell.defaultProps = {
+  active: false,
+};
+
+export default TableBorderCell;
