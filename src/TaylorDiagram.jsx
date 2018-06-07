@@ -648,7 +648,7 @@ class TaylorDiagram extends React.PureComponent {
       !this.isArrowActive(position, 'r') &&
       !this.isArrowObjectOnPositionUndefined(positionOneColumnRight) &&
       !this.isArrowWithDirectionUndefined(positionOneColumnRight, 'l') &&
-      !this.isArrowActive(position, 'l') &&
+      !this.isArrowActive(positionOneColumnRight, 'l') &&
       this.state.additionalArrowsObject[column.toString()]
     ) {
       return ' & ';
@@ -663,30 +663,21 @@ class TaylorDiagram extends React.PureComponent {
     positionUpperRightArrow,
     column,
   ) {
-    console.log(
-      'down left: ' + positionDownLeftArrow,
-      'down right: ' + positionDownRightArrow,
-      'upper left: ' + positionUpperLeftArrow,
-      'upper right: ' + positionUpperRightArrow,
-      'column: ' + column,
-    );
-    if (
-      !this.isAdditionalArrowsObjectUndefined() &&
-      this.state.additionalArrowsObject[column.toString()]
-    ) {
-      console.log(this.state.additionalArrowsObject[column.toString()]);
-    }
     if (
       !this.isAdditionalArrowsObjectUndefined() &&
       this.state.additionalArrowsObject[column.toString()] &&
-      !this.isArrowObjectOnPositionUndefined(positionUpperLeftArrow) &&
-      !this.isArrowActive(positionUpperLeftArrow, 'rd') &&
-      !this.isArrowObjectOnPositionUndefined(positionUpperRightArrow) &&
-      !this.isArrowActive(positionUpperRightArrow, 'ld') &&
-      !this.isArrowObjectOnPositionUndefined(positionDownRightArrow) &&
-      !this.isArrowActive(positionDownRightArrow, 'lu') &&
-      !this.isArrowObjectOnPositionUndefined(positionDownLeftArrow) &&
-      !this.isArrowActive(positionDownLeftArrow, 'ru')
+      (this.isArrowObjectOnPositionUndefined(positionUpperLeftArrow) ||
+        (!this.isArrowObjectOnPositionUndefined(positionUpperLeftArrow) &&
+          !this.isArrowActive(positionUpperLeftArrow, 'rd'))) &&
+      (this.isArrowObjectOnPositionUndefined(positionUpperRightArrow) ||
+        (!this.isArrowObjectOnPositionUndefined(positionUpperRightArrow) &&
+          !this.isArrowActive(positionUpperRightArrow, 'ld'))) &&
+      (this.isArrowObjectOnPositionUndefined(positionDownRightArrow) ||
+        (!this.isArrowObjectOnPositionUndefined(positionDownRightArrow) &&
+          !this.isArrowActive(positionDownRightArrow, 'lu'))) &&
+      (this.isArrowObjectOnPositionUndefined(positionDownLeftArrow) ||
+        (!this.isArrowObjectOnPositionUndefined(positionDownLeftArrow) &&
+          !this.isArrowActive(positionDownLeftArrow, 'ru')))
     ) {
       return ' & ';
     }
@@ -707,6 +698,31 @@ class TaylorDiagram extends React.PureComponent {
     return true;
   }
 
+  downArrowExists(currentPosition, currentColumn) {
+    return this.checkForArrow(currentPosition, 'd', currentColumn);
+  }
+
+  leftDownArrowExists(currentPositionOneColumnRight) {
+    return (
+      !this.isArrowObjectOnPositionUndefined(currentPositionOneColumnRight) &&
+      !this.isArrowActive(currentPositionOneColumnRight, 'ld')
+    );
+  }
+
+  rightDownArrowExists(currentPositionOneColumnLeft) {
+    return (
+      !this.isArrowObjectOnPositionUndefined(currentPositionOneColumnLeft) &&
+      !this.isArrowActive(currentPositionOneColumnLeft, 'rd')
+    );
+  }
+
+  rightArrowExists(currentPosition) {
+    return (
+      !this.isArrowObjectOnPositionUndefined(currentPosition) &&
+      !this.isArrowActive(currentPosition, 'r')
+    );
+  }
+
   generateCoreCode(totalRows) {
     const code = [];
     for (let row = 1; row <= totalRows; row += 1) {
@@ -717,10 +733,13 @@ class TaylorDiagram extends React.PureComponent {
       for (let column = 1; column <= totalColumns; column += 1) {
         const position = row.toString() + column.toString();
         if (this.isGeneratingCodeOnRowPossible(position)) {
-          rowText += this.checkForArrow(position, 'l', column);
+          const positionOneColumnRight = row.toString() + (column + 1).toString();
+          const positionOneColumnLeft = row.toString() + (column - 1).toString();
+          if (this.rightArrowExists(positionOneColumnLeft)) {
+            rowText += this.checkForArrow(position, 'l', column);
+          }
           rowText += this.addRowTextToString(position, column);
 
-          const positionOneColumnRight = row.toString() + (column + 1).toString();
           rowText += this.addEmptyColumnIfNeccessaryInTextRow(
             position,
             positionOneColumnRight,
@@ -737,38 +756,32 @@ class TaylorDiagram extends React.PureComponent {
               const currentPositionOneRowDown = (row + 1).toString() + currentColumn.toString();
               const currentPositionOneColumnLeft = row.toString() + (currentColumn - 1).toString();
               const currentPositionOneColumnRight = row.toString() + (currentColumn + 1).toString();
-              const currentPositionOneRowDownLeft =
-                (row + 1).toString() + (currentColumn - 1).toString();
+              const currentPositionOneRowDownLeft = (row + 1).toString() + currentColumn.toString();
               const currentPositionOneRowDownRight =
                 (row + 1).toString() + (currentColumn + 1).toString();
 
-              isArrowRowEmpty = this.checkIfArrowRowIsEmpty(
-                currentPosition,
-                currentPositionOneRowDown,
-              );
+              if (!this.checkIfArrowRowIsEmpty(currentPosition, currentPositionOneRowDown)) {
+                isArrowRowEmpty = false;
+              }
 
               rowText += this.checkForArrow(currentPosition, 'ld', currentColumn);
-              if (
-                !this.isArrowObjectOnPositionUndefined(currentPositionOneColumnLeft) &&
-                !this.isArrowActive(currentPositionOneColumnLeft, 'rd')
-              ) {
+              if (this.rightDownArrowExists(currentPositionOneColumnLeft)) {
                 rowText += this.checkForArrow(currentPositionOneRowDown, 'lu', currentColumn);
               }
               rowText += this.checkForArrow(currentPosition, 'd', currentColumn);
-              rowText += this.addEmptyColumnIfNeccessaryInArrowRow(
-                currentPositionOneRowDownLeft,
-                currentPositionOneRowDownRight,
-                currentPositionOneColumnLeft,
-                currentPositionOneColumnRight,
-                currentColumn,
-              );
-              rowText += this.checkForArrow(currentPosition, 'rd', currentColumn);
+              if (this.downArrowExists(currentPosition, currentColumn) !== '') {
+                rowText += this.addEmptyColumnIfNeccessaryInArrowRow(
+                  currentPositionOneRowDownLeft,
+                  currentPositionOneRowDownRight,
+                  currentPosition,
+                  currentPositionOneColumnRight,
+                  currentColumn,
+                );
+              }
 
+              rowText += this.checkForArrow(currentPosition, 'rd', currentColumn);
               rowText += this.checkForArrow(currentPositionOneRowDown, 'u', currentColumn);
-              if (
-                !this.isArrowObjectOnPositionUndefined(currentPositionOneColumnRight) &&
-                !this.isArrowActive(currentPositionOneColumnRight, 'ld')
-              ) {
+              if (this.leftDownArrowExists(currentPositionOneColumnRight)) {
                 rowText += this.checkForArrow(currentPositionOneRowDown, 'ru', currentColumn);
               }
             }
@@ -783,27 +796,6 @@ class TaylorDiagram extends React.PureComponent {
     }
     return code;
   }
-
-  /*checkForArrow(direction, position, column) {
-    let rowText = '';
-    if (
-      this.state.arrowsObject[position] !== undefined &&
-      this.state.arrowsObject[position][direction].active
-    ) {
-      const arrowType = this.state.arrowsObject[position][direction].type;
-      rowText += ` & &#92;${direction}${arrowType}`;
-      const arrowText = this.state.arrowsObject[position][direction].text;
-      if (arrowText !== '') {
-        rowText += `^{${arrowText}}`;
-      }
-      const arrowText2 = this.state.arrowsObject[position][direction].text2;
-      if (arrowText2 !== '') {
-        rowText += `_{${arrowText2}}`;
-      }
-      rowText += this.addEmptyColumnIfNeccessaryInArrowRow(position, column);
-    }
-    return rowText;
-  }*/
 
   // checks any occurences of "r", "rd", "ru", "l", "ld", "lu" arrows
   checkArrowObjectForArrows() {
