@@ -2,6 +2,7 @@ import React from 'react';
 import { withRouter } from 'react-router-dom';
 import firebase from 'firebase/app';
 import PropTypes from 'prop-types';
+import Tour from 'reactour';
 import LatexCode from '../UI/LatexCode';
 import Symbols from '../UI/Symbols';
 import TableRows from './TableRows';
@@ -494,27 +495,45 @@ class Table extends React.Component {
           }
         }
       }
+
       if (row === 1) {
         if (
           borderCell !== undefined &&
           borderCell.state !== undefined &&
           borderCell.state.active === true
         ) {
-          if (borderCell2 !== undefined && borderCell2.state.active === true) {
+          if (
+            borderCell2 !== undefined &&
+            borderCell2.state !== undefined &&
+            borderCell2.state.active === true
+          ) {
+            // top row + second row
             const currentRowText = rowText;
-            rowText = '      &#92;hline\n';
-            rowText += `${currentRowText} &#92;hline`;
+            rowText = '       &#92;hline\n';
+            rowText += `${currentRowText}  &#92;hline`;
           } else {
+            // top row without second row
             const currentRowText = rowText;
-            rowText = '      &#92;hline\n';
+            rowText = '       &#92;hline\n';
             rowText += currentRowText;
           }
-        } else if (borderCell2 !== undefined && borderCell2.state.active === true) {
-          rowText += ' &#92;hline';
+        } else if (
+          borderCell2 !== undefined &&
+          borderCell2.state !== undefined &&
+          borderCell2.state.active === true
+        ) {
+          // second row without top row
+          rowText += '  &#92;hline';
         }
-      } else if (borderCell !== undefined && borderCell.state.active === true) {
-        rowText += ' &#92;hline';
+      } else if (
+        borderCell !== undefined &&
+        borderCell.state !== undefined &&
+        borderCell.state.active === true
+      ) {
+        // other rows
+        rowText += '  &#92;hline';
       }
+
       if (row % 2 !== 0) {
         coreTable.push(rowText);
       }
@@ -623,9 +642,16 @@ class Table extends React.Component {
               active: newBorderActiveValue,
             },
             () => {
-              this.setState({
-                latexCode: this.generateLatexCode(this.state.rows, this.state.columns),
-              });
+              this.setState(
+                {
+                  latexCode: this.generateLatexCode(this.state.rows, this.state.columns),
+                },
+                () => {
+                  this.setState({
+                    latexCode: this.generateLatexCode(this.state.rows, this.state.columns),
+                  });
+                },
+              );
             },
           );
         }
@@ -937,6 +963,7 @@ class Table extends React.Component {
     }
     return (
       <div className="table-container">
+        <Tour steps={steps} isOpen={this.state.isTourOpen} onRequestClose={this.closeTour} />
         <div className="table-size-container">
           <div className="table-form-container">
             <div className="table-caption-label-container">
@@ -974,6 +1001,28 @@ class Table extends React.Component {
     );
   }
 }
+
+const steps = [
+  {
+    selector: '[data-tour="my-first-step"]',
+    content: ({ goTo, inDOM }) => (
+      <div>
+        Lorem ipsum <button onClick={() => goTo(4)}>Go to Step 5</button>
+        <br />
+        {inDOM && '🎉 Look at your step!'}
+      </div>
+    ),
+    position: 'top',
+    action: (node) => {
+      node.focus();
+      console.log('yup, the target element is also focused!');
+    },
+    style: {
+      backgroundColor: '#bada55',
+    },
+  },
+  // ...
+];
 
 Table.propTypes = {
   location: PropTypes.shape({

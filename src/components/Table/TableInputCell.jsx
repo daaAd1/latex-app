@@ -20,7 +20,7 @@ vo vstupnom poli pošle rodičovi novú hodnotu, riadok a stĺpec. Ten si hodnot
 LaTeX kód.
 */
 
-class TableInputCell extends React.Component {
+class TableInputCell extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
