@@ -14,37 +14,20 @@ Komponent, ktorý má na starosti označenie tabuľky.
 */
 
 /*
-Pri zmene označenia tabuľky, pošle rodičovi novú hodnotu, ten si ju uloží a 
-vygeneruje nový LaTeX kód.
+Pri zmene označenia tabuľky, pošle rodičovi novú hodnotu,
+ten si ju uloží a vygeneruje nový LaTeX kód.
 */
 
-/*  global localStorage: false, console: false, */
+/*  global console: false, */
 
 class TableLabel extends React.PureComponent {
-  static getInitialLabel() {
-    const label = localStorage.getItem('table-label') || '';
-    return label;
-  }
-
   constructor(props) {
     super(props);
-    this.state = {
-      label: TableLabel.getInitialLabel(),
-    };
 
     this.onChange = this.onChange.bind(this);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.label !== this.state.label) {
-      this.setState({ label: nextProps.label });
-    }
-  }
-
   onChange(event) {
-    this.setState({
-      label: event.target.value,
-    });
     this.props.changeLabel(event.target.value);
   }
 
@@ -53,7 +36,7 @@ class TableLabel extends React.PureComponent {
       <div className="table-label-container">
         <label htmlFor="table-label">
           Label
-          <input value={this.state.label} type="text" id="table-label" onChange={this.onChange} />
+          <input value={this.props.label} type="text" id="table-label" onChange={this.onChange} />
         </label>
       </div>
     );

@@ -18,78 +18,25 @@ Komponent dostáva od rodiča číslo stĺpca.  Pri zmene zarovnania volá funkc
 ktorý sa postará o zmenu LaTeX kódu.
 */
 
-/*  global localStorage: false, console: false, */
+/*  global console: false, */
 
-class TableAlignmentCell extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      column: props.column,
-      alignment: this.getInitialAlignment(),
-    };
-
-    this.clickLeft = this.clickLeft.bind(this);
-    this.clickCenter = this.clickCenter.bind(this);
-    this.clickRight = this.clickRight.bind(this);
-  }
-  componentWillReceiveProps(nextProps) {
-    if (this.state.alignment !== nextProps.alignment) {
-      this.setState({
-        alignment: nextProps.alignment,
-      });
-    }
-  }
-
-  getInitialAlignment() {
-    const alignment = localStorage.getItem(`table-alignment-${this.props.column}`) || 'left';
-    return alignment;
-  }
-
-  clickLeft() {
-    this.setState({
-      alignment: 'left',
-    });
-    localStorage.setItem(`table-alignment-${this.state.column}`, 'left');
-    this.props.onClick();
-  }
-
-  clickCenter() {
-    this.setState({
-      alignment: 'center',
-    });
-    localStorage.setItem(`table-alignment-${this.state.column}`, 'center');
-    this.props.onClick();
-  }
-
-  clickRight() {
-    this.setState({
-      alignment: 'right',
-    });
-    localStorage.setItem(`table-alignment-${this.state.column}`, 'right');
-    this.props.onClick();
-  }
-
+class TableAlignmentCell extends React.PureComponent {
   render() {
-    let leftClassName = ' table-align-button ';
-    let centerClassName = ' table-align-button ';
-    let rightClassName = ' table-align-button ';
-    if (this.state.alignment === 'left') {
-      leftClassName += ' table-button-left ';
-    } else if (this.state.alignment === 'center') {
-      centerClassName += ' table-button-center ';
-    } else if (this.state.alignment === 'right') {
-      rightClassName += ' table-button-right ';
-    }
-
+    const { alignment } = this.props;
+    const baseClassName = ' table-align-button ';
+    const activeClassName = ' table-align-button alignment-active ';
+    const leftClassName = (alignment === 'left' && activeClassName) || baseClassName;
+    const centerClassName = (alignment === 'center' && activeClassName) || baseClassName;
+    const rightClassName = (alignment === 'right' && activeClassName) || baseClassName;
     return (
       <td className="table-alignment">
-        <button className={leftClassName} onClick={this.clickLeft}>
+        <button className={leftClassName} onClick={() => this.props.onClick('left')}>
           l
         </button>
-        <button className={centerClassName} onClick={this.clickCenter}>
+        <button className={centerClassName} onClick={() => this.props.onClick('center')}>
           c
         </button>
-        <button className={rightClassName} onClick={this.clickRight}>
+        <button className={rightClassName} onClick={() => this.props.onClick('right')}>
           r
         </button>
       </td>
@@ -100,12 +47,11 @@ class TableAlignmentCell extends React.Component {
 TableAlignmentCell.propTypes = {
   alignment: PropTypes.string,
 
-  column: PropTypes.number.isRequired,
   onClick: PropTypes.func.isRequired,
 };
 
 TableAlignmentCell.defaultProps = {
-  alignment: '',
+  alignment: 'left',
 };
 
 export default TableAlignmentCell;

@@ -775,6 +775,7 @@ class SequenceMath extends React.Component {
   }
 
   changeProjectName(changedName) {
+    localStorage.setItem('Math-project-name', changedName);
     this.setState(
       {
         projectName: changedName,

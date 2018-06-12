@@ -23,50 +23,34 @@ LaTeX kód.
 class TableInputCell extends React.PureComponent {
   constructor(props) {
     super(props);
-    this.state = {
-      row: props.row,
-      column: props.column,
-      text: props.text,
-      alignment: props.alignment,
-    };
 
     this.onChange = this.onChange.bind(this);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.alignment !== this.state.alignment) {
-      this.setState({ alignment: nextProps.alignment });
-    }
-    if (nextProps.text !== this.state.text) {
-      this.setState({ text: nextProps.text });
-    }
-  }
-
   onChange(event) {
-    this.setState({
-      text: event.target.value,
-    });
-    this.props.changedText(event.target.value, this.state.row, this.state.column);
+    this.props.changedText(event.target.value, this.props.row, this.props.column);
   }
 
   render() {
     let className;
-    if (this.state.alignment === 'left') {
+    if (this.props.alignment === 'left') {
       className = ' table-left-aligned ';
-    } else if (this.state.alignment === 'center') {
+    } else if (this.props.alignment === 'center') {
       className = ' table-center-aligned ';
-    } else if (this.state.alignment === 'right') {
+    } else if (this.props.alignment === 'right') {
       className = ' table-right-aligned ';
     }
-    const cellId = `${this.state.row}-${this.state.column}`;
+    const cellId = `${this.props.row}-${this.props.column}`;
     return (
-      <TextareaAutosize
-        className={className}
-        type="text"
-        id={cellId}
-        value={this.state.text}
-        onChange={this.onChange}
-      />
+      <td className="td">
+        <TextareaAutosize
+          className={className}
+          type="text"
+          id={cellId}
+          value={this.props.text}
+          onChange={this.onChange}
+        />
+      </td>
     );
   }
 }

@@ -17,18 +17,9 @@ Taktiež umožňuje kopírovanie tohto kódu pomocou tlačidla na to určeného 
 Komponent dostáva vygenerovaný kód od rodiča.
 */
 
-class LatexCode extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      copied: false,
-      innerHtml: this.checkCodeForSpecialSymbolsAndReplaceThem(props.code),
-    };
-
-    this.copyText = this.copyText.bind(this);
-  }
-
-  checkCodeForSpecialSymbolsAndReplaceThem(string) {
+class LatexCode extends React.PureComponent {
+  static checkCodeForSpecialSymbolsAndReplaceThem(string) {
+    // top, bot, lor, land, rightarrow, leftarrow, \char"1D205, 0x22a2, 0x22a3
     return string
       .replace(new RegExp('⋁', 'g'), '\\land')
       .replace(new RegExp('⋀', 'g'), '\\lor')
@@ -38,10 +29,20 @@ class LatexCode extends React.Component {
       .replace(new RegExp('⊥', 'g'), '\\bot');
   }
 
+  constructor(props) {
+    super(props);
+    this.state = {
+      copied: false,
+      innerHtml: LatexCode.checkCodeForSpecialSymbolsAndReplaceThem(props.code),
+    };
+
+    this.copyText = this.copyText.bind(this);
+  }
+
   componentWillReceiveProps(nextProps) {
     if (nextProps.code !== this.state.innerHtml) {
       this.setState({
-        innerHtml: this.checkCodeForSpecialSymbolsAndReplaceThem(nextProps.code),
+        innerHtml: LatexCode.checkCodeForSpecialSymbolsAndReplaceThem(nextProps.code),
       });
     }
     if (nextProps.copied !== this.state.copied) {

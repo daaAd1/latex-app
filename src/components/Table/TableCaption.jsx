@@ -18,31 +18,16 @@ Komponent po zmene nadpisu posiela rodičovi novú hodnotu napdisu, ktorú si ro
 a vygeneruje LaTeX kód.
 */
 
-/*  global localStorage: false, console: false, */
+/*  global console: false, */
 
 class TableCaption extends React.PureComponent {
-  static getInitialCaption() {
-    const caption = localStorage.getItem('table-caption') || '';
-    return caption;
-  }
-
   constructor(props) {
     super(props);
-    this.state = {
-      caption: TableCaption.getInitialCaption(),
-    };
 
     this.onChange = this.onChange.bind(this);
   }
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.caption !== this.state.caption) {
-      this.setState({ caption: nextProps.caption });
-    }
-  }
+
   onChange(event) {
-    this.setState({
-      caption: event.target.value,
-    });
     this.props.changeCaption(event.target.value);
   }
 
@@ -52,7 +37,7 @@ class TableCaption extends React.PureComponent {
         <label htmlFor="table-caption">
           Caption
           <input
-            value={this.state.caption}
+            value={this.props.caption}
             type="text"
             id="table-caption"
             onChange={this.onChange}

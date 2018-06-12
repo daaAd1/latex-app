@@ -871,6 +871,7 @@ class TaylorDiagram extends React.PureComponent {
   }
 
   changeProjectName(changedName) {
+    localStorage.setItem('Taylor-project-name', changedName);
     this.setState(
       {
         projectName: changedName,

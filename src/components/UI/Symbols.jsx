@@ -14,52 +14,39 @@ Komponent, ktorý zobrazuje používané symboly, ktoré nie je jednoduché nap�
 Tieto symboly je možné skopírovať kliknutím.
 */
 
-class Symbols extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      copied: false,
-      // innerHtml: props.code,
-    };
-
-    this.copyText = this.copyText.bind(this);
-  }
-
-  copyText() {
-    return '&#8897;';
-  }
-
+class Symbols extends React.PureComponent {
   render() {
-    // top, bot, lor, land, rightarrow, leftarrow, \char"1D205, 0x22a2, 0x22a3
+    // this contains CopyToClipboard component, that receives props,
+    // thas why I kept is as PureComponent instead of stateless
     return (
       <div className="symbol-container">
         <pre>
-          <CopyToClipboard text="&#8866;" onCopy={() => this.setState({ copied: true })}>
+          <CopyToClipboard text="&#8866;">
             <span>⊢</span>
           </CopyToClipboard>
-          <CopyToClipboard text="&#8867;" onCopy={() => this.setState({ copied: true })}>
+          <CopyToClipboard text="&#8867;">
             <span>⊣</span>
           </CopyToClipboard>
-          <CopyToClipboard text="&#8868;" onCopy={() => this.setState({ copied: true })}>
+          <CopyToClipboard text="&#8868;">
             <span>⊤</span>
           </CopyToClipboard>
-          <CopyToClipboard text="&#8869;" onCopy={() => this.setState({ copied: true })}>
+          <CopyToClipboard text="&#8869;">
             <span>⊥</span>
           </CopyToClipboard>
         </pre>
         <pre>
-          <CopyToClipboard text="&#8897;" onCopy={() => this.setState({ copied: true })}>
+          <CopyToClipboard text="&#8897;">
             <span>&#8897;</span>
           </CopyToClipboard>
           <div>
-            <CopyToClipboard text="&#8896;" onCopy={() => this.setState({ copied: true })}>
+            <CopyToClipboard text="&#8896;">
               <span>⋀</span>
             </CopyToClipboard>
           </div>
-          <CopyToClipboard text="&#8594;" onCopy={() => this.setState({ copied: true })}>
+          <CopyToClipboard text="&#8594;">
             <span>→</span>
           </CopyToClipboard>
-          <CopyToClipboard text="&#8592;" onCopy={() => this.setState({ copied: true })}>
+          <CopyToClipboard text="&#8592;">
             <span>←</span>
           </CopyToClipboard>
         </pre>
