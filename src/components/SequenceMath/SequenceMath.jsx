@@ -22,9 +22,10 @@ a z reset tlačidla a zoznamu používaných symbolov.
 */
 
 /*
-Tento komponent dostáva dáta od svojich potomkov, následne ich ukladá a potom generuje a posiela 
+Tento komponent dostáva dáta od svojich potomkov, následne ich ukladá a potom generuje a posiela
 do komponentu LatexCode, ktorý ich zobrazí.
-Po zmene textu dôkazu, komponent SequenceMathLine odošle level aj stĺpec dôkazu spolu s novým textom.
+Po zmene textu dôkazu, komponent SequenceMathLine odošle level
+aj stĺpec dôkazu spolu s novým textom.
 Tento komponent informácie prijme a pomocou funkcie addTextToObject ich pridá do objektu linesText.
 Potom vygeneruje funkcia generateLatexCode nový LaTeX kód a tento kód odošle komponentu LatexCode.
 */
@@ -50,6 +51,18 @@ class SequenceMath extends React.Component {
     return localStorage.getItem('Math-project-name') || 'Math project';
   }
 
+  static getInitialLinesObject() {
+    return JSON.parse(localStorage.getItem('math-line-object')) || {};
+  }
+
+  static getInitialTextObject() {
+    return JSON.parse(localStorage.getItem('math-text-object')) || {};
+  }
+
+  static getInitialAnnotations() {
+    return JSON.parse(localStorage.getItem('math-annotation-object')) || {};
+  }
+
   static getInitialWorkSaved() {
     let workSaved = localStorage.getItem('math-work-saved') || true;
     if (workSaved === 'false') {
@@ -70,12 +83,37 @@ class SequenceMath extends React.Component {
     return limitOvereached;
   }
 
+  static checkCellBoundaryForFirstThird(level, cell) {
+    return cell <= Math.pow(3, level) / 3;
+  }
+
+  static checkCellBoundaryForSecondThird(level, cell) {
+    return cell > Math.pow(3, level) / 3 && cell <= (Math.pow(3, level) * 2) / 3;
+  }
+
+  static checkCellBoundaryForLastThird(level, cell) {
+    return cell > (Math.pow(3, level) * 2) / 3;
+  }
+
+  static isCellWithinReach(third, level, levelCell) {
+    if (third === 'first') {
+      return SequenceMath.checkCellBoundaryForFirstThird(level, levelCell);
+    } else if (third === 'second') {
+      return SequenceMath.checkCellBoundaryForSecondThird(level, levelCell);
+    }
+    return SequenceMath.checkCellBoundaryForLastThird(level, levelCell);
+  }
+
+  static isLevelLast(level) {
+    return level === 4;
+  }
+
   constructor(props) {
     super(props);
     this.state = {
-      linesLength: this.getInitialLinesObject(),
-      linesText: this.getInitialTextObject(),
-      annotations: this.getInitialAnnotations(),
+      linesLength: SequenceMath.getInitialLinesObject(),
+      linesText: SequenceMath.getInitialTextObject(),
+      annotations: SequenceMath.getInitialAnnotations(),
       projectName: SequenceMath.getInitialProjectName(),
       latexCode: '',
       isSignedIn: false,
@@ -86,13 +124,24 @@ class SequenceMath extends React.Component {
     };
 
     this.generateLatexCode = this.generateLatexCode.bind(this);
-    this.lineClicked = this.lineClicked.bind(this);
-    this.changeAnnotation = this.changeAnnotation.bind(this);
-    this.changeProjectName = this.changeProjectName.bind(this);
-    this.addTextToObject = this.addTextToObject.bind(this);
-    this.addLineLengthToObject = this.addLineLengthToObject.bind(this);
+    this.handleTextChange = this.handleTextChange.bind(this);
+    this.handleLineLengthChange = this.handleLineLengthChange.bind(this);
+    this.handleAnnotationChange = this.handleAnnotationChange.bind(this);
+    this.handleProjectNameChange = this.handleProjectNameChange.bind(this);
+    this.saveSequenceToDatabase = this.saveSequenceToDatabase.bind(this);
     this.writeToFirebase = this.writeToFirebase.bind(this);
-    this.saveSequence = this.saveSequence.bind(this);
+  }
+
+  componentDidMount() {
+    this.unregisterAuthObserver = firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        this.setState({ isSignedIn: !!user, userUid: user.uid }, () => this.openExistingDiagram());
+      }
+    });
+
+    this.setState({
+      latexCode: this.generateLatexCode(),
+    });
   }
 
   openExistingDiagram() {
@@ -127,107 +176,7 @@ class SequenceMath extends React.Component {
     }
   }
 
-  componentDidMount() {
-    this.unregisterAuthObserver = firebase.auth().onAuthStateChanged((user) => {
-      if (user) {
-        this.setState({ isSignedIn: !!user, userUid: user.uid }, () => this.openExistingDiagram());
-      }
-    });
-
-    this.setState(
-      {
-        linesText: this.generateTextObject(),
-        annotations: this.generateAnnotations(),
-      },
-      () => {
-        this.setState({
-          latexCode: this.generateLatexCode(),
-        });
-      },
-    );
-  }
-
-  getInitialLinesObject() {
-    return JSON.parse(localStorage.getItem('math-line-object')) || this.createLinesLengthObject();
-  }
-
-  getInitialTextObject() {
-    return JSON.parse(localStorage.getItem('math-text-object')) || this.generateTextObject();
-  }
-
-  getInitialAnnotations() {
-    return JSON.parse(localStorage.getItem('math-annotation-object')) || this.generateAnnotations();
-  }
-
-  generateTextObject() {
-    let initialObject;
-    if (this.state !== undefined && this.state.linesText !== undefined) {
-      initialObject = this.state.linesText;
-    } else {
-      initialObject = {};
-    }
-    const numOfRows = 5;
-    const numOfColumns = 81;
-    for (let level = 0; level < numOfRows; level += 1) {
-      for (let levelCell = 0; levelCell < numOfColumns; levelCell += 1) {
-        const position = level.toString() + levelCell.toString();
-        if (level === 0 && levelCell < 2) {
-          if (
-            this.state !== undefined &&
-            this.state.linesText !== undefined &&
-            this.state.linesText[position] !== undefined
-          ) {
-            initialObject[position] = this.state.linesText[position];
-          } else {
-            initialObject[position] = '';
-          }
-        } else if (level === 1 && levelCell < 4) {
-          if (
-            this.state !== undefined &&
-            this.state.linesText !== undefined &&
-            this.state.linesText[position] !== undefined
-          ) {
-            initialObject[position] = this.state.linesText[position];
-          } else {
-            initialObject[position] = '';
-          }
-        } else if (level === 2 && levelCell < 10) {
-          if (
-            this.state !== undefined &&
-            this.state.linesText !== undefined &&
-            this.state.linesText[position] !== undefined
-          ) {
-            initialObject[position] = this.state.linesText[position];
-          } else {
-            initialObject[position] = '';
-          }
-        } else if (level === 3 && levelCell < 28) {
-          if (
-            this.state !== undefined &&
-            this.state.linesText !== undefined &&
-            this.state.linesText[position] !== undefined
-          ) {
-            initialObject[position] = this.state.linesText[position];
-          } else {
-            initialObject[position] = '';
-          }
-        } else if (level === 4) {
-          if (
-            this.state !== undefined &&
-            this.state.linesText !== undefined &&
-            this.state.linesText[position] !== undefined
-          ) {
-            initialObject[position] = this.state.linesText[position];
-          } else {
-            initialObject[position] = '';
-          }
-        }
-      }
-    }
-    return initialObject;
-  }
-
-  addLineLengthToObject(level, levelCell, length) {
+  handleLineLengthChange(level, levelCell, length) {
     const key = level.toString() + levelCell.toString();
     const obj = this.state.linesLength;
     obj[key] = length;
@@ -244,7 +193,7 @@ class SequenceMath extends React.Component {
     localStorage.setItem('math-line-object', JSON.stringify(obj));
   }
 
-  addTextToObject(level, levelCell, text) {
+  handleTextChange(level, levelCell, text) {
     const key = level.toString() + levelCell.toString();
     const obj = this.state.linesText;
     obj[key] = text;
@@ -259,6 +208,49 @@ class SequenceMath extends React.Component {
       },
     );
     localStorage.setItem('math-text-object', JSON.stringify(obj));
+  }
+
+  handleAnnotationChange(level, cell, newAnnotationText) {
+    const key = level.toString() + cell.toString();
+    const obj = this.state.annotations;
+    obj[key] = newAnnotationText;
+    this.setState(
+      {
+        annotations: obj,
+      },
+      () => {
+        this.setState({
+          latexCode: this.generateLatexCode(),
+        });
+      },
+    );
+    localStorage.setItem('math-annotation-object', JSON.stringify(obj));
+  }
+
+  handleProjectNameChange(changedName) {
+    localStorage.setItem('Math-project-name', changedName);
+    this.setState(
+      {
+        projectName: changedName,
+      },
+      () => {
+        this.saveSequenceToDatabase();
+      },
+    );
+  }
+
+  saveSequenceToDatabase() {
+    if (this.state.isSignedIn) {
+      localStorage.setItem('math-work-saved', false);
+      this.setState({
+        workSaved: false,
+      });
+      if (this.state.workId === 0) {
+        this.updateWorkCount();
+      } else {
+        this.writeToFirebase(this.state.workId);
+      }
+    }
   }
 
   updateWorkCount() {
@@ -306,355 +298,122 @@ class SequenceMath extends React.Component {
     });
   }
 
-  saveSequence() {
-    if (this.state.isSignedIn) {
-      localStorage.setItem('math-work-saved', false);
-      this.setState({
-        workSaved: false,
-      });
-      if (this.state.workId === 0) {
-        this.updateWorkCount();
-      } else {
-        this.writeToFirebase(this.state.workId);
-      }
-    }
+  generateLatexCode() {
+    this.saveSequenceToDatabase();
+
+    const beginCode = [' &#92;begin{prooftree}'];
+    const middleCode = this.generateMiddleCode();
+    const endCode = [' &#92;end{prooftree}'];
+
+    return [beginCode, middleCode, endCode].join('\n');
   }
 
-  generateLatexCode() {
-    this.saveSequence();
-    const beginCode = [' &#92;begin{prooftree}'];
-    const endCode = [' &#92;end{prooftree}'];
+  generateMiddleCode() {
+    return `${this.checkCellsInFirstPart()}\n${this.checkCellsInSecondPart()}\n${this.checkCellsInThirdPart()}`;
+  }
+
+  checkCellsInFirstPart() {
+    const maxCellNumber = 27;
+    return this.checkCellsForText('first', maxCellNumber);
+  }
+
+  checkCellsInSecondPart() {
+    const maxCellNumber = 55;
+    return this.checkCellsForText('second', maxCellNumber);
+  }
+
+  checkCellsInThirdPart() {
+    const maxCellNumber = 81;
+    return this.checkCellsForText('third', maxCellNumber);
+  }
+
+  checkCellsForText(whichThird, maxLevelCell) {
     const middleCode = [];
 
-    for (let level = 4; level > 0; level -= 1) {
-      for (let levelCell = 1; levelCell < 28; levelCell += 1) {
-        let row = '';
-        const position = level.toString() + levelCell.toString();
-        const positionOfText = (level + 1).toString() + (levelCell * 3).toString();
-        const positionOfTextTwo = (level + 1).toString() + (levelCell * 3 - 1).toString();
-        const positionOfTextThree = (level + 1).toString() + (levelCell * 3 - 2).toString();
-        //const positionOfTextBefore = (level - 1).toString() + (levelCell / 3).toString();
-        //const positionOfTextTwoBefore = (level - 1).toString() + ((levelCell + 1) / 3).toString();
-        //const positionOfTextThreeBefore = (level - 1).toString() + ((levelCell + 2) / 3).toString();
-        if (
-          levelCell <= Math.pow(3, level) / 3 &&
-          this.state !== undefined &&
-          this.state.annotations[position] !== '' &&
-          this.state.annotations[position] !== undefined
-        ) {
-          if (
-            this.state.linesLength[position] > 0 &&
-            this.state.linesText[positionOfText] === '' &&
-            this.state.linesText[positionOfTextTwo] === '' &&
-            this.state.linesText[positionOfTextThree] === ''
-          ) {
-            row = '     &#92;AxiomC{}';
-            middleCode.push(row);
-          }
-          row = `     &#92;RightLabel{&#92;scriptsize(${this.state.annotations[position]})}`;
-          middleCode.push(row);
-          row = '';
-        }
+    if (this.state !== undefined) {
+      for (let level = 4; level > -1; level -= 1) {
+        for (let levelCell = 0; levelCell < maxLevelCell; levelCell += 1) {
+          let row = '';
+          const position = level.toString() + levelCell.toString();
+          const childOne = (level + 1).toString() + (levelCell * 3 - 2).toString();
+          const childTwo = (level + 1).toString() + (levelCell * 3 - 1).toString();
+          const childThree = (level + 1).toString() + (levelCell * 3).toString();
 
-        if (
-          levelCell <= Math.pow(3, level) / 3 &&
-          this.state !== undefined &&
-          this.state.linesText[position] !== '' &&
-          this.state.linesText[position] !== undefined
-        ) {
-          if (level === 4) {
-            row = `      &#92;AxiomC{${this.state.linesText[position]}}`;
-          } else {
-            const numberOfNodes = this.state.linesLength[position];
-            if (numberOfNodes < 1) {
-              row = `     &#92;AxiomC{${this.state.linesText[position]}}`;
-            } else if (numberOfNodes === 1) {
-              row = `     &#92;UnaryInfC{${this.state.linesText[position]}}`;
-            } else if (numberOfNodes === 2) {
-              row = `     &#92;BinaryInfC{${this.state.linesText[position]}}`;
-            } else if (numberOfNodes === 3) {
-              row = `     &#92;TrinaryInfC{${this.state.linesText[position]}}`;
+          if (SequenceMath.isCellWithinReach(whichThird, level, levelCell)) {
+            if (this.isAnnotationObjectDefinedAndNotEmpty(position)) {
+              if (
+                this.doesNodeHaveChildrenAndAreNodeChildrenEmpty(
+                  position,
+                  childOne,
+                  childTwo,
+                  childThree,
+                )
+              ) {
+                row = '     &#92;AxiomC{}';
+                middleCode.push(row);
+              }
+              row = `     &#92;RightLabel{&#92;scriptsize(${this.state.annotations[position]})}`;
+              middleCode.push(row);
+              row = '';
+            }
+
+            if (this.isTextObjectDefinedAndNotEmpty(position)) {
+              row = this.returnRowText(position, level);
+            }
+
+            if (row !== '') {
+              middleCode.push(row);
             }
           }
         }
-        if (row !== '') {
-          middleCode.push(row);
-        }
       }
     }
 
-    for (let level = 4; level > 0; level -= 1) {
-      for (let levelCell = 1; levelCell < 55; levelCell += 1) {
-        let row = '';
-        const position = level.toString() + levelCell.toString();
-        const positionOfText = (level + 1).toString() + (levelCell * 3).toString();
-        const positionOfTextTwo = (level + 1).toString() + (levelCell * 3 - 1).toString();
-        const positionOfTextThree = (level + 1).toString() + (levelCell * 3 - 2).toString();
-        //const positionOfTextBefore = (level - 1).toString() + (levelCell / 3).toString();
-        //const positionOfTextTwoBefore = (level - 1).toString() + ((levelCell + 1) / 3).toString();
-        //const positionOfTextThreeBefore = (level - 1).toString() + ((levelCell + 2) / 3).toString();
-        if (
-          levelCell > Math.pow(3, level) / 3 &&
-          levelCell <= (Math.pow(3, level) * 2) / 3 &&
-          this.state !== undefined &&
-          this.state.annotations[position] !== '' &&
-          this.state.annotations[position] !== undefined
-        ) {
-          if (
-            this.state.linesLength[position] > 0 &&
-            this.state.linesText[positionOfText] === '' &&
-            this.state.linesText[positionOfTextTwo] === '' &&
-            this.state.linesText[positionOfTextThree] === ''
-          ) {
-            row = '     &#92;AxiomC{}';
-            middleCode.push(row);
-          }
-          row = `     &#92;RightLabel{&#92;scriptsize(${this.state.annotations[position]}}`;
-          middleCode.push(row);
-          row = '';
-        }
-
-        if (
-          levelCell > Math.pow(3, level) / 3 &&
-          levelCell <= (Math.pow(3, level) * 2) / 3 &&
-          this.state !== undefined &&
-          this.state.linesText[position] !== '' &&
-          this.state.linesText[position] !== undefined
-        ) {
-          if (level === 4) {
-            row = `      &#92;AxiomC{${this.state.linesText[position]}}`;
-          } else {
-            const numberOfNodes = this.state.linesLength[position];
-            if (numberOfNodes < 1) {
-              row = `     &#92;AxiomC{${this.state.linesText[position]}}`;
-            } else if (numberOfNodes === 1) {
-              row = `     &#92;UnaryInfC{${this.state.linesText[position]}}`;
-            } else if (numberOfNodes === 2) {
-              row = `     &#92;BinaryInfC{${this.state.linesText[position]}}`;
-            } else if (numberOfNodes === 3) {
-              row = `     &#92;TrinaryInfC{${this.state.linesText[position]}}`;
-            }
-          }
-        }
-        if (row !== '') {
-          middleCode.push(row);
-        }
-      }
-    }
-    for (let level = 4; level > -1; level -= 1) {
-      for (let levelCell = 0; levelCell < 82; levelCell += 1) {
-        let row = '';
-        const position = level.toString() + levelCell.toString();
-        const positionOfText = (level + 1).toString() + (levelCell * 3).toString();
-        const positionOfTextTwo = (level + 1).toString() + (levelCell * 3 - 1).toString();
-        const positionOfTextThree = (level + 1).toString() + (levelCell * 3 - 2).toString();
-        //const positionOfTextBefore = (level - 1).toString() + (levelCell / 3).toString();
-        //const positionOfTextTwoBefore = (level - 1).toString() + ((levelCell + 1) / 3).toString();
-        //const positionOfTextThreeBefore = (level - 1).toString() + ((levelCell + 2) / 3).toString();
-        if (
-          levelCell > (Math.pow(3, level) * 2) / 3 &&
-          this.state !== undefined &&
-          this.state.annotations[position] !== '' &&
-          this.state.annotations[position] !== undefined
-        ) {
-          if (
-            this.state.linesLength[position] > 0 &&
-            this.state.linesText[positionOfText] === '' &&
-            this.state.linesText[positionOfTextTwo] === '' &&
-            this.state.linesText[positionOfTextThree] === ''
-          ) {
-            row = '     &#92;AxiomC{}';
-            middleCode.push(row);
-          }
-          row = `     &#92;RightLabel{&#92;scriptsize(${this.state.annotations[position]})}`;
-          middleCode.push(row);
-          row = '';
-        }
-        if (
-          levelCell > (Math.pow(3, level) * 2) / 3 &&
-          this.state !== undefined &&
-          this.state.linesText[position] !== '' &&
-          this.state.linesText[position] !== undefined
-        ) {
-          if (level === 4) {
-            row = `      &#92;AxiomC{${this.state.linesText[position]}}`;
-          } else {
-            const numberOfNodes = this.state.linesLength[position];
-            if (numberOfNodes < 1) {
-              row = `     &#92;AxiomC{${this.state.linesText[position]}}`;
-            } else if (numberOfNodes === 1) {
-              row = `     &#92;UnaryInfC{${this.state.linesText[position]}}`;
-            } else if (numberOfNodes === 2) {
-              row = `     &#92;BinaryInfC{${this.state.linesText[position]}}`;
-            } else if (numberOfNodes === 3) {
-              row = `     &#92;TrinaryInfC{${this.state.linesText[position]}}`;
-            }
-          }
-        }
-        if (row !== '') {
-          middleCode.push(row);
-        }
-      }
-    }
-
-    return [beginCode, middleCode.join('\n'), endCode].join('\n');
+    return middleCode.join('\n');
   }
 
-  createLinesLengthObject() {
-    let initialObject;
-    if (this.state !== undefined && this.state.linesObject !== undefined) {
-      initialObject = this.state.linesLength;
-    } else {
-      initialObject = {};
-    }
-    const numOfRows = 5;
-    const numOfColumns = 81;
-    for (let level = 0; level < numOfRows; level += 1) {
-      for (let levelCell = 0; levelCell < numOfColumns; levelCell += 1) {
-        const position = level.toString() + levelCell.toString();
-        if (level === 0 && levelCell < 2) {
-          if (
-            this.state !== undefined &&
-            this.state.linesLength !== undefined &&
-            this.state.lines[position] !== undefined
-          ) {
-            initialObject[position] = this.state.linesLength[position];
-          } else {
-            initialObject[position] = '';
-          }
-        } else if (level === 1 && levelCell < 4) {
-          if (
-            this.state !== undefined &&
-            this.state.linesLength !== undefined &&
-            this.state.lines[position] !== undefined
-          ) {
-            initialObject[position] = this.state.linesLength[position];
-          } else {
-            initialObject[position] = '';
-          }
-        } else if (level === 2 && levelCell < 10) {
-          if (
-            this.state !== undefined &&
-            this.state.linesLength !== undefined &&
-            this.state.linesLength[position] !== undefined
-          ) {
-            initialObject[position] = this.state.linesLength[position];
-          } else {
-            initialObject[position] = '';
-          }
-        } else if (level === 3 && levelCell < 28) {
-          if (
-            this.state !== undefined &&
-            this.state.linesLength !== undefined &&
-            this.state.linesLength[position] !== undefined
-          ) {
-            initialObject[position] = this.state.linesLength[position];
-          } else {
-            initialObject[position] = '';
-          }
-        } else if (level === 4) {
-          if (
-            this.state !== undefined &&
-            this.state.linesLength !== undefined &&
-            this.state.linesLength[position] !== undefined
-          ) {
-            initialObject[position] = this.state.linesLength[position];
-          } else {
-            initialObject[position] = '';
-          }
-        }
-      }
-    }
-    return initialObject;
-  }
-
-  generateAnnotations() {
-    let initialObject;
-    if (this.state !== undefined && this.state.annotations !== undefined) {
-      initialObject = this.state.annotations;
-    } else {
-      initialObject = {};
-    }
-    const numOfRows = 5;
-    const numOfColumns = 81;
-    for (let level = 0; level < numOfRows; level += 1) {
-      for (let levelCell = 0; levelCell < numOfColumns; levelCell += 1) {
-        const position = level.toString() + levelCell.toString();
-        if (level === 0 && levelCell < 2) {
-          if (
-            this.state !== undefined &&
-            this.state.annotations !== undefined &&
-            this.state.annotations[position] !== undefined
-          ) {
-            initialObject[position] = this.state.annotations[position];
-          } else {
-            initialObject[position] = '';
-          }
-        } else if (level === 1 && levelCell < 4) {
-          if (
-            this.state !== undefined &&
-            this.state.annotations !== undefined &&
-            this.state.annotations[position] !== undefined
-          ) {
-            initialObject[position] = this.state.annotations[position];
-          } else {
-            initialObject[position] = '';
-          }
-        } else if (level === 2 && levelCell < 10) {
-          if (
-            this.state !== undefined &&
-            this.state.annotations !== undefined &&
-            this.state.annotations[position] !== undefined
-          ) {
-            initialObject[position] = this.state.annotations[position];
-          } else {
-            initialObject[position] = '';
-          }
-        } else if (level === 3 && levelCell < 28) {
-          if (
-            this.state !== undefined &&
-            this.state.annotations !== undefined &&
-            this.state.annotations[position] !== undefined
-          ) {
-            initialObject[position] = this.state.annotations[position];
-          } else {
-            initialObject[position] = '';
-          }
-        } else if (level === 4) {
-          if (
-            this.state !== undefined &&
-            this.state.annotations !== undefined &&
-            this.state.annotations[position] !== undefined
-          ) {
-            initialObject[position] = this.state.annotations[position];
-          } else {
-            initialObject[position] = '';
-          }
-        }
-      }
-    }
-    return initialObject;
-  }
-
-  changeAnnotation(level, cell, newAnnotationText) {
-    const key = level.toString() + cell.toString();
-    const obj = this.state.annotations;
-    obj[key] = newAnnotationText;
-    this.setState(
-      {
-        annotations: obj,
-      },
-      () => {
-        this.setState({
-          latexCode: this.generateLatexCode(),
-        });
-      },
+  isAnnotationObjectDefinedAndNotEmpty(position) {
+    return (
+      this.state.annotations !== undefined &&
+      this.state.annotations[position] !== undefined &&
+      this.state.annotations[position] !== ''
     );
-    localStorage.setItem('math-annotation-object', JSON.stringify(obj));
   }
 
-  lineClicked(level, cell, length) {
-    this.addLineLengthToObject(level, cell, length);
+  doesNodeHaveChildrenAndAreNodeChildrenEmpty(position, childOne, childTwo, childThree) {
+    return (
+      this.state.linesLength[position] > 0 &&
+      (this.state.linesText[childOne] === undefined || this.state.linesText[childOne] === '') &&
+      (this.state.linesText[childTwo] === undefined || this.state.linesText[childTwo] === '') &&
+      (this.state.linesText[childThree] === undefined || this.state.linesText[childThree] === '')
+    );
+  }
+
+  isTextObjectDefinedAndNotEmpty(position) {
+    return (
+      this.state.linesText !== undefined &&
+      this.state.linesText[position] !== undefined &&
+      this.state.linesText[position] !== ''
+    );
+  }
+
+  returnRowText(position, level) {
+    if (SequenceMath.isLevelLast(level)) {
+      return `     &#92;AxiomC{${this.state.linesText[position]}}`;
+    }
+    return this.checkNodeChildrenAndReturnRowText(position);
+  }
+
+  checkNodeChildrenAndReturnRowText(position) {
+    const numberOfNodes = this.state.linesLength[position];
+    if (numberOfNodes === 1) {
+      return `     &#92;UnaryInfC{${this.state.linesText[position]}}`;
+    } else if (numberOfNodes === 2) {
+      return `     &#92;BinaryInfC{${this.state.linesText[position]}}`;
+    } else if (numberOfNodes === 3) {
+      return `     &#92;TrinaryInfC{${this.state.linesText[position]}}`;
+    }
+    return `     &#92;AxiomC{${this.state.linesText[position]}}`;
   }
 
   pushCell(level, cell) {
@@ -684,16 +443,20 @@ class SequenceMath extends React.Component {
     if (this.state.linesText[positionOneLevelDown] !== '') {
       readonlyText = false;
     }
-    //const positionChildrenOne = (level + 1).toString() + (cell * 3).toString();
-    //const positionChildrenTwo = (level + 1).toString() + (cell * 3 - 1).toString();
-    //const positionChildrenThree = (level + 1).toString() + (cell * 3 - 2).toString();
 
     let annotationText = '';
-    if (this.state !== undefined && this.state.annotations !== undefined) {
+    if (
+      this.state !== undefined &&
+      this.state.annotations !== undefined &&
+      this.state.annotations[position] !== undefined
+    ) {
       annotationText = this.state.annotations[position];
     }
     const inputText = this.state.linesText[position];
-    const length = Number(this.state.linesLength[position]);
+    let length = Number(this.state.linesLength[position]);
+    if (this.state.linesLength[position] === undefined) {
+      length = 0;
+    }
     let annotation = false;
     if (this.state.linesLength[position] > 0) {
       annotation = true;
@@ -703,14 +466,14 @@ class SequenceMath extends React.Component {
       return (
         <div key={position} className="sequence-level-cells">
           <SequenceMathLine
-            changedText={this.addTextToObject}
+            onTextChange={this.handleTextChange}
             white={boolFalse}
             inputText={inputText}
             length={length}
             level={level}
             cell={cell}
-            onClick={(length) => this.lineClicked(level, cell, length)}
-            annotationChanged={this.changeAnnotation}
+            onLengthChange={(length) => this.handleLineLengthChange(level, cell, length)}
+            onAnnotationChange={this.handleAnnotationChange}
             annotationText={annotationText}
             annotation={annotation}
             clicked
@@ -726,15 +489,15 @@ class SequenceMath extends React.Component {
       return (
         <div key={position} className="sequence-level-cells">
           <SequenceMathLine
-            changedText={this.addTextToObject}
+            onTextChange={this.handleTextChange}
             white={boolFalse}
             level={level}
             cell={cell}
             inputText={inputText}
             length={length}
             annotation={annotation}
-            onClick={(length) => this.lineClicked(level, cell, length)}
-            annotationChanged={this.changeAnnotation}
+            onLengthChange={(length) => this.handleLineLengthChange(level, cell, length)}
+            onAnnotationChange={this.handleAnnotationChange}
             annotationText={annotationText}
             clicked={false}
             readonlyText={readonlyText}
@@ -745,15 +508,15 @@ class SequenceMath extends React.Component {
       return (
         <div key={position} className="sequence-level-cells">
           <SequenceMathLine
-            changedText={this.addTextToObject}
+            onTextChange={this.handleTextChange}
             white={boolFalse}
             level={level}
             cell={cell}
             inputText={inputText}
             length={length}
             annotation={annotation}
-            onClick={(length) => this.lineClicked(level, cell, length)}
-            annotationChanged={this.changeAnnotation}
+            onLengthChange={(length) => this.handleLineLengthChange(level, cell, length)}
+            onAnnotationChange={this.handleAnnotationChange}
             annotationText={annotationText}
             clicked={false}
             readonlyText={readonlyText}
@@ -767,22 +530,13 @@ class SequenceMath extends React.Component {
           white={boolTrue}
           level={level}
           cell={cell}
+          annotation={false}
           annotationText={annotationText}
           clicked={false}
+          length={0}
+          inputText=""
         />
       </div>
-    );
-  }
-
-  changeProjectName(changedName) {
-    localStorage.setItem('Math-project-name', changedName);
-    this.setState(
-      {
-        projectName: changedName,
-      },
-      () => {
-        this.saveSequence();
-      },
     );
   }
 
@@ -853,7 +607,7 @@ class SequenceMath extends React.Component {
             <ProjectName
               name={projectName}
               type="Math"
-              projectNameChanged={this.changeProjectName}
+              projectNameChanged={this.handleProjectNameChange}
             />
             <div className="work-saved-container">{workSavedElement}</div>
           </div>

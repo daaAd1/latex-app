@@ -18,188 +18,79 @@ a vstupného poľa podmienky pri dôkaze. Z týchto komponentov pozostáva hlavn
 */
 
 /*
-Komponent dostáva od rodiča - level/riadok, bunku/stĺpec, atribút, 
-ktorý hovorí o tom či sa komponent zobrazí a atribút, ktorý zabraňuje upravovaniu vstupného poľa komponentu.
-Komponent posiela rodičovi svoju dĺžku, keď používateľ klikne na čiaru, nový text dôkazu, 
+Komponent dostáva od rodiča - level/riadok, bunku/stĺpec, atribút,
+ktorý hovorí o tom či sa komponent zobrazí a atribút,
+ktorý zabraňuje upravovaniu vstupného poľa komponentu.
+Komponent posiela rodičovi svoju dĺžku, keď používateľ klikne na čiaru, nový text dôkazu,
 ak bol pôvodný upravený a nový text podmienky, ak bola zmenená.
 */
 
 class SequenceMathLine extends React.PureComponent {
   constructor(props) {
     super(props);
-    this.state = {
-      level: props.level,
-      cell: props.cell,
-      length: this.getInitialLength(),
-      white: props.white,
-      inputText: this.getInitialText(),
-      annotation: this.getInitialAnnotation(),
-      annotationText: this.getInitialAnnotationText(),
-      readonlyText: props.readonlyText,
-    };
 
-    this.onClick = this.onClick.bind(this);
-    this.onChange = this.onChange.bind(this);
-    this.annotationChanged = this.annotationChanged.bind(this);
+    this.handleLengthChange = this.handleLengthChange.bind(this);
+    this.handleTextChange = this.handleTextChange.bind(this);
+    this.handleAnnotationChange = this.handleAnnotationChange.bind(this);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.white !== this.state.white) {
-      this.setState({ white: nextProps.white });
-    }
-    if (nextProps.readonlyText !== this.state.readonlyText) {
-      this.setState({
-        readonlyText: nextProps.readonlyText,
-      });
-    }
-    if (nextProps.inputText !== this.state.inputText) {
-      this.setState({
-        inputText: nextProps.inputText,
-      });
-    }
-    if (nextProps.annotation !== this.state.annotation) {
-      this.setState(
-        {
-          annotation: Boolean(nextProps.annotation),
-        },
-        () => this.render(),
-      );
-    }
-    if (nextProps.annotationText !== this.state.annotationText) {
-      this.setState({
-        annotationText: nextProps.annotationText,
-      });
-    }
-    if (
-      nextProps.length !== this.state.length &&
-      nextProps.length !== null &&
-      nextProps.length !== '' &&
-      nextProps.length > -1
-    ) {
-      this.setState({
-        length: nextProps.length,
-      });
-    }
+  handleTextChange(event) {
+    this.props.onTextChange(this.props.level, this.props.cell, event.target.value);
   }
 
-  onChange(event) {
-    this.setState({
-      inputText: event.target.value,
-    });
-    localStorage.setItem(
-      `math-line-text-${this.props.level}${this.props.cell}`,
-      event.target.value,
-    );
-    this.props.changedText(this.state.level, this.state.cell, event.target.value);
-  }
-
-  onClick() {
-    if (this.state !== null && this.state.length === 3) {
-      this.setState(
-        {
-          annotation: false,
-          length: 0,
-        },
-        () => {
-          localStorage.setItem(`math-line-length-${this.state.level}${this.state.cell}`, 0);
-          localStorage.setItem(`math-line-annotation-${this.state.level}${this.state.cell}`, false);
-          this.props.onClick(this.state.length);
-        },
-      );
+  handleLengthChange() {
+    if (this.props.length === 3) {
+      this.props.onLengthChange(0);
     } else {
-      this.setState(
-        {
-          annotation: true,
-          length: this.state.length + 1,
-        },
-        () => {
-          localStorage.setItem(
-            `math-line-length-${this.state.level}${this.state.cell}`,
-            this.state.length,
-          );
-          localStorage.setItem(`math-line-annotation-${this.state.level}${this.state.cell}`, true);
-          this.props.onClick(this.state.length);
-        },
-      );
+      this.props.onLengthChange(this.props.length + 1);
     }
   }
 
-  getInitialText() {
-    const text = localStorage.getItem(`math-line-text-${this.props.level}${this.props.cell}`) || '';
-    return text;
-  }
-
-  getInitialLength() {
-    const length =
-      Number(localStorage.getItem(`math-line-length-${this.props.level}${this.props.cell}`)) || 0;
-    return length;
-  }
-
-  getInitialAnnotation() {
-    let annotation = localStorage.getItem(
-      `math-line-annotation-${this.props.level}${this.props.cell}`,
-    );
-    if (annotation === 'true') {
-      annotation = true;
-    } else {
-      annotation = false;
-    }
-    return annotation;
-  }
-
-  getInitialAnnotationText() {
-    const annotationText =
-      localStorage.getItem(`math-line-annotation-text-${this.props.level}${this.props.cell}`) ||
-      this.props.annotationText;
-    return annotationText;
-  }
-
-  annotationChanged(event) {
-    this.setState({
-      annotationText: event.target.value,
-    });
-    localStorage.setItem(
-      `math-line-annotation-text-${this.state.level}${this.state.cell}`,
-      event.target.value,
-    );
-    this.props.annotationChanged(this.state.level, this.state.cell, event.target.value);
+  handleAnnotationChange(event) {
+    this.props.onAnnotationChange(this.props.level, this.props.cell, event.target.value);
   }
 
   render() {
     let className = ' ';
     let inputClassName = ' sequence-cell-text ';
-    if (this.state.white) {
+    if (this.props.white) {
       className += ' sequence-cell-length-white ';
       inputClassName += ' sequence-cell-text-no-input ';
-    } else if (this.state.length === 0) {
-      className += ' sequence-cell-length-0 ';
-    } else if (this.state.length === 1) {
+    } else if (this.props.length === 1) {
       className += ' sequence-cell-length-1 ';
-    } else if (this.state.length === 2) {
+    } else if (this.props.length === 2) {
       className += ' sequence-cell-length-2 ';
-    } else if (this.state.length === 3) {
+    } else if (this.props.length === 3) {
       className += ' sequence-cell-length-3 ';
+    } else {
+      className += ' sequence-cell-length-0 ';
     }
-    const { annotation } = this.state;
+    const { annotation, annotationText, readonlyText, inputText } = this.props;
     return (
       <div className="sequence-line">
         <div className="sequence-line-annotation">
-          <div role="button" className={className} onClick={this.onClick} tabIndex={0} />
+          <div
+            role="button"
+            className={className}
+            onClick={this.handleLengthChange}
+            onKeyPress={this.handleLengthChange}
+            tabIndex={0}
+          />
           {annotation && (
             <TextareaAutosize
               type="text"
               className="sequence-annotation-text"
-              onChange={this.annotationChanged}
-              value={this.state.annotationText}
+              onChange={this.handleAnnotationChange}
+              value={annotationText}
             />
           )}
         </div>
         <TextareaAutosize
-          readOnly={this.state.readonlyText}
-          value={this.state.inputText}
+          readOnly={readonlyText}
+          value={inputText}
           className={inputClassName}
           type="text"
-          onChange={this.onChange}
+          onChange={this.handleTextChange}
         />
       </div>
     );
@@ -212,9 +103,9 @@ SequenceMathLine.propTypes = {
   annotationText: PropTypes.string,
   length: PropTypes.number,
   readonlyText: PropTypes.bool,
-  annotationChanged: PropTypes.func,
-  onClick: PropTypes.func,
-  changedText: PropTypes.func,
+  onAnnotationChange: PropTypes.func,
+  onLengthChange: PropTypes.func,
+  onTextChange: PropTypes.func,
 
   level: PropTypes.number.isRequired,
   cell: PropTypes.number.isRequired,
@@ -227,9 +118,9 @@ SequenceMathLine.defaultProps = {
   annotationText: '',
   length: 0,
   readonlyText: false,
-  annotationChanged: () => {},
-  onClick: () => {},
-  changedText: () => {},
+  onAnnotationChange: () => {},
+  onLengthChange: () => {},
+  onTextChange: () => {},
 };
 
 export default SequenceMathLine;
