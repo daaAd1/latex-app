@@ -4,7 +4,7 @@ import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import LatexCode from '../UI/LatexCode';
 import Symbols from '../UI/Symbols';
-import SequenceMathLine from './SequenceMathLine';
+import SequenceMathCells from './SequenceMathCells';
 import ProjectName from '../UI/ProjectName';
 import { db } from '../../firebase';
 
@@ -108,6 +108,13 @@ class SequenceMath extends React.Component {
     return level === 4;
   }
 
+  static addNewlineToStringIfEmpty(string) {
+    if (string.length > 0) {
+      return `${string}\n`;
+    }
+    return string;
+  }
+
   constructor(props) {
     super(props);
     this.state = {
@@ -176,25 +183,8 @@ class SequenceMath extends React.Component {
     }
   }
 
-  handleLineLengthChange(level, levelCell, length) {
-    const key = level.toString() + levelCell.toString();
-    const obj = this.state.linesLength;
-    obj[key] = length;
-    this.setState(
-      {
-        linesLength: obj,
-      },
-      () => {
-        this.setState({
-          latexCode: this.generateLatexCode(),
-        });
-      },
-    );
-    localStorage.setItem('math-line-object', JSON.stringify(obj));
-  }
-
-  handleTextChange(level, levelCell, text) {
-    const key = level.toString() + levelCell.toString();
+  handleTextChange(level, cell, text) {
+    const key = level.toString() + cell.toString();
     const obj = this.state.linesText;
     obj[key] = text;
     this.setState(
@@ -208,6 +198,23 @@ class SequenceMath extends React.Component {
       },
     );
     localStorage.setItem('math-text-object', JSON.stringify(obj));
+  }
+
+  handleLineLengthChange(level, cell, length) {
+    const key = level.toString() + cell.toString();
+    const obj = this.state.linesLength;
+    obj[key] = length;
+    this.setState(
+      {
+        linesLength: obj,
+      },
+      () => {
+        this.setState({
+          latexCode: this.generateLatexCode(),
+        });
+      },
+    );
+    localStorage.setItem('math-line-object', JSON.stringify(obj));
   }
 
   handleAnnotationChange(level, cell, newAnnotationText) {
@@ -237,6 +244,16 @@ class SequenceMath extends React.Component {
         this.saveSequenceToDatabase();
       },
     );
+  }
+
+  generateLatexCode() {
+    this.saveSequenceToDatabase();
+
+    const beginCode = [' &#92;begin{prooftree}'];
+    const middleCode = this.generateMiddleCode();
+    const endCode = [' &#92;end{prooftree}'];
+
+    return [beginCode, middleCode, endCode].join('\n');
   }
 
   saveSequenceToDatabase() {
@@ -298,28 +315,20 @@ class SequenceMath extends React.Component {
     });
   }
 
-  generateLatexCode() {
-    this.saveSequenceToDatabase();
-
-    const beginCode = [' &#92;begin{prooftree}'];
-    const middleCode = this.generateMiddleCode();
-    const endCode = [' &#92;end{prooftree}'];
-
-    return [beginCode, middleCode, endCode].join('\n');
-  }
-
   generateMiddleCode() {
-    return `${this.checkCellsInFirstPart()}\n${this.checkCellsInSecondPart()}\n${this.checkCellsInThirdPart()}`;
+    return `${this.checkCellsInFirstPart()}${this.checkCellsInSecondPart()}${this.checkCellsInThirdPart()}`;
   }
 
   checkCellsInFirstPart() {
     const maxCellNumber = 27;
-    return this.checkCellsForText('first', maxCellNumber);
+    const text = this.checkCellsForText('first', maxCellNumber);
+    return SequenceMath.addNewlineToStringIfEmpty(text);
   }
 
   checkCellsInSecondPart() {
     const maxCellNumber = 55;
-    return this.checkCellsForText('second', maxCellNumber);
+    const text = this.checkCellsForText('second', maxCellNumber);
+    return SequenceMath.addNewlineToStringIfEmpty(text);
   }
 
   checkCellsInThirdPart() {
@@ -341,24 +350,11 @@ class SequenceMath extends React.Component {
 
           if (SequenceMath.isCellWithinReach(whichThird, level, levelCell)) {
             if (this.isAnnotationObjectDefinedAndNotEmpty(position)) {
-              if (
-                this.doesNodeHaveChildrenAndAreNodeChildrenEmpty(
-                  position,
-                  childOne,
-                  childTwo,
-                  childThree,
-                )
-              ) {
-                row = '     &#92;AxiomC{}';
-                middleCode.push(row);
-              }
-              row = `     &#92;RightLabel{&#92;scriptsize(${this.state.annotations[position]})}`;
-              middleCode.push(row);
-              row = '';
+              row += this.returnAnnotationText(position, childOne, childTwo, childThree);
             }
 
             if (this.isTextObjectDefinedAndNotEmpty(position)) {
-              row = this.returnRowText(position, level);
+              row += this.returnRowText(position, level);
             }
 
             if (row !== '') {
@@ -378,6 +374,17 @@ class SequenceMath extends React.Component {
       this.state.annotations[position] !== undefined &&
       this.state.annotations[position] !== ''
     );
+  }
+
+  returnAnnotationText(position, childOne, childTwo, childThree) {
+    if (
+      this.doesNodeHaveChildrenAndAreNodeChildrenEmpty(position, childOne, childTwo, childThree)
+    ) {
+      return `     &#92;AxiomC{}\n     &#92;RightLabel{&#92;scriptsize(${
+        this.state.annotations[position]
+      })}\n`;
+    }
+    return `     &#92;RightLabel{&#92;scriptsize(${this.state.annotations[position]})}\n`;
   }
 
   doesNodeHaveChildrenAndAreNodeChildrenEmpty(position, childOne, childTwo, childThree) {
@@ -416,174 +423,9 @@ class SequenceMath extends React.Component {
     return `     &#92;AxiomC{${this.state.linesText[position]}}`;
   }
 
-  pushCell(level, cell) {
-    const boolTrue = true;
-    const boolFalse = false;
-    const position = level.toString() + cell.toString();
-    let positionOneLevelDown = (level - 1).toString() + (cell / 2).toString();
-    let levelNotHighEnough = false;
-
-    if ((cell + 2) % 3 === 0) {
-      positionOneLevelDown = (level - 1).toString() + ((cell + 2) / 3).toString();
-      if (this.state.linesLength[positionOneLevelDown] < 1) {
-        levelNotHighEnough = true;
-      }
-    } else if ((cell + 1) % 3 === 0) {
-      positionOneLevelDown = (level - 1).toString() + ((cell + 1) / 3).toString();
-      if (this.state.linesLength[positionOneLevelDown] < 2) {
-        levelNotHighEnough = true;
-      }
-    } else if (cell % 3 === 0) {
-      positionOneLevelDown = (level - 1).toString() + (cell / 3).toString();
-      if (this.state.linesLength[positionOneLevelDown] < 3) {
-        levelNotHighEnough = true;
-      }
-    }
-    let readonlyText = true;
-    if (this.state.linesText[positionOneLevelDown] !== '') {
-      readonlyText = false;
-    }
-
-    let annotationText = '';
-    if (
-      this.state !== undefined &&
-      this.state.annotations !== undefined &&
-      this.state.annotations[position] !== undefined
-    ) {
-      annotationText = this.state.annotations[position];
-    }
-    const inputText = this.state.linesText[position];
-    let length = Number(this.state.linesLength[position]);
-    if (this.state.linesLength[position] === undefined) {
-      length = 0;
-    }
-    let annotation = false;
-    if (this.state.linesLength[position] > 0) {
-      annotation = true;
-    }
-
-    if (!levelNotHighEnough && this.state !== null && this.state.linesLength[position] > 0) {
-      return (
-        <div key={position} className="sequence-level-cells">
-          <SequenceMathLine
-            onTextChange={this.handleTextChange}
-            white={boolFalse}
-            inputText={inputText}
-            length={length}
-            level={level}
-            cell={cell}
-            onLengthChange={(length) => this.handleLineLengthChange(level, cell, length)}
-            onAnnotationChange={this.handleAnnotationChange}
-            annotationText={annotationText}
-            annotation={annotation}
-            clicked
-            readonlyText={readonlyText}
-          />
-        </div>
-      );
-    } else if (
-      !levelNotHighEnough &&
-      this.state !== null &&
-      this.state.linesLength[positionOneLevelDown] > 0
-    ) {
-      return (
-        <div key={position} className="sequence-level-cells">
-          <SequenceMathLine
-            onTextChange={this.handleTextChange}
-            white={boolFalse}
-            level={level}
-            cell={cell}
-            inputText={inputText}
-            length={length}
-            annotation={annotation}
-            onLengthChange={(length) => this.handleLineLengthChange(level, cell, length)}
-            onAnnotationChange={this.handleAnnotationChange}
-            annotationText={annotationText}
-            clicked={false}
-            readonlyText={readonlyText}
-          />
-        </div>
-      );
-    } else if (level === 0) {
-      return (
-        <div key={position} className="sequence-level-cells">
-          <SequenceMathLine
-            onTextChange={this.handleTextChange}
-            white={boolFalse}
-            level={level}
-            cell={cell}
-            inputText={inputText}
-            length={length}
-            annotation={annotation}
-            onLengthChange={(length) => this.handleLineLengthChange(level, cell, length)}
-            onAnnotationChange={this.handleAnnotationChange}
-            annotationText={annotationText}
-            clicked={false}
-            readonlyText={readonlyText}
-          />
-        </div>
-      );
-    }
-    return (
-      <div key={position} className="sequence-level-cells">
-        <SequenceMathLine
-          white={boolTrue}
-          level={level}
-          cell={cell}
-          annotation={false}
-          annotationText={annotationText}
-          clicked={false}
-          length={0}
-          inputText=""
-        />
-      </div>
-    );
-  }
-
   render() {
     const latexCode = <LatexCode code={this.state.latexCode} />;
-    const lines = [];
-    for (let level = 5; level > -1; level -= 1) {
-      const cell = [];
-      for (let levelCell = 1; levelCell < 82; levelCell += 1) {
-        // let position = level.toString() + levelCell.toString();
-        switch (level) {
-          case 0:
-            if (levelCell < 2) {
-              cell.push(this.pushCell(level, levelCell));
-            }
-            break;
-          case 1:
-            if (levelCell < 4) {
-              cell.push(this.pushCell(level, levelCell));
-            }
-            break;
-          case 2:
-            if (levelCell < 10) {
-              cell.push(this.pushCell(level, levelCell));
-            }
-            break;
-          case 3:
-            if (levelCell < 28) {
-              cell.push(this.pushCell(level, levelCell));
-            }
-            break;
-          case 4:
-            if (levelCell < 82) {
-              cell.push(this.pushCell(level, levelCell));
-            }
-            break;
-          default:
-            break;
-        }
-      }
-      lines.push(
-        <div key={level} className="sequence-level">
-          <br />
-          {cell}
-        </div>,
-      );
-    }
+
     const { projectName } = this.state;
     let workSavedElement;
     if (this.state.workSavedLimitOvereached) {
@@ -621,7 +463,16 @@ class SequenceMath extends React.Component {
           </button>
         </div>
         <hr className="sequence-separating-line" />
-        {lines}
+        <SequenceMathCells
+          linesText={this.state.linesText}
+          annotations={this.state.annotations}
+          linesLength={this.state.linesLength}
+          onTextChange={this.handleTextChange}
+          onLineLengthChange={(level, cell, length) =>
+            this.handleLineLengthChange(level, cell, length)
+          }
+          onAnnotationChange={this.handleAnnotationChange}
+        />
         {latexCode}
       </div>
     );

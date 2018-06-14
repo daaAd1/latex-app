@@ -40,9 +40,9 @@ class SequenceMathLine extends React.PureComponent {
 
   handleLengthChange() {
     if (this.props.length === 3) {
-      this.props.onLengthChange(0);
+      this.props.onLengthChange(this.props.level, this.props.cell, 0);
     } else {
-      this.props.onLengthChange(this.props.length + 1);
+      this.props.onLengthChange(this.props.level, this.props.cell, this.props.length + 1);
     }
   }
 
