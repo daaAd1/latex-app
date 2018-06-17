@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders white cell without crashing 1`] = `
+<div
+  class="sequence-line"
+>
+  <div
+    class="sequence-line-annotation"
+  >
+    <div
+      role="button"
+      class=" sequence-cell-length-white "
+      tabindex="0"
+      data-testid="line-length"
+    />
+  </div>
+  <textarea
+    class=" sequence-cell-text sequence-cell-text-no-input "
+    type="text"
+    rows="1"
+  />
+</div>
+`;

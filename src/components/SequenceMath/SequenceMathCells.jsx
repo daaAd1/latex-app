@@ -3,6 +3,28 @@ import PropTypes from 'prop-types';
 import SequenceMathLine from './SequenceMathLine';
 
 class SequenceMathCells extends React.PureComponent {
+  static getParentPosition(level, cell) {
+    if (SequenceMathCells.isCellFirstChild(cell)) {
+      return (level - 1).toString() + ((cell + 2) / 3).toString();
+    } else if (SequenceMathCells.isCellSecondChild(cell)) {
+      return (level - 1).toString() + ((cell + 1) / 3).toString();
+    }
+
+    return (level - 1).toString() + (cell / 3).toString();
+  }
+
+  static isCellFirstChild(cell) {
+    return (cell + 2) % 3 === 0;
+  }
+
+  static isCellSecondChild(cell) {
+    return (cell + 1) % 3 === 0;
+  }
+
+  static isCellThirdChild(cell) {
+    return cell % 3 === 0;
+  }
+
   constructor(props) {
     super(props);
 
@@ -36,95 +58,25 @@ class SequenceMathCells extends React.PureComponent {
     return cell;
   }
 
-  isLengthGreaterThanZeroOnPosition(position) {
-    if (this.props.linesLength !== undefined && this.props.linesLength[position] !== undefined) {
-      return this.props.linesLength[position] > 0;
-    }
-    return false;
-  }
-
-  getLengthOnPosition(position) {
-    if (this.props.linesLength !== undefined && this.props.linesLength[position] !== undefined) {
-      return Number(this.props.linesLength[position]);
-    }
-    return 0;
-  }
-
-  getAnnotationTextOnPosition(position) {
-    if (this.props.annotations !== undefined && this.props.annotations[position] !== undefined) {
-      return this.props.annotations[position];
-    }
-    return '';
-  }
-
-  getTextOnPosition(position) {
-    if (this.props.linesText !== undefined && this.props.linesText[position] !== undefined) {
-      return this.props.linesText[position];
-    }
-    return '';
-  }
-
-  checkIfParentHasText(parentPosition) {
-    return (
-      this.props.linesText !== undefined &&
-      this.props.linesText[parentPosition] !== undefined &&
-      this.props.linesText[parentPosition] !== ''
-    );
-  }
-
   pushCell(level, cell) {
     const { linesLength } = this.props;
+
     const position = level.toString() + cell.toString();
-    let positionOneLevelDown = (level - 1).toString() + (cell / 2).toString();
-    let levelNotHighEnough = false;
+    const parentPosition = SequenceMathCells.getParentPosition(level, cell);
+    const cellShoudDisplay = this.shouldCellDisplay(level, cell, parentPosition);
+    const doesParentHaveText = !this.checkIfParentHasText(level, parentPosition);
 
-    if ((cell + 2) % 3 === 0) {
-      positionOneLevelDown = (level - 1).toString() + ((cell + 2) / 3).toString();
-      if (linesLength[positionOneLevelDown] < 1) {
-        levelNotHighEnough = true;
-      }
-    } else if ((cell + 1) % 3 === 0) {
-      positionOneLevelDown = (level - 1).toString() + ((cell + 1) / 3).toString();
-      if (linesLength[positionOneLevelDown] < 2) {
-        levelNotHighEnough = true;
-      }
-    } else if (cell % 3 === 0) {
-      positionOneLevelDown = (level - 1).toString() + (cell / 3).toString();
-      if (linesLength[positionOneLevelDown] < 3) {
-        levelNotHighEnough = true;
-      }
-    }
-    console.log(positionOneLevelDown);
-
-    const doesParentHaveText = !this.checkIfParentHasText(positionOneLevelDown);
     const text = this.getTextOnPosition(position);
     const annotationShown = this.isLengthGreaterThanZeroOnPosition(position);
     const annotationText = this.getAnnotationTextOnPosition(position);
     const length = this.getLengthOnPosition(position);
 
-    if (!levelNotHighEnough && linesLength !== null && linesLength[position] > 0) {
-      return (
-        <div key={position} className="sequence-level-cells">
-          <SequenceMathLine
-            white={false}
-            inputText={text}
-            length={length}
-            level={level}
-            cell={cell}
-            onTextChange={this.props.onTextChange}
-            onLengthChange={this.props.onLineLengthChange}
-            onAnnotationChange={this.props.onAnnotationChange}
-            annotationText={annotationText}
-            annotation={annotationShown}
-            clicked
-            readonlyText={doesParentHaveText}
-          />
-        </div>
-      );
-    } else if (
-      !levelNotHighEnough &&
-      linesLength[positionOneLevelDown] !== undefined &&
-      linesLength[positionOneLevelDown] > 0
+    if (
+      level === 0 ||
+      (cellShoudDisplay &&
+        linesLength !== undefined &&
+        linesLength[parentPosition] !== undefined &&
+        linesLength[parentPosition] > 0)
     ) {
       return (
         <div key={position} className="sequence-level-cells">
@@ -132,34 +84,14 @@ class SequenceMathCells extends React.PureComponent {
             white={false}
             level={level}
             cell={cell}
-            inputText={text}
             length={length}
+            readonlyText={doesParentHaveText}
+            inputText={text}
             annotation={annotationShown}
+            annotationText={annotationText}
             onTextChange={this.props.onTextChange}
             onLengthChange={this.props.onLineLengthChange}
             onAnnotationChange={this.props.onAnnotationChange}
-            annotationText={annotationText}
-            clicked={false}
-            readonlyText={doesParentHaveText}
-          />
-        </div>
-      );
-    } else if (level === 0) {
-      return (
-        <div key={position} className="sequence-level-cells">
-          <SequenceMathLine
-            white={false}
-            level={level}
-            cell={cell}
-            inputText={text}
-            length={length}
-            annotation={annotationShown}
-            onTextChange={this.props.onTextChange}
-            onLengthChange={this.props.onLineLengthChange}
-            onAnnotationChange={this.props.onAnnotationChange}
-            annotationText={annotationText}
-            clicked={false}
-            readonlyText={doesParentHaveText}
           />
         </div>
       );
@@ -172,12 +104,74 @@ class SequenceMathCells extends React.PureComponent {
           cell={cell}
           annotation={false}
           annotationText={annotationText}
-          clicked={false}
           length={0}
           inputText=""
         />
       </div>
     );
+  }
+
+  shouldCellDisplay(level, cell, parentPosition) {
+    if (SequenceMathCells.isCellFirstChild(cell)) {
+      if (this.isCellDefinedAndMinimumLength(1, parentPosition)) {
+        return false;
+      }
+    } else if (SequenceMathCells.isCellSecondChild(cell)) {
+      if (this.isCellDefinedAndMinimumLength(2, parentPosition)) {
+        return false;
+      }
+    } else if (SequenceMathCells.isCellThirdChild(cell)) {
+      if (this.isCellDefinedAndMinimumLength(3, parentPosition)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  isCellDefinedAndMinimumLength(minLength, position) {
+    return (
+      this.props.linesLength !== undefined &&
+      this.props.linesLength[position] !== undefined &&
+      this.props.linesLength[position] < minLength
+    );
+  }
+
+  checkIfParentHasText(level, parentPosition) {
+    return (
+      level === 0 ||
+      (this.props.linesText !== undefined &&
+        this.props.linesText[parentPosition] !== undefined &&
+        this.props.linesText[parentPosition] !== '')
+    );
+  }
+
+  getTextOnPosition(position) {
+    if (this.props.linesText !== undefined && this.props.linesText[position] !== undefined) {
+      return this.props.linesText[position];
+    }
+    return '';
+  }
+
+  isLengthGreaterThanZeroOnPosition(position) {
+    if (this.props.linesLength !== undefined && this.props.linesLength[position] !== undefined) {
+      return this.props.linesLength[position] > 0;
+    }
+    return false;
+  }
+
+  getAnnotationTextOnPosition(position) {
+    if (this.props.annotations !== undefined && this.props.annotations[position] !== undefined) {
+      return this.props.annotations[position];
+    }
+    return '';
+  }
+
+  getLengthOnPosition(position) {
+    if (this.props.linesLength !== undefined && this.props.linesLength[position] !== undefined) {
+      return Number(this.props.linesLength[position]);
+    }
+    return 0;
   }
 
   createLevelThree() {

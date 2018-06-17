@@ -183,69 +183,6 @@ class SequenceMath extends React.Component {
     }
   }
 
-  handleTextChange(level, cell, text) {
-    const key = level.toString() + cell.toString();
-    const obj = this.state.linesText;
-    obj[key] = text;
-    this.setState(
-      {
-        linesText: obj,
-      },
-      () => {
-        this.setState({
-          latexCode: this.generateLatexCode(),
-        });
-      },
-    );
-    localStorage.setItem('math-text-object', JSON.stringify(obj));
-  }
-
-  handleLineLengthChange(level, cell, length) {
-    const key = level.toString() + cell.toString();
-    const obj = this.state.linesLength;
-    obj[key] = length;
-    this.setState(
-      {
-        linesLength: obj,
-      },
-      () => {
-        this.setState({
-          latexCode: this.generateLatexCode(),
-        });
-      },
-    );
-    localStorage.setItem('math-line-object', JSON.stringify(obj));
-  }
-
-  handleAnnotationChange(level, cell, newAnnotationText) {
-    const key = level.toString() + cell.toString();
-    const obj = this.state.annotations;
-    obj[key] = newAnnotationText;
-    this.setState(
-      {
-        annotations: obj,
-      },
-      () => {
-        this.setState({
-          latexCode: this.generateLatexCode(),
-        });
-      },
-    );
-    localStorage.setItem('math-annotation-object', JSON.stringify(obj));
-  }
-
-  handleProjectNameChange(changedName) {
-    localStorage.setItem('Math-project-name', changedName);
-    this.setState(
-      {
-        projectName: changedName,
-      },
-      () => {
-        this.saveSequenceToDatabase();
-      },
-    );
-  }
-
   generateLatexCode() {
     this.saveSequenceToDatabase();
 
@@ -323,17 +260,6 @@ class SequenceMath extends React.Component {
     const maxCellNumber = 27;
     const text = this.checkCellsForText('first', maxCellNumber);
     return SequenceMath.addNewlineToStringIfEmpty(text);
-  }
-
-  checkCellsInSecondPart() {
-    const maxCellNumber = 55;
-    const text = this.checkCellsForText('second', maxCellNumber);
-    return SequenceMath.addNewlineToStringIfEmpty(text);
-  }
-
-  checkCellsInThirdPart() {
-    const maxCellNumber = 81;
-    return this.checkCellsForText('third', maxCellNumber);
   }
 
   checkCellsForText(whichThird, maxLevelCell) {
@@ -421,6 +347,80 @@ class SequenceMath extends React.Component {
       return `     &#92;TrinaryInfC{${this.state.linesText[position]}}`;
     }
     return `     &#92;AxiomC{${this.state.linesText[position]}}`;
+  }
+
+  checkCellsInSecondPart() {
+    const maxCellNumber = 55;
+    const text = this.checkCellsForText('second', maxCellNumber);
+    return SequenceMath.addNewlineToStringIfEmpty(text);
+  }
+
+  checkCellsInThirdPart() {
+    const maxCellNumber = 81;
+    return this.checkCellsForText('third', maxCellNumber);
+  }
+
+  handleTextChange(level, cell, text) {
+    const key = level.toString() + cell.toString();
+    const obj = this.state.linesText;
+    obj[key] = text;
+    this.setState(
+      {
+        linesText: obj,
+      },
+      () => {
+        this.setState({
+          latexCode: this.generateLatexCode(),
+        });
+      },
+    );
+    localStorage.setItem('math-text-object', JSON.stringify(obj));
+  }
+
+  handleLineLengthChange(level, cell, length) {
+    const key = level.toString() + cell.toString();
+    const obj = this.state.linesLength;
+    obj[key] = length;
+    this.setState(
+      {
+        linesLength: obj,
+      },
+      () => {
+        this.setState({
+          latexCode: this.generateLatexCode(),
+        });
+      },
+    );
+    localStorage.setItem('math-line-object', JSON.stringify(obj));
+  }
+
+  handleAnnotationChange(level, cell, newAnnotationText) {
+    const key = level.toString() + cell.toString();
+    const obj = this.state.annotations;
+    obj[key] = newAnnotationText;
+    this.setState(
+      {
+        annotations: obj,
+      },
+      () => {
+        this.setState({
+          latexCode: this.generateLatexCode(),
+        });
+      },
+    );
+    localStorage.setItem('math-annotation-object', JSON.stringify(obj));
+  }
+
+  handleProjectNameChange(changedName) {
+    localStorage.setItem('Math-project-name', changedName);
+    this.setState(
+      {
+        projectName: changedName,
+      },
+      () => {
+        this.saveSequenceToDatabase();
+      },
+    );
   }
 
   render() {

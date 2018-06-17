@@ -10,7 +10,7 @@ Komponent: SequenceMathLine
 **
 */
 
-/*  global localStorage: false, console: false, */
+/*  global console: false, */
 
 /*
 Komponent, ktorý pozostáva z čiary, ktorá určuje počet potomkov, zo vstupného poľa dôkazu
@@ -26,6 +26,23 @@ ak bol pôvodný upravený a nový text podmienky, ak bola zmenená.
 */
 
 class SequenceMathLine extends React.PureComponent {
+  static returnInputCellClassname(white) {
+    return white ? ' sequence-cell-text sequence-cell-text-no-input ' : ' sequence-cell-text ';
+  }
+
+  static returnLengthDivClassName(length, white) {
+    if (white) {
+      return ' sequence-cell-length-white ';
+    } else if (length === 1) {
+      return ' sequence-cell-length-1 ';
+    } else if (length === 2) {
+      return ' sequence-cell-length-2 ';
+    } else if (length === 3) {
+      return ' sequence-cell-length-3 ';
+    }
+    return ' sequence-cell-length-0 ';
+  }
+
   constructor(props) {
     super(props);
 
@@ -51,30 +68,20 @@ class SequenceMathLine extends React.PureComponent {
   }
 
   render() {
-    let className = ' ';
-    let inputClassName = ' sequence-cell-text ';
-    if (this.props.white) {
-      className += ' sequence-cell-length-white ';
-      inputClassName += ' sequence-cell-text-no-input ';
-    } else if (this.props.length === 1) {
-      className += ' sequence-cell-length-1 ';
-    } else if (this.props.length === 2) {
-      className += ' sequence-cell-length-2 ';
-    } else if (this.props.length === 3) {
-      className += ' sequence-cell-length-3 ';
-    } else {
-      className += ' sequence-cell-length-0 ';
-    }
-    const { annotation, annotationText, readonlyText, inputText } = this.props;
+    const { white, inputText, length, annotation, annotationText, readonlyText } = this.props;
+    const inputClassName = SequenceMathLine.returnInputCellClassname(white);
+    const lengthClassName = SequenceMathLine.returnLengthDivClassName(length, white);
+
     return (
       <div className="sequence-line">
         <div className="sequence-line-annotation">
           <div
             role="button"
-            className={className}
+            className={lengthClassName}
             onClick={this.handleLengthChange}
             onKeyPress={this.handleLengthChange}
             tabIndex={0}
+            data-testid="line-length"
           />
           {annotation && (
             <TextareaAutosize
