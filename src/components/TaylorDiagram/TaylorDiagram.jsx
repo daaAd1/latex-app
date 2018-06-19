@@ -446,6 +446,7 @@ class TaylorDiagram extends React.PureComponent {
   }
 
   addArrowToObject(row, column, direction, text, text2, type) {
+    console.log(row, column, direction, text, text2, type);
     const key = row.toString() + column.toString();
     const obj = this.state.arrowsObject;
     obj[key][direction] = {};
@@ -453,13 +454,11 @@ class TaylorDiagram extends React.PureComponent {
     obj[key][direction].text = text;
     obj[key][direction].text2 = text2;
     obj[key][direction].type = type;
-    console.log(key, direction);
     this.setState(
       {
         arrowsObject: obj,
       },
       () => {
-        console.log(this.state.arrowsObject);
         this.setLatexCodeString();
       },
     );

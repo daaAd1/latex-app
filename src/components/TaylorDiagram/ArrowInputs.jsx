@@ -9,10 +9,10 @@ const ArrowInputs = (props) => {
     <div className="modal-text">
       {texts.map((text, index) => (
         <ArrowTextInput
-          key={shortid.generate()}
+          key={index + 1}
           text={text}
           number={index + 1}
-          onTextChange={(textValue, number) => props.onTextChange(textValue, number)}
+          onTextChange={props.onTextChange}
         />
       ))}
     </div>

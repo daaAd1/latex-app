@@ -246,10 +246,7 @@ class Arrow extends React.PureComponent {
             </div>
           </div>
           <form className="modal-container">
-            <ArrowInputs
-              texts={arrowTexts}
-              onTextChange={(text, number) => this.handleTextChange(text, number)}
-            />
+            <ArrowInputs texts={arrowTexts} onTextChange={this.handleTextChange} />
             <ArrowTypes
               types={arrowTypes}
               currentType={this.state.type}

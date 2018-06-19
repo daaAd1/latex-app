@@ -187,9 +187,7 @@ class TaylorCell extends React.PureComponent {
             text2={d.text2}
             direction="d"
             onArrowDelete={(direction) => this.props.onArrowDelete(direction)}
-            onArrowChange={(direction, text, text2, type) =>
-              this.props.onArrowChange(direction, text, text2, type)
-            }
+            onArrowChange={this.props.onArrowChange}
             row={this.props.row}
             column={this.props.column}
           />

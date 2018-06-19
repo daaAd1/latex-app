@@ -1,28 +1,36 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import TextareaAutosize from 'react-autosize-textarea';
 
-const ArrowTextInput = (props) => {
-  const { text, number } = props;
+class ArrowTextInput extends React.Component {
+  constructor(props) {
+    super(props);
 
-  const textId = `arrow-text-${number}`;
-  let titleText = 'Arrow text:';
-  if (number !== 1) {
-    titleText = `Arrow text ${number}:`;
+    this.handleTextChange = this.handleTextChange.bind(this);
   }
 
-  return (
-    <label htmlFor="arrow-text">
-      {' '}
-      <p>{titleText}</p>
-      <input
-        type="text"
-        id={textId}
-        value={text}
-        onChange={(event) => props.onTextChange(event.target.value, number)}
-      />
-    </label>
-  );
-};
+  handleTextChange(event) {
+    this.props.onTextChange(event.target.value, this.props.number);
+  }
+
+  render() {
+    const { text, number } = this.props;
+
+    const textId = `arrow-text-${number}`;
+    let titleText = 'Arrow text:';
+    if (number !== 1) {
+      titleText = `Arrow text ${number}:`;
+    }
+
+    return (
+      <label htmlFor="arrow-text">
+        {' '}
+        <p>{titleText}</p>
+        <TextareaAutosize type="text" id={textId} value={text} onChange={this.handleTextChange} />
+      </label>
+    );
+  }
+}
 
 ArrowTextInput.propTypes = {
   number: PropTypes.number.isRequired,
