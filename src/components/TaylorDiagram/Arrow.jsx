@@ -139,7 +139,8 @@ class Arrow extends React.PureComponent {
   }
 
   updateStateInParent() {
-    const { direction, text, text2, type } = this.state;
+    const { text, text2, type } = this.state;
+    const { direction } = this.props;
     this.props.onArrowChange(direction, text, text2, type);
   }
 
